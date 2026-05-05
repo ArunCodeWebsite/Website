@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArunCode_Emails</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#09080a;--bg2:#0f0d12;--bg3:#141118;--purple:#c084fc;--purple-dim:#5a2a8a;--purple-mid:#9050d0;
+      --amber:#ffb300;--green:#39ff14;--red:#ff4444;--border:#2a1a3a;--text:#c8b8e0;--mono:'Share Tech Mono',monospace;--title:'Orbitron',sans-serif}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;height:100vh;display:flex;flex-direction:column;overflow:hidden;cursor:crosshair}
+    body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);pointer-events:none;z-index:9999}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.6rem 1.5rem;display:flex;align-items:center;gap:1rem;flex-shrink:0}
+    .brand{font-family:var(--title);font-size:.95rem;font-weight:900;letter-spacing:2px;color:var(--purple);text-shadow:0 0 8px var(--purple-dim)}
+    .topbar-right{margin-left:auto;display:flex;align-items:center;gap:.8rem;font-size:10px}
+    .topbar-user{color:var(--purple-dim);letter-spacing:1px}
+    .btn{background:transparent;border:1px solid var(--purple-dim);color:var(--purple);font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:4px 14px;cursor:pointer;transition:all .2s}
+    .btn:hover{background:rgba(192,132,252,.1);border-color:var(--purple)}
+    .btn-home{color:var(--text);text-decoration:none;font-size:10px;letter-spacing:1px;padding:4px 10px;border:1px solid #222;transition:all .2s;display:inline-block}
+    .btn-home:hover{border-color:#444;color:#fff}
+
+    .workspace{display:flex;flex:1;overflow:hidden}
+
+    /* sidebar */
+    .sidebar{width:190px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+    .sidebar-section{padding:.5rem .8rem;font-size:9px;letter-spacing:2px;color:var(--purple-dim);border-bottom:1px solid var(--border)}
+    .sidebar-item{display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;font-size:12px;cursor:pointer;transition:background .15s;border-left:2px solid transparent}
+    .sidebar-item:hover{background:rgba(192,132,252,.04)}
+    .sidebar-item.active{background:rgba(192,132,252,.08);border-left-color:var(--purple);color:var(--purple)}
+    .badge{margin-left:auto;background:var(--purple);color:#000;font-size:9px;padding:1px 6px}
+
+    /* list */
+    .email-list{width:290px;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+    .list-header{padding:.5rem 1rem;background:var(--bg3);border-bottom:1px solid var(--border);font-size:9px;letter-spacing:2px;color:var(--purple-dim);display:flex;justify-content:space-between;align-items:center}
+    .search-bar{padding:.4rem .7rem;border-bottom:1px solid var(--border)}
+    .search-bar input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:4px 8px;outline:none;caret-color:var(--purple)}
+    .search-bar input:focus{border-color:var(--purple-dim)}
+    .emails-scroll{flex:1;overflow-y:auto}
+    .emails-scroll::-webkit-scrollbar{width:4px}
+    .emails-scroll::-webkit-scrollbar-thumb{background:var(--border)}
+    .email-item{padding:.75rem 1rem;border-bottom:1px solid #100d14;cursor:pointer;transition:background .15s;position:relative}
+    .email-item:hover{background:rgba(192,132,252,.04)}
+    .email-item.active{background:rgba(192,132,252,.09);border-left:2px solid var(--purple)}
+    .email-item.unread .ei-from{color:var(--purple)}
+    .email-item.unread::before{content:'';position:absolute;left:4px;top:50%;transform:translateY(-50%);width:5px;height:5px;border-radius:50%;background:var(--purple);box-shadow:0 0 4px var(--purple)}
+    .ei-row{display:flex;justify-content:space-between;margin-bottom:3px}
+    .ei-from{font-size:12px;color:var(--text)}
+    .ei-time{font-size:9px;color:var(--purple-dim)}
+    .ei-subject{font-size:11px;color:#777;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .empty-list{padding:2rem;text-align:center;color:#333;font-size:11px}
+
+    /* view */
+    .email-view{flex:1;display:flex;flex-direction:column;overflow:hidden}
+    .view-placeholder{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.5rem;color:#2a1a3a}
+    .view-placeholder .icon{font-size:3rem;opacity:.3}
+    .view-inner{display:none;flex-direction:column;flex:1;overflow:hidden}
+    .view-toolbar{padding:.6rem 1.2rem;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;gap:.5rem}
+    .view-header{padding:1rem 1.5rem;border-bottom:1px solid var(--border);background:var(--bg2)}
+    .view-subject{font-size:1rem;color:var(--text);margin-bottom:.5rem;letter-spacing:.5px}
+    .view-meta{font-size:10px;color:var(--purple-dim);line-height:2}
+    .view-meta span{color:var(--text)}
+    .view-body{flex:1;padding:1.5rem;overflow-y:auto;line-height:1.9;font-size:13px;color:var(--text);white-space:pre-wrap}
+
+    /* compose */
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center}
+    .modal.show{display:flex}
+    .modal-box{background:var(--bg2);border:1px solid var(--border);width:560px;max-width:95vw}
+    .modal-header{padding:.7rem 1rem;background:var(--bg3);border-bottom:1px solid var(--border);font-size:10px;letter-spacing:2px;color:var(--purple-dim);display:flex;justify-content:space-between}
+    .modal-close{background:none;border:none;color:#444;cursor:pointer;font-size:18px;transition:color .2s;line-height:1}
+    .modal-close:hover{color:var(--red)}
+    .compose-field{border-bottom:1px solid var(--border);display:flex;align-items:center}
+    .compose-label{padding:.6rem 1rem;font-size:10px;letter-spacing:1px;color:var(--purple-dim);width:65px;flex-shrink:0}
+    .compose-field input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:12px;padding:.6rem .5rem;caret-color:var(--purple)}
+    .compose-hint{font-size:9px;color:var(--purple-dim);padding:.3rem 1rem .3rem 1rem;background:var(--bg3);border-bottom:1px solid var(--border)}
+    textarea.compose-body{width:100%;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:12px;padding:1rem;min-height:160px;resize:vertical;caret-color:var(--purple)}
+    .compose-footer{padding:.7rem 1rem;border-top:1px solid var(--border);display:flex;gap:.5rem;justify-content:space-between;align-items:center}
+    .compose-status{font-size:10px;color:var(--purple-dim)}
+    .btn-send{background:transparent;border:1px solid var(--purple-dim);color:var(--purple);font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:5px 18px;cursor:pointer;transition:all .2s}
+    .btn-send:hover{background:rgba(192,132,252,.12);border-color:var(--purple)}
+    .btn-send:disabled{opacity:.4;cursor:not-allowed}
+    .btn-cancel{background:transparent;border:1px solid #222;color:#555;font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:5px 14px;cursor:pointer;transition:all .2s}
+    .btn-cancel:hover{color:var(--text)}
+
+    .loading{display:inline-block;width:10px;height:10px;border:2px solid var(--purple-dim);border-top-color:var(--purple);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:4px}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">ArunCode_Emails</div>
+  <button class="btn" onclick="openCompose()">+ COMPOSE</button>
+  <div class="topbar-right">
+    <span class="topbar-user" id="topbar-user"></span>
+    <button class="btn" onclick="loadEmails()" title="Refresh">↻</button>
+    <a class="btn-home" href="/">⌂ HOME</a>
+  </div>
+</div>
+
+<div class="workspace">
+  <div class="sidebar">
+    <div class="sidebar-section">Folders</div>
+    <div class="sidebar-item active" id="tab-inbox" onclick="setFolder('inbox',this)">📥 Inbox <span class="badge" id="badge-inbox" style="display:none">0</span></div>
+    <div class="sidebar-item" id="tab-sent" onclick="setFolder('sent',this)">📤 Sent</div>
+    <div class="sidebar-item" id="tab-starred" onclick="setFolder('starred',this)">⭐ Starred</div>
+  </div>
+
+  <div class="email-list">
+    <div class="list-header">
+      <span id="folder-title">INBOX</span>
+      <span id="email-count">—</span>
+    </div>
+    <div class="search-bar"><input id="search-input" placeholder="Search..." oninput="renderList()"></div>
+    <div class="emails-scroll" id="email-list-el"><div class="empty-list"><span class="loading"></span> Loading...</div></div>
+  </div>
+
+  <div class="email-view">
+    <div class="view-placeholder" id="view-placeholder">
+      <div class="icon">@</div>
+      <div style="font-size:11px;letter-spacing:1px">Select an email to read</div>
+    </div>
+    <div class="view-inner" id="view-inner">
+      <div class="view-toolbar">
+        <button class="btn" onclick="toggleStar()" id="btn-star">☆ STAR</button>
+        <button class="btn" style="border-color:#3a1a1a;color:#ff4444" onclick="deleteEmail()">🗑 DELETE</button>
+        <button class="btn" onclick="replyEmail()">↩ REPLY</button>
+      </div>
+      <div class="view-header">
+        <div class="view-subject" id="v-subject"></div>
+        <div class="view-meta">
+          From: <span id="v-from"></span><br>
+          To: <span id="v-to"></span><br>
+          Date: <span id="v-date"></span>
+        </div>
+      </div>
+      <div class="view-body" id="v-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Compose -->
+<div class="modal" id="modal-compose">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span>// NEW MESSAGE</span>
+      <button class="modal-close" onclick="closeCompose()">×</button>
+    </div>
+    <div class="compose-field"><div class="compose-label">To</div><input id="c-to" placeholder="username or email"></div>
+    <div class="compose-hint">Enter a username (e.g. ArunC) or email address of another ArunCode user</div>
+    <div class="compose-field"><div class="compose-label">Subject</div><input id="c-subject" placeholder="Subject..."></div>
+    <textarea class="compose-body" id="c-body" placeholder="Write your message..."></textarea>
+    <div class="compose-footer">
+      <span class="compose-status" id="compose-status"></span>
+      <div style="display:flex;gap:.5rem">
+        <button class="btn-cancel" onclick="closeCompose()">CANCEL</button>
+        <button class="btn-send" id="btn-send" onclick="sendEmail()">SEND →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let DATA      = { inbox: [], sent: [], starred: [] };
+let folder    = 'inbox';
+let openId    = null;
+let myUser    = '';
+
+// ── Init ──
+async function init() {
+  const me = await fetch('/api/me').then(r=>r.json()).catch(()=>null);
+  if (!me || !me.ok) { window.location.href = '/terminal?next=/emails'; return; }
+  myUser = me.username;
+  document.getElementById('topbar-user').textContent = '● ' + myUser;
+  await loadEmails();
+}
+
+async function loadEmails() {
+  const res  = await fetch('/api/emails').then(r=>r.json()).catch(()=>null);
+  if (!res || !res.ok) return;
+  DATA.inbox   = res.inbox   || [];
+  DATA.sent    = res.sent    || [];
+  DATA.starred = [...DATA.inbox, ...DATA.sent].filter(e=>e.starred);
+  updateBadge();
+  renderList();
+}
+
+function updateBadge() {
+  const unread = DATA.inbox.filter(e=>!e.read).length;
+  const b = document.getElementById('badge-inbox');
+  b.textContent = unread;
+  b.style.display = unread ? 'inline' : 'none';
+}
+
+function setFolder(f, el) {
+  folder = f;
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('folder-title').textContent = f.toUpperCase();
+  openId = null;
+  document.getElementById('view-placeholder').style.display = 'flex';
+  document.getElementById('view-inner').style.display = 'none';
+  renderList();
+}
+
+function renderList() {
+  const q    = document.getElementById('search-input').value.toLowerCase();
+  const src  = DATA[folder] || [];
+  const list = src.filter(e =>
+    (e.subject||'').toLowerCase().includes(q) ||
+    (e.from_user||e.from_addr||'').toLowerCase().includes(q) ||
+    (e.to_user||e.to_addr||'').toLowerCase().includes(q)
+  ).sort((a,b) => b.id - a.id);
+
+  document.getElementById('email-count').textContent = `${list.length} message${list.length!==1?'s':''}`;
+  const el = document.getElementById('email-list-el');
+  el.innerHTML = '';
+
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-list">No messages</div>'; return;
+  }
+
+  list.forEach(e => {
+    const div = document.createElement('div');
+    const unread = !e.read && folder==='inbox';
+    div.className = 'email-item' + (unread?' unread':'') + (e.id===openId?' active':'');
+    const from = folder==='sent' ? (e.to_user||e.to_addr) : (e.from_user||e.from_addr);
+    div.innerHTML = `
+      <div class="ei-row">
+        <div class="ei-from">${from}${e.starred?' ⭐':''}</div>
+        <div class="ei-time">${(e.date||'').slice(0,10)}</div>
+      </div>
+      <div class="ei-subject">${e.subject}</div>`;
+    div.onclick = () => openEmail(e);
+    el.appendChild(div);
+  });
+}
+
+async function openEmail(e) {
+  openId = e.id;
+  if (!e.read && folder==='inbox') {
+    await fetch(`/api/emails/${e.id}/read`, {method:'POST'});
+    e.read = true;
+    updateBadge();
+  }
+  document.getElementById('view-placeholder').style.display = 'none';
+  document.getElementById('view-inner').style.display = 'flex';
+  document.getElementById('v-subject').textContent = e.subject;
+  document.getElementById('v-from').textContent = e.from_user ? `${e.from_user} <${e.from_addr}>` : e.from_addr;
+  document.getElementById('v-to').textContent   = e.to_user   ? `${e.to_user} <${e.to_addr}>`   : e.to_addr;
+  document.getElementById('v-date').textContent = e.date;
+  document.getElementById('v-body').textContent = e.body;
+  document.getElementById('btn-star').textContent = e.starred ? '★ UNSTAR' : '☆ STAR';
+  renderList();
+}
+
+async function toggleStar() {
+  if (!openId) return;
+  await fetch(`/api/emails/${openId}/star`, {method:'POST'});
+  await loadEmails();
+  const e = [...DATA.inbox,...DATA.sent].find(x=>x.id===openId);
+  if (e) openEmail(e);
+}
+
+async function deleteEmail() {
+  if (!openId) return;
+  if (!confirm('Delete this email?')) return;
+  await fetch(`/api/emails/${openId}`, {method:'DELETE'});
+  openId = null;
+  document.getElementById('view-placeholder').style.display = 'flex';
+  document.getElementById('view-inner').style.display = 'none';
+  await loadEmails();
+}
+
+function replyEmail() {
+  const subj = document.getElementById('v-subject').textContent;
+  const from = document.getElementById('v-from').textContent.split('<')[0].trim();
+  document.getElementById('c-to').value      = from;
+  document.getElementById('c-subject').value = subj.startsWith('Re:') ? subj : 'Re: '+subj;
+  document.getElementById('c-body').value    = '';
+  openCompose();
+}
+
+function openCompose() { document.getElementById('modal-compose').classList.add('show'); document.getElementById('c-to').focus(); }
+function closeCompose() { document.getElementById('modal-compose').classList.remove('show'); document.getElementById('compose-status').textContent=''; }
+
+async function sendEmail() {
+  const to      = document.getElementById('c-to').value.trim();
+  const subject = document.getElementById('c-subject').value.trim();
+  const body    = document.getElementById('c-body').value.trim();
+  const btn     = document.getElementById('btn-send');
+  const status  = document.getElementById('compose-status');
+
+  if (!to || !subject) { status.textContent = '✖ To and Subject required.'; status.style.color='var(--red)'; return; }
+
+  btn.disabled = true; btn.textContent = 'SENDING...';
+  const res  = await fetch('/api/emails', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({to, subject, body})
+  }).then(r=>r.json()).catch(()=>null);
+
+  btn.disabled = false; btn.textContent = 'SEND →';
+
+  if (res && res.ok) {
+    status.style.color = 'var(--green)';
+    status.textContent = '✔ Sent!';
+    document.getElementById('c-to').value='';
+    document.getElementById('c-subject').value='';
+    document.getElementById('c-body').value='';
+    await loadEmails();
+    setTimeout(closeCompose, 1200);
+  } else {
+    status.style.color = 'var(--red)';
+    status.textContent = '✖ ' + (res?.error || 'Failed to send.');
+  }
+}
+
+document.getElementById('modal-compose').addEventListener('click', function(e){ if(e.target===this) closeCompose(); });
+init();
+</script>
+</body>
+</html>

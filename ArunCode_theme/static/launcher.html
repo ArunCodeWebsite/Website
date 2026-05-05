@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+// ArunCode Theme Engine v3
+(function(){
+  var T={
+    default:{},
+    amber:  {'--bg':'#0a0700','--bg2':'#110d00','--bg3':'#181100','--green':'#ffaa00','--gdim':'#7a5000','--border':'#2a1f00','--border2':'#3a2a00','--blue':'#ffcc44','--bdim':'#996600','--text':'#9a8060','--textb':'#e8d4a0'},
+    crimson:{'--bg':'#0a0003','--bg2':'#110005','--bg3':'#180008','--green':'#ff2255','--gdim':'#7a0022','--border':'#2a0010','--border2':'#3a0018','--blue':'#ff6688','--bdim':'#881133','--text':'#9a6070','--textb':'#e8a0b0'},
+    aurora: {'--bg':'#000a08','--bg2':'#001110','--bg3':'#001816','--green':'#00ffcc','--gdim':'#007a5e','--border':'#002a24','--border2':'#003a32','--blue':'#00ddff','--bdim':'#006677','--text':'#60a090','--textb':'#a0e8d8'},
+    void:   {'--bg':'#050008','--bg2':'#080010','--bg3':'#0d0018','--green':'#cc44ff','--gdim':'#6600aa','--border':'#1a0030','--border2':'#250040','--blue':'#8844ff','--bdim':'#440088','--text':'#8060a0','--textb':'#c8a0e8'},
+    steel:  {'--bg':'#030609','--bg2':'#050d14','--bg3':'#07121c','--green':'#44aaff','--gdim':'#1155aa','--border':'#0a1828','--border2':'#102233','--blue':'#88ccff','--bdim':'#224466','--text':'#6090b0','--textb':'#a0c8e8'},
+    solar:  {'--bg':'#090500','--bg2':'#110900','--bg3':'#180d00','--green':'#ff8800','--gdim':'#994400','--border':'#2a1500','--border2':'#3a1e00','--blue':'#ffcc00','--bdim':'#886600','--text':'#9a7040','--textb':'#e8c080'},
+    gold:   {'--bg':'#080700','--bg2':'#0f0d00','--bg3':'#161200','--green':'#ffd700','--gdim':'#8a7200','--border':'#2a2400','--border2':'#3a3200','--blue':'#ffee88','--bdim':'#887700','--text':'#9a9060','--textb':'#e8e0a0'},
+  };
+  function apply(theme){
+    var v=T[theme];
+    if(!v||!Object.keys(v).length) return;
+    var css=':root{'+Object.keys(v).map(function(k){return k+':'+v[k]+'!important';}).join(';')+'}';
+    var el=document.getElementById('ac-theme-style');
+    if(!el){el=document.createElement('style');el.id='ac-theme-style';document.head.appendChild(el);}
+    el.textContent=css;
+  }
+  var t=localStorage.getItem('ac_theme')||'default';
+  apply(t);
+  window._applyTheme=apply;
+  fetch('/api/profile',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(p){
+    if(p&&p.ok&&p.theme&&p.theme!==t){
+      localStorage.setItem('ac_theme',p.theme);
+      apply(p.theme);
+    }
+  }).catch(function(){});
+})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArunCode — Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:         #07090a;
+      --green:      #39ff14;
+      --green-dim:  #1a7a06;
+      --green-mid:  #22c40a;
+      --blue:       #00cfff;
+      --blue-dim:   #006a8a;
+      --blue-mid:   #00a0cc;
+      --amber:      #ffb300;
+      --border-g:   #1a3a1a;
+      --border-b:   #0a2a3a;
+      --text:       #b0c8b0;
+      --mono:       'Share Tech Mono', monospace;
+      --display:    'VT323', monospace;
+      --title:      'Orbitron', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: crosshair;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* scanlines */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* grid background */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(57,255,20,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(57,255,20,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes flicker {
+      0%,100% { opacity:1 } 93%{ opacity:.88 } 94%{ opacity:1 } 96%{ opacity:.93 } 97%{ opacity:1 }
+    }
+    body { animation: flicker 9s infinite; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    @keyframes pulse-g {
+      0%,100% { box-shadow: 0 0 6px var(--green-dim); }
+      50%      { box-shadow: 0 0 20px var(--green); }
+    }
+    @keyframes pulse-b {
+      0%,100% { box-shadow: 0 0 6px var(--blue-dim); }
+      50%      { box-shadow: 0 0 20px var(--blue); }
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+    @keyframes scanH {
+      0%   { top: -2px; }
+      100% { top: 100%; }
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: relative;
+      z-index: 10;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid #111;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .nav-brand {
+      font-family: var(--title);
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: var(--green);
+      text-shadow: 0 0 10px var(--green-dim);
+    }
+
+    .nav-brand span { color: var(--blue); text-shadow: 0 0 10px var(--blue-dim); }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    .nav-links a {
+      color: #444;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 2rem 2rem;
+      text-align: center;
+    }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: #333;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .hero-title {
+      font-family: var(--title);
+      font-size: clamp(3rem, 10vw, 7rem);
+      font-weight: 900;
+      letter-spacing: 6px;
+      line-height: 1;
+      color: var(--green);
+      text-shadow:
+        0 0 10px var(--green),
+        0 0 40px var(--green-mid),
+        0 0 80px var(--green-dim);
+      margin-bottom: 0.2rem;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+
+    .hero-title span {
+      color: var(--blue);
+      text-shadow:
+        0 0 10px var(--blue),
+        0 0 40px var(--blue-mid),
+        0 0 80px var(--blue-dim);
+    }
+
+    .hero-sub {
+      font-family: var(--display);
+      font-size: 1.8rem;
+      color: #333;
+      letter-spacing: 3px;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.6s 0.4s ease both;
+    }
+
+    .hero-sub em {
+      color: #555;
+      font-style: normal;
+    }
+
+    /* ── APP CARDS ── */
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 860px;
+      animation: fadeUp 0.7s 0.5s ease both;
+    }
+
+    @media (max-width: 600px) {
+      .cards { grid-template-columns: 1fr; }
+    }
+
+    .app-card {
+      position: relative;
+      border: 1px solid;
+      padding: 2.2rem 2rem 2rem;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.8rem;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+
+    .app-card:hover { transform: translateY(-4px); }
+
+    /* scan line on hover */
+    .app-card::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .app-card:hover::after { opacity: 1; animation: scanH 1.2s linear infinite; }
+
+    /* green card — Term */
+    .card-term {
+      border-color: var(--border-g);
+      background: rgba(57,255,20,0.03);
+    }
+    .card-term:hover {
+      border-color: var(--green-mid);
+      background: rgba(57,255,20,0.06);
+      animation: pulse-g 2s ease infinite;
+    }
+    .card-term::after { background: var(--green); }
+
+    /* blue card — IDE */
+    .card-ide {
+      border-color: var(--border-b);
+      background: rgba(0,207,255,0.03);
+    }
+    .card-ide:hover {
+      border-color: var(--blue-mid);
+      background: rgba(0,207,255,0.06);
+      animation: pulse-b 2s ease infinite;
+    }
+    .card-ide::after { background: var(--blue); }
+
+    .card-tag {
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border: 1px solid;
+      margin-bottom: 0.4rem;
+    }
+    .card-term .card-tag { color: var(--green-dim); border-color: var(--green-dim); }
+    .card-ide  .card-tag { color: var(--blue-dim);  border-color: var(--blue-dim);  }
+
+    .card-icon {
+      font-family: var(--display);
+      font-size: 4rem;
+      line-height: 1;
+      animation: float 4s ease infinite;
+    }
+    .card-term .card-icon { color: var(--green); text-shadow: 0 0 12px var(--green-dim); }
+    .card-ide  .card-icon { color: var(--blue);  text-shadow: 0 0 12px var(--blue-dim);  }
+
+    .card-name {
+      font-family: var(--title);
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+    .card-term .card-name { color: var(--green); }
+    .card-ide  .card-name { color: var(--blue);  }
+
+    .card-desc {
+      font-size: 12px;
+      color: #555;
+      line-height: 1.7;
+    }
+
+    .card-meta {
+      margin-top: auto;
+      padding-top: 1rem;
+      width: 100%;
+      border-top: 1px solid #111;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10px;
+      letter-spacing: 1px;
+    }
+    .card-term .card-meta { color: var(--green-dim); }
+    .card-ide  .card-meta { color: var(--blue-dim);  }
+
+    .card-arrow {
+      font-size: 1.2rem;
+      transition: transform 0.2s;
+    }
+    .app-card:hover .card-arrow { transform: translate(3px, -3px); }
+
+    /* ── STATUS BAR ── */
+    .statusbar {
+      position: relative;
+      z-index: 10;
+      padding: 0.6rem 2rem;
+      border-top: 1px solid #111;
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: #2a2a2a;
+      animation: fadeUp 0.6s 0.8s ease both;
+    }
+
+    .statusbar .item span { color: #3a3a3a; }
+
+    .cursor-blink {
+      display: inline-block;
+      width: 8px; height: 13px;
+      background: var(--green);
+      vertical-align: middle;
+      animation: blink 1s step-end infinite;
+      box-shadow: 0 0 6px var(--green-dim);
+      margin-left: 4px;
+    }
+
+    /* email card - amber */
+    .card-email {
+      border-color: #3a2a00;
+      background: rgba(255,179,0,0.03);
+    }
+    .card-email:hover {
+      border-color: #ffb300;
+      background: rgba(255,179,0,0.06);
+    }
+    .card-email::after { background: #ffb300; }
+    .card-email .card-tag { color: #7a5500; border-color: #7a5500; }
+    .card-email .card-name { color: #ffb300; }
+    .card-email .card-meta { color: #7a5500; }
+
+    /* ptc card - purple */
+    .card-ptc {
+      border-color: #2a1a3a;
+      background: rgba(192,132,252,0.03);
+    }
+    .card-ptc:hover {
+      border-color: #c084fc;
+      background: rgba(192,132,252,0.06);
+    }
+    .card-ptc::after { background: #c084fc; }
+    .card-ptc .card-tag { color: #6a3a9a; border-color: #6a3a9a; }
+    .card-ptc .card-name { color: #c084fc; }
+    .card-ptc .card-meta { color: #6a3a9a; }
+
+    /* docs card - teal */
+    .card-docs {
+      border-color: #0a2a2a;
+      background: rgba(0,207,255,0.03);
+    }
+    .card-docs:hover {
+      border-color: #00cfff;
+      background: rgba(0,207,255,0.06);
+    }
+    .card-docs::after { background: #00cfff; }
+    .card-docs .card-tag { color: #005577; border-color: #005577; }
+    .card-docs .card-name { color: #00cfff; }
+    .card-docs .card-meta { color: #005577; }
+
+    /* news card - orange */
+    .card-news { border-color: #2a1200; background: rgba(255,140,0,0.03); }
+    .card-news:hover { border-color: #ff8c00; background: rgba(255,140,0,0.06); }
+    .card-news::after { background: #ff8c00; }
+    .card-news .card-tag  { color: #7a3a00; border-color: #7a3a00; }
+    .card-news .card-name { color: #ff8c00; }
+    .card-news .card-meta { color: #7a3a00; }
+
+    /* github card - purple */
+    .card-github { border-color:#2a1a3a; background:rgba(192,132,252,0.03); }
+    .card-github:hover { border-color:#c084fc; background:rgba(192,132,252,0.06); }
+    .card-github::after { background:#c084fc; }
+    .card-github .card-tag { color:#6a3a9a; border-color:#6a3a9a; }
+    .card-github .card-name { color:#c084fc; }
+    .card-github .card-meta { color:#6a3a9a; }
+
+    /* github card - purple */
+    .card-github { border-color:#2a1a4a; background:rgba(167,139,250,0.03); }
+    .card-github:hover { border-color:#a78bfa; background:rgba(167,139,250,0.07); }
+    .card-github::after { background:#a78bfa; }
+    .card-github .card-tag { color:#4c3a8a; border-color:#4c3a8a; }
+    .card-github .card-name { color:#a78bfa; }
+    .card-github .card-meta { color:#4c3a8a; }
+
+    /* premium card - gold */
+    .card-premium { border-color:#4a3a00; background:rgba(255,215,0,0.02); }
+    .card-premium:hover { border-color:#ffd700; background:rgba(255,215,0,0.05); }
+    .card-premium::after { background:#ffd700; }
+    .card-premium .card-tag { color:#7a5500; border-color:#7a5500; }
+    .card-premium .card-name { color:#ffd700; text-shadow:0 0 10px rgba(255,215,0,.3); }
+    .card-premium .card-meta { color:#7a5500; }
+    .card-premium .card-icon { filter:drop-shadow(0 0 6px rgba(255,215,0,.4)); }
+
+    /* news card - amber */
+    .card-news { border-color:#2a1a00; background:rgba(255,179,0,0.03); }
+    .card-news:hover { border-color:#ffb300; background:rgba(255,179,0,0.06); }
+    .card-news::after { background:#ffb300; }
+    .card-news .card-tag { color:#7a5500; border-color:#7a5500; }
+    .card-news .card-name { color:#ffb300; }
+    .card-news .card-meta { color:#7a5500; }
+
+    /* 4-col grid */
+    .cards { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); max-width: 1000px; }
+  </style>
+
+</head>
+<body>
+
+  <nav>
+    <div class="nav-brand">ARUN<span>CODE</span></div>
+    <div class="nav-links">
+      <a href="./terminal/about/about.html">About</a>
+      <a href="./terminal/about/versions/versionhistory.html">Versions</a>
+      <a href="#">Docs</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+
+    <div class="hero-eyebrow">// SELECT YOUR APPLICATION</div>
+
+    <div class="hero-title">ARUN<span>CODE</span></div>
+    <div class="hero-sub">by Arun Chandrasekaran <em>&nbsp;—&nbsp; v5.0.0</em></div>
+
+    <div class="cards">
+
+      <!-- ArunCode_Term -->
+      <a class="app-card card-term" href="/terminal">
+        <div class="card-tag">terminal app</div>
+        <div class="card-icon">&gt;_</div>
+        <div class="card-name">ArunCode_Term</div>
+        <div class="card-desc">
+          A command-line terminal environment.<br>
+          Run commands, manage versions, and access your system tools.
+        </div>
+        <div class="card-meta">
+          <div>STATUS: <span>RUNNING</span> &nbsp;·&nbsp; v5.0.0</div>
+          <div class="card-arrow">↗</div>
+        </div>
+      </a>
+
+      <!-- ArunCode IDE -->
+      <a class="app-card card-ide" href="/ide">
+        <div class="card-tag">code editor</div>
+        <div class="card-icon">{ }</div>
+        <div class="card-name">ArunCode IDE</div>
+        <div class="card-desc">
+          A full code editor and IDE environment.<br>
+          Write, edit, run and save your code projects.
+        </div>
+        <div class="card-meta">
+          <div>STATUS: <span>RUNNING</span> &nbsp;·&nbsp; v1.0.0</div>
+          <div class="card-arrow">↗</div>
+        </div>
+      </a>
+
+      <!-- ArunCode Emails -->
+      <a class="app-card card-email" href="/emails">
+        <div class="card-tag">communications</div>
+        <div class="card-icon">@</div>
+        <div class="card-name">ArunCode_Emails</div>
+        <div class="card-desc">
+          Send and receive emails from within ArunCode.<br>
+          Manage your inbox and compose messages.
+        </div>
+        <div class="card-meta">
+          <div>STATUS: <span>RUNNING</span> &nbsp;·&nbsp; v1.0.0</div>
+          <div class="card-arrow">↗</div>
+        </div>
+      </a>
+
+      <!-- Docs -->
+      <a class="app-card card-docs" href="/docs">
+        <div class="card-tag">documentation</div>
+        <div class="card-icon">📄</div>
+        <div class="card-name">ArunCode Docs</div>
+        <div class="card-desc">
+          Official documentation for all ArunCode apps.<br>
+          Guides, references and tutorials.
+        </div>
+        <div class="card-meta">
+          <div>STATUS: <span>RUNNING</span> &nbsp;·&nbsp; v1.0.0</div>
+          <div class="card-arrow">↗</div>
+        </div>
+      </a>
+
+      <!-- News -->
+      <a class="app-card card-news" href="/news">
+        <div class="card-tag">newsroom</div>
+        <div class="card-icon">📰</div>
+        <div class="card-name">ArunCode News</div>
+        <div class="card-desc">
+          Latest announcements, updates and events.<br>
+          Stay up to date with ArunCode.
+        </div>
+        <div class="card-meta">
+          <div>STATUS: <span>RUNNING</span> &nbsp;·&nbsp; v1.0.0</div>
+          <div class="card-arrow">↗</div>
+        </div>
+      </a>
+
+      <!-- News -->
+      <a class="app-card card-news" href="/news">
+        <div class="card-tag">news</div>
+        <div class="card-icon">📰</div>
+        <div class="card-name">ArunCode_News</div>
+        <div class="card-desc">
+          Latest announcements and updates.<br>
+          Stay informed about everything ArunCode.
+        </div>
+        <div class="card-meta">
+          <div>STATUS: <span>LIVE</span> &nbsp;·&nbsp; v1.0.0</div>
+          <div class="card-arrow">↗</div>
+        </div>
+      </a>
+
+      <!-- ArunCode Github -->
+      <a class="app-card card-github" href="/github">
+        <div class="card-tag">github</div>
+        <div class="card-icon">🐙</div>
+        <div class="card-name">ArunCode_Github</div>
+        <div class="card-desc">
+          Create repos, upload code, view<br>
+          other users profiles & projects.
+        </div>
+        <div class="card-meta">
+          <div>STATUS: <span>RUNNING</span> &nbsp;·&nbsp; v1.0.0</div>
+          <div class="card-arrow">↗</div>
+        </div>
+      </a>
+
+      <!-- ArunCode Github -->
+      <a class="app-card card-github" href="/github">
+        <div class="card-tag">version control</div>
+        <div class="card-icon">🐙</div>
+        <div class="card-name">ArunCode_Github</div>
+        <div class="card-desc">
+          Create repos, upload code, browse<br>
+          other users' projects & star favourites.
+        </div>
+        <div class="card-meta">
+          <div>STATUS: <span>RUNNING</span> &nbsp;·&nbsp; v1.0.0</div>
+          <div class="card-arrow">↗</div>
+        </div>
+      </a>
+
+      <a class="app-card card-premium" href="/premium">
+        <div class="card-icon">👑</div>
+        <div class="card-name">ArunCode_Premium</div>
+        <div class="card-desc">Unlock private repos, custom themes, more storage &amp; priority badge.</div>
+        <div class="card-meta">
+          <span class="card-tag">PREMIUM</span>
+          <span class="card-arrow">↗</span>
+        </div>
+      </a>
+
+      <!-- Python Teaching Club -->
+      <a class="app-card card-ptc" href="/ptc">
+        <div class="card-tag">education</div>
+        <div class="card-icon">&#x1F40D;</div>
+        <div class="card-name">Python Teaching Club</div>
+        <div class="card-desc">
+          Learn and teach Python together.<br>
+          Lessons, exercises and a coding community.
+        </div>
+        <div class="card-meta">
+          <div>STATUS: <span>RUNNING</span> &nbsp;·&nbsp; v1.0.0</div>
+          <div class="card-arrow">↗</div>
+        </div>
+      </a>
+
+    </div>
+
+  </div>
+
+  <div class="statusbar">
+    <div class="item">system: <span>ONLINE</span></div>
+    <div class="item">creator: <span>Arun Chandrasekaran</span></div>
+    <div class="item">build: <span>STABLE</span></div>
+    <div class="item">python: <span>≥ 3.1.0</span></div>
+    <div class="item">aruncode@home:~$<span class="cursor-blink"></span></div>
+  </div>
+
+</body>
+</html>

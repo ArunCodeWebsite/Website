@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArunCode News</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#09080b;--bg2:#0e0c12;--bg3:#13101a;--amber:#ffb300;--amber-dim:#7a5500;--amber-mid:#cc8800;
+      --green:#39ff14;--green-dim:#1a7a06;--blue:#00cfff;--blue-dim:#00557a;--red:#ff4444;
+      --border:#2a2010;--text:#c0a870;--text-b:#e0d0a0;
+      --mono:'Share Tech Mono',monospace;--title:'Orbitron',sans-serif}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;
+      min-height:100vh;display:flex;flex-direction:column}
+    body::before{content:'';position:fixed;inset:0;
+      background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);
+      pointer-events:none;z-index:9999}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+    @keyframes ticker{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+
+    /* TOPBAR */
+    .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.6rem 2rem;
+      display:flex;align-items:center;gap:1rem;flex-shrink:0}
+    .brand{font-family:var(--title);font-size:.95rem;font-weight:900;letter-spacing:2px;
+      color:var(--amber);text-shadow:0 0 8px var(--amber-dim)}
+    .brand span{color:var(--text)}
+    .live-dot{width:8px;height:8px;border-radius:50%;background:var(--red);
+      box-shadow:0 0 8px var(--red);animation:blink 1.5s infinite;flex-shrink:0}
+    .live-label{font-size:10px;color:var(--red);letter-spacing:2px}
+    .topbar-right{margin-left:auto;display:flex;align-items:center;gap:.7rem}
+    .news-badge{font-size:9px;letter-spacing:1px;color:var(--amber);border:1px solid var(--amber-dim);padding:2px 8px}
+    .btn-sm{background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--mono);
+      font-size:10px;letter-spacing:1px;padding:4px 12px;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+    .btn-sm:hover{border-color:var(--amber-dim);color:var(--amber)}
+    .btn-amber{border-color:var(--amber-dim);color:var(--amber)}
+    .btn-amber:hover{background:rgba(255,179,0,.08);border-color:var(--amber)}
+    .btn-red{border-color:#2a1010;color:#663333}
+    .btn-red:hover{border-color:var(--red);color:var(--red)}
+
+    /* TICKER */
+    .ticker-wrap{background:#0a0800;border-bottom:1px solid var(--border);padding:.4rem 0;overflow:hidden;white-space:nowrap}
+    .ticker-inner{display:inline-block;animation:ticker 30s linear infinite;font-size:11px;letter-spacing:1px;color:var(--amber-dim)}
+    .ticker-inner span{margin:0 3rem;color:var(--amber)}
+
+    /* LAYOUT */
+    main{flex:1;padding:2rem;max-width:900px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem}
+
+    /* HEADER BAR */
+    .news-header{display:flex;align-items:center;justify-content:space-between;
+      border-bottom:2px solid var(--amber-dim);padding-bottom:.8rem;animation:fadeUp .4s ease}
+    .news-title{font-family:var(--title);font-size:1.4rem;font-weight:900;color:var(--amber);
+      letter-spacing:3px;text-shadow:0 0 10px var(--amber-dim)}
+    .news-date{font-size:10px;color:var(--amber-dim);letter-spacing:1px}
+
+    /* TAGS FILTER */
+    .tags-row{display:flex;gap:.5rem;flex-wrap:wrap;animation:fadeUp .4s .1s ease both}
+    .tag-btn{background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--mono);
+      font-size:10px;letter-spacing:1px;padding:3px 12px;cursor:pointer;transition:all .2s}
+    .tag-btn:hover,.tag-btn.active{border-color:var(--amber-dim);color:var(--amber);background:rgba(255,179,0,.05)}
+
+    /* PINNED */
+    .pinned-section{animation:fadeUp .4s .15s ease both}
+    .section-label{font-size:9px;letter-spacing:3px;color:var(--amber-dim);margin-bottom:.8rem;
+      display:flex;align-items:center;gap:.5rem}
+    .section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+    /* POST CARD */
+    .post-card{border:1px solid var(--border);background:var(--bg2);padding:1.4rem;
+      margin-bottom:1rem;transition:border-color .2s;position:relative;animation:fadeUp .4s ease}
+    .post-card:hover{border-color:var(--amber-dim)}
+    .post-card.pinned{border-color:var(--amber-dim);background:rgba(255,179,0,.03)}
+    .post-pin-icon{position:absolute;top:.8rem;right:.8rem;font-size:14px;opacity:.6}
+    .post-tag{display:inline-block;font-size:9px;letter-spacing:1px;padding:2px 8px;border:1px solid;margin-bottom:.6rem}
+    .tag-general{color:var(--blue);border-color:var(--blue-dim)}
+    .tag-update{color:var(--green);border-color:var(--green-dim)}
+    .tag-urgent{color:var(--red);border-color:#3a1010}
+    .tag-event{color:var(--amber);border-color:var(--amber-dim)}
+    .tag-maintenance{color:#888;border-color:#333}
+    .post-title{font-size:1.05rem;color:var(--text-b);letter-spacing:.5px;margin-bottom:.5rem}
+    .post-body{color:var(--text);line-height:1.8;font-size:12px;white-space:pre-wrap}
+    .post-meta{margin-top:.8rem;padding-top:.6rem;border-top:1px solid #150f05;
+      font-size:10px;color:var(--amber-dim);display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+    .post-author{color:var(--amber)}
+    .post-actions{margin-left:auto;display:flex;gap:.4rem}
+    .btn-post{background:none;border:1px solid #221800;color:#443300;font-family:var(--mono);
+      font-size:9px;letter-spacing:1px;padding:2px 8px;cursor:pointer;transition:all .2s}
+    .btn-post:hover{border-color:var(--amber-dim);color:var(--amber)}
+    .btn-post.del:hover{border-color:var(--red);color:var(--red)}
+
+    .empty-state{text-align:center;padding:4rem;color:#2a1a05;font-size:11px;letter-spacing:2px}
+
+    /* MODAL */
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;align-items:center;justify-content:center}
+    .modal.show{display:flex}
+    .modal-box{background:var(--bg2);border:1px solid var(--border);width:540px;max-width:95vw}
+    .modal-header{padding:.7rem 1rem;background:var(--bg3);border-bottom:1px solid var(--border);
+      font-size:9px;letter-spacing:2px;color:var(--amber-dim);display:flex;justify-content:space-between}
+    .modal-close{background:none;border:none;color:#444;cursor:pointer;font-size:18px;transition:color .2s}
+    .modal-close:hover{color:var(--red)}
+    .modal-body{padding:1.2rem;display:flex;flex-direction:column;gap:.9rem}
+    .mfield label{display:block;font-size:9px;letter-spacing:2px;color:var(--amber-dim);margin-bottom:.4rem}
+    .mfield input,.mfield textarea,.mfield select{width:100%;background:var(--bg);border:1px solid var(--border);
+      color:var(--text-b);font-family:var(--mono);font-size:12px;padding:.5rem .7rem;
+      outline:none;caret-color:var(--amber);resize:vertical}
+    .mfield input:focus,.mfield textarea:focus,.mfield select:focus{border-color:var(--amber-dim)}
+    .modal-footer{padding:.7rem 1rem;border-top:1px solid var(--border);display:flex;gap:.5rem;justify-content:space-between;align-items:center}
+    .modal-err{font-size:10px;color:var(--red)}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="live-dot"></div>
+  <span class="live-label">LIVE</span>
+  <div class="brand">ArunCode <span>News</span></div>
+  <div class="topbar-right">
+    <span class="news-badge" id="news-badge" style="display:none">REPORTER</span>
+    <button class="btn-sm btn-amber" id="btn-post" style="display:none" onclick="openCompose()">+ NEW POST</button>
+    <a class="btn-sm" href="/">⌂ HOME</a>
+  </div>
+</div>
+
+<div class="ticker-wrap">
+  <div class="ticker-inner" id="ticker">
+    <span>ArunCode News</span>
+    <span>Stay up to date with the latest ArunCode announcements</span>
+    <span>Python Teaching Club — new lessons available</span>
+    <span>ArunCode v5.0.0 is live</span>
+  </div>
+</div>
+
+<main>
+  <div class="news-header">
+    <div class="news-title">NEWSROOM <span style="font-size:.7rem;color:var(--amber-dim)">// ARUNCODE</span></div>
+    <div class="news-date" id="news-date"></div>
+  </div>
+
+  <div class="tags-row" id="tags-row">
+    <button class="tag-btn active" onclick="filterTag('all',this)">ALL</button>
+    <button class="tag-btn" onclick="filterTag('general',this)">GENERAL</button>
+    <button class="tag-btn" onclick="filterTag('update',this)">UPDATE</button>
+    <button class="tag-btn" onclick="filterTag('urgent',this)">URGENT</button>
+    <button class="tag-btn" onclick="filterTag('event',this)">EVENT</button>
+    <button class="tag-btn" onclick="filterTag('maintenance',this)">MAINTENANCE</button>
+  </div>
+
+  <div id="pinned-section" class="pinned-section" style="display:none">
+    <div class="section-label">📌 PINNED</div>
+    <div id="pinned-posts"></div>
+  </div>
+
+  <div>
+    <div class="section-label" id="latest-label">LATEST</div>
+    <div id="posts-list"></div>
+  </div>
+</main>
+
+<!-- COMPOSE MODAL -->
+<div class="modal" id="modal-compose">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span id="modal-title-text">// NEW POST</span>
+      <button class="modal-close" onclick="closeCompose()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="mfield"><label>Headline</label><input id="p-title" placeholder="Breaking: ArunCode v6.0 released!"></div>
+      <div class="mfield">
+        <label>Category</label>
+        <select id="p-tag">
+          <option value="general">General</option>
+          <option value="update">Update</option>
+          <option value="urgent">Urgent</option>
+          <option value="event">Event</option>
+          <option value="maintenance">Maintenance</option>
+        </select>
+      </div>
+      <div class="mfield"><label>Body</label><textarea id="p-body" rows="7" placeholder="Write the full announcement..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <span class="modal-err" id="modal-err"></span>
+      <div style="display:flex;gap:.5rem">
+        <button class="btn-sm" onclick="closeCompose()">CANCEL</button>
+        <button class="btn-sm btn-amber" id="btn-submit" onclick="submitPost()">PUBLISH →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let canPost   = false;
+let allPosts  = [];
+let activeTag = 'all';
+let editingId = null;
+
+// ── Init ────────────────────────────────────────
+async function init() {
+  document.getElementById('news-date').textContent = new Date().toLocaleDateString('en-CA',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
+
+  const me = await fetch('/api/me').then(r=>r.json()).catch(()=>({ok:false,role:'user'}));
+  if (me.ok && (me.role === 'news' || me.role === 'admin')) {
+    canPost = true;
+    document.getElementById('btn-post').style.display   = '';
+    document.getElementById('news-badge').style.display = '';
+    document.getElementById('news-badge').textContent   = me.role === 'admin' ? 'ADMIN' : 'REPORTER';
+  }
+
+  await loadPosts();
+}
+
+async function loadPosts() {
+  const res = await fetch('/api/news').then(r=>r.json()).catch(()=>null);
+  if (!res || !res.ok) return;
+  allPosts = res.posts || [];
+  updateTicker();
+  renderPosts();
+}
+
+function updateTicker() {
+  if (!allPosts.length) return;
+  const headlines = allPosts.slice(0,5).map(p=>`<span>${p.tag.toUpperCase()}: ${p.title}</span>`).join('<span style="color:var(--border)"> ◆ </span>');
+  document.getElementById('ticker').innerHTML = headlines + '<span style="margin:0 3rem">—</span>' + headlines;
+}
+
+// ── Render ──────────────────────────────────────
+function filterTag(tag, el) {
+  activeTag = tag;
+  document.querySelectorAll('.tag-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderPosts();
+}
+
+function renderPosts() {
+  const filtered = activeTag === 'all' ? allPosts : allPosts.filter(p=>p.tag===activeTag);
+  const pinned   = filtered.filter(p=>p.pinned);
+  const regular  = filtered.filter(p=>!p.pinned);
+
+  // Pinned
+  const pinnedSec = document.getElementById('pinned-section');
+  if (pinned.length) {
+    pinnedSec.style.display = '';
+    document.getElementById('pinned-posts').innerHTML = pinned.map(p=>postHTML(p)).join('');
+  } else {
+    pinnedSec.style.display = 'none';
+  }
+
+  // Regular
+  const list = document.getElementById('posts-list');
+  if (!regular.length && !pinned.length) {
+    list.innerHTML = '<div class="empty-state">NO POSTS YET' + (canPost?' — PUBLISH THE FIRST ONE':'') + '</div>';
+  } else {
+    list.innerHTML = regular.map(p=>postHTML(p)).join('');
+  }
+}
+
+function postHTML(p) {
+  const edited = p.edited ? ` · EDITED ${p.edited}` : '';
+  const adminBtns = canPost ? `
+    <div class="post-actions">
+      <button class="btn-post" onclick="editPost(${p.id})">EDIT</button>
+      <button class="btn-post" onclick="pinPost(${p.id})">${p.pinned?'UNPIN':'PIN'}</button>
+      <button class="btn-post del" onclick="deletePost(${p.id})">DELETE</button>
+    </div>` : '';
+  return `<div class="post-card${p.pinned?' pinned':''}" id="post-${p.id}">
+    ${p.pinned?'<div class="post-pin-icon">📌</div>':''}
+    <span class="post-tag tag-${p.tag}">${p.tag.toUpperCase()}</span>
+    <div class="post-title">${p.title}</div>
+    <div class="post-body">${p.body}</div>
+    <div class="post-meta">
+      <span>BY <span class="post-author">${p.author}</span></span>
+      <span>${p.date}${edited}</span>
+      ${adminBtns}
+    </div>
+  </div>`;
+}
+
+// ── Compose ─────────────────────────────────────
+function openCompose() {
+  editingId = null;
+  document.getElementById('modal-title-text').textContent = '// NEW POST';
+  document.getElementById('p-title').value = '';
+  document.getElementById('p-body').value  = '';
+  document.getElementById('p-tag').value   = 'general';
+  document.getElementById('modal-err').textContent = '';
+  document.getElementById('modal-compose').classList.add('show');
+  document.getElementById('p-title').focus();
+}
+
+function closeCompose() {
+  document.getElementById('modal-compose').classList.remove('show');
+  editingId = null;
+}
+
+function editPost(id) {
+  const p = allPosts.find(x=>x.id===id);
+  if (!p) return;
+  editingId = id;
+  document.getElementById('modal-title-text').textContent = '// EDIT POST';
+  document.getElementById('p-title').value = p.title;
+  document.getElementById('p-body').value  = p.body;
+  document.getElementById('p-tag').value   = p.tag;
+  document.getElementById('modal-err').textContent = '';
+  document.getElementById('modal-compose').classList.add('show');
+}
+
+async function submitPost() {
+  const title = document.getElementById('p-title').value.trim();
+  const body  = document.getElementById('p-body').value.trim();
+  const tag   = document.getElementById('p-tag').value;
+  const err   = document.getElementById('modal-err');
+  const btn   = document.getElementById('btn-submit');
+
+  if (!title || !body) { err.textContent = 'Title and body required.'; return; }
+
+  btn.disabled = true; btn.textContent = 'PUBLISHING...';
+
+  let res;
+  if (editingId) {
+    res = await fetch(`/api/news/${editingId}`, {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({title, body, tag})
+    }).then(r=>r.json()).catch(()=>null);
+  } else {
+    res = await fetch('/api/news', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({title, body, tag})
+    }).then(r=>r.json()).catch(()=>null);
+  }
+
+  btn.disabled = false; btn.textContent = 'PUBLISH →';
+
+  if (res && res.ok) {
+    closeCompose();
+    await loadPosts();
+  } else {
+    err.textContent = res?.error || 'Failed to publish.';
+  }
+}
+
+async function pinPost(id) {
+  await fetch(`/api/news/${id}/pin`, {method:'POST'});
+  await loadPosts();
+}
+
+async function deletePost(id) {
+  if (!confirm('Delete this post?')) return;
+  await fetch(`/api/news/${id}`, {method:'DELETE'});
+  await loadPosts();
+}
+
+document.getElementById('modal-compose').addEventListener('click', function(e){ if(e.target===this) closeCompose(); });
+init();
+</script>
+</body>
+</html>

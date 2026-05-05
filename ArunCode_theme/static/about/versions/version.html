@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Versions — ArunCode_Term</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #0a0e0a;
+      --bg2:       #0f140f;
+      --green:     #39ff14;
+      --green-dim: #1a7a06;
+      --green-mid: #22c40a;
+      --amber:     #ffb300;
+      --red:       #ff3c3c;
+      --blue:      #00cfff;
+      --border:    #1e3a1e;
+      --text:      #c8e6c8;
+      --mono:      'Share Tech Mono', monospace;
+      --display:   'VT323', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 14px;
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.15) 2px,
+        rgba(0,0,0,0.15) 4px
+      );
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    @keyframes flicker {
+      0%,100% { opacity: 1; }
+      92%      { opacity: 1; }
+      93%      { opacity: 0.85; }
+      94%      { opacity: 1; }
+      96%      { opacity: 0.9; }
+      97%      { opacity: 1; }
+    }
+    body { animation: flicker 8s infinite; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 4px var(--green-dim); }
+      50%      { box-shadow: 0 0 12px var(--green); }
+    }
+
+    .glow {
+      color: var(--green);
+      text-shadow: 0 0 4px var(--green), 0 0 12px var(--green-mid), 0 0 30px var(--green-dim);
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 2.5rem 2rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ascii-logo {
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.2;
+      color: var(--green-mid);
+      text-shadow: 0 0 8px var(--green-dim);
+      white-space: pre;
+      margin-bottom: 1.5rem;
+      animation: fadeIn 1s ease both;
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: baseline;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      animation: fadeIn 1s 0.3s ease both;
+    }
+
+    .terminal-title {
+      font-family: var(--display);
+      font-size: 2.8rem;
+      letter-spacing: 2px;
+      color: var(--green);
+      text-shadow: 0 0 10px var(--green), 0 0 30px var(--green-dim);
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 9px;
+      height: 15px;
+      background: var(--green);
+      vertical-align: middle;
+      animation: blink 1s step-end infinite;
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    .breadcrumb {
+      font-size: 12px;
+      color: var(--green-dim);
+    }
+
+    .breadcrumb a {
+      color: var(--green-mid);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--green-dim);
+      transition: color 0.2s;
+    }
+    .breadcrumb a:hover { color: var(--green); }
+
+    /* ── PROMPT BAR ── */
+    .prompt-bar {
+      padding: 0.6rem 2rem;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--green-dim);
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      animation: fadeIn 1s 0.5s ease both;
+    }
+    .prompt-bar span { color: var(--green-mid); }
+
+    /* ── MAIN ── */
+    main {
+      padding: 2rem;
+      animation: fadeIn 1s 0.6s ease both;
+    }
+
+    /* ── VERSION CARD ── */
+    .version-card {
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .version-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: #0d1a0d;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .version-card-header:hover { background: #0f1f0f; }
+
+    .version-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .version-number {
+      font-family: var(--display);
+      font-size: 2rem;
+      color: var(--green);
+      text-shadow: 0 0 8px var(--green-dim);
+      letter-spacing: 1px;
+    }
+
+    .version-date {
+      font-size: 11px;
+      color: var(--green-dim);
+      letter-spacing: 1px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      font-size: 11px;
+      letter-spacing: 1px;
+      border: 1px solid;
+    }
+
+    .badge-running {
+      color: var(--green);
+      border-color: var(--green-dim);
+      background: rgba(57,255,20,0.07);
+      text-shadow: 0 0 6px var(--green);
+      animation: pulse 2.5s ease infinite;
+    }
+
+    .badge-deprecated {
+      color: var(--red);
+      border-color: #7a1a1a;
+      background: rgba(255,60,60,0.07);
+    }
+
+    .badge-stable {
+      color: var(--amber);
+      border-color: #7a5500;
+      background: rgba(255,179,0,0.07);
+    }
+
+    .toggle-icon {
+      font-size: 18px;
+      color: var(--green-dim);
+      transition: transform 0.3s;
+    }
+
+    /* collapsible body */
+    .version-body {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.35s ease;
+    }
+
+    .version-body.open {
+      grid-template-rows: 1fr;
+    }
+
+    .version-body-inner {
+      overflow: hidden;
+    }
+
+    .version-body-content {
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 600px) {
+      .version-body-content { grid-template-columns: 1fr; }
+    }
+
+    /* changelog section */
+    .change-section { }
+
+    .change-section-title {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .change-section-title.new     { color: var(--green); }
+    .change-section-title.fixed   { color: var(--amber); }
+    .change-section-title.removed { color: var(--red); }
+    .change-section-title.notes   { color: var(--blue); }
+
+    .change-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .change-list li {
+      font-size: 12px;
+      color: var(--text);
+      padding-left: 1rem;
+      position: relative;
+      line-height: 1.6;
+    }
+
+    .change-list li::before {
+      position: absolute;
+      left: 0;
+    }
+
+    .change-list.new     li::before { content: '+'; color: var(--green); }
+    .change-list.fixed   li::before { content: '~'; color: var(--amber); }
+    .change-list.removed li::before { content: '-'; color: var(--red); }
+    .change-list.notes   li::before { content: '*'; color: var(--blue); }
+
+    /* download row */
+    .download-row {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      background: var(--bg);
+    }
+
+    .download-meta {
+      font-size: 11px;
+      color: var(--green-dim);
+    }
+
+    .download-meta span { color: var(--green-mid); }
+
+    .btn-download {
+      display: inline-block;
+      padding: 0.5rem 1.4rem;
+      background: transparent;
+      border: 1px solid var(--green-dim);
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-decoration: none;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-download:hover {
+      background: rgba(57,255,20,0.1);
+      border-color: var(--green);
+      box-shadow: 0 0 10px var(--green-dim);
+      text-shadow: 0 0 6px var(--green);
+    }
+
+    /* ADD VERSION hint */
+    .add-hint {
+      border: 1px dashed var(--border);
+      padding: 1.2rem 1.5rem;
+      font-size: 12px;
+      color: var(--green-dim);
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    .add-hint code {
+      color: var(--green-mid);
+      background: var(--bg2);
+      padding: 1px 6px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: 3rem;
+      padding: 1.2rem 2rem;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--green-dim);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="ascii-logo">
+                      ______
+                     /     |
+   ________________ /      |
+   |               /       |____
+   |     &gt;_       /        |    |
+___|______________/         |____|
+ /                               |
+/________________________________|
+  []    []    []    []    []    []</div>
+
+    <div class="header-meta">
+      <div class="terminal-title">ArunCode_Term <span class="cursor"></span></div>
+      <nav class="breadcrumb">
+        <a href="../versionhistory.html">Version History</a> /
+        <a href="../about/about.html">About</a> /
+        <span class="glow">Versions</span>
+      </nav>
+    </div>
+  </header>
+
+  <div class="prompt-bar">
+    <div>user@aruncode:~$ <span>ls ./versions/</span></div>
+    <div>total: <span id="total-versions">1</span> release(s)</div>
+  </div>
+
+  <main>
+
+    <!-- ══════════════════════════════════════════
+         VERSION CARD — copy this block to add more
+         ══════════════════════════════════════════ -->
+    <div class="version-card">
+
+      <div class="version-card-header" onclick="toggleCard(this)">
+        <div class="version-left">
+          <div class="version-number">v5.0.0</div>
+          <div>
+            <div class="version-date">Released: 2026-02-18</div>
+            <div class="version-date">Python ≥ 3.1.0</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <span class="badge badge-running">● RUNNING</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+      </div>
+
+      <div class="version-body open">
+        <div class="version-body-inner">
+          <div class="version-body-content">
+
+            <div class="change-section">
+              <div class="change-section-title new">✦ New Features</div>
+              <ul class="change-list new">
+                <li>Add your new features here</li>
+                <li>Another new feature</li>
+              </ul>
+            </div>
+
+            <div class="change-section">
+              <div class="change-section-title fixed">⚙ Bug Fixes</div>
+              <ul class="change-list fixed">
+                <li>Describe what was fixed here</li>
+                <li>Another bug fix</li>
+              </ul>
+            </div>
+
+            <div class="change-section">
+              <div class="change-section-title removed">✕ Removed</div>
+              <ul class="change-list removed">
+                <li>Anything removed in this version</li>
+              </ul>
+            </div>
+
+            <div class="change-section">
+              <div class="change-section-title notes">★ Notes</div>
+              <ul class="change-list notes">
+                <li>Any extra notes or known issues</li>
+              </ul>
+            </div>
+
+          </div>
+
+          <div class="download-row">
+            <div class="download-meta">
+              Downloads: <span>2</span> &nbsp;|&nbsp;
+              Rating: <span>95.0%</span> &nbsp;|&nbsp;
+              Status: <span>Stable</span>
+            </div>
+            <a class="btn-download" href="#">⬇ Download v5.0.0</a>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+    <!-- ══ END VERSION CARD ══ -->
+
+
+    <!-- ══════════════════════════════════════════
+         TO ADD A NEW VERSION:
+         Copy the block above, paste it here,
+         and update the version number, date,
+         badge, and changelog items.
+         ══════════════════════════════════════════ -->
+    <div class="add-hint">
+      ── <code>// ADD NEXT VERSION ABOVE THIS LINE</code> ──
+    </div>
+
+  </main>
+
+  <footer>
+    <div>ArunCode_Term © 2026 — Arun Chandrasekaran</div>
+    <div>system: <span style="color:var(--green-mid)">ONLINE</span> &nbsp;|&nbsp; build: <span style="color:var(--green-mid)">STABLE</span></div>
+  </footer>
+
+  <script>
+    function toggleCard(header) {
+      const body = header.nextElementSibling;
+      const icon = header.querySelector('.toggle-icon');
+      const isOpen = body.classList.toggle('open');
+      icon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
+    }
+
+    // Auto-count version cards
+    document.getElementById('total-versions').textContent =
+      document.querySelectorAll('.version-card').length;
+  </script>
+
+</body>
+</html>

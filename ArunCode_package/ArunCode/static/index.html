@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArunCode_Term — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0a0e0a;--bg2:#0f140f;--green:#39ff14;--green-dim:#1a7a06;
+      --green-mid:#22c40a;--amber:#ffb300;--red:#ff3c3c;--border:#1e3a1e;
+      --text:#c8e6c8;--mono:'Share Tech Mono',monospace;--display:'VT323',monospace;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:14px;
+      min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;cursor:crosshair}
+    body::before{content:'';position:fixed;inset:0;
+      background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.12) 2px,rgba(0,0,0,0.12) 4px);
+      pointer-events:none;z-index:9999}
+    @keyframes flicker{0%,100%{opacity:1}93%{opacity:.88}94%{opacity:1}96%{opacity:.93}}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+    @keyframes scanDown{0%{top:0}100%{top:100%}}
+    body{animation:flicker 8s infinite}
+
+    .box{width:100%;max-width:460px;border:1px solid var(--border);background:var(--bg2);animation:fadeIn .8s ease both;position:relative;overflow:hidden}
+    .scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--green),transparent);opacity:.08;animation:scanDown 4s linear infinite;pointer-events:none}
+    .topbar{background:#0d1a0d;border-bottom:1px solid var(--border);padding:.6rem 1rem;display:flex;align-items:center;gap:.5rem;font-size:11px;color:var(--green-dim)}
+    .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+    .dr{background:#ff3c3c}.da{background:#ffb300}.dg{background:#39ff14;box-shadow:0 0 4px #39ff14}
+    .topbar-title{margin:0 auto;font-size:12px;color:var(--green-mid);letter-spacing:1px}
+    .inner{padding:2rem}
+    .title{font-family:var(--display);font-size:2.6rem;color:var(--green);text-align:center;
+      text-shadow:0 0 10px var(--green),0 0 30px var(--green-dim);letter-spacing:2px;margin-bottom:.2rem}
+    .subtitle{text-align:center;font-size:10px;color:var(--green-dim);letter-spacing:2px;margin-bottom:1.5rem}
+    .cursor{display:inline-block;width:9px;height:15px;background:var(--green);
+      vertical-align:middle;animation:blink 1s step-end infinite;box-shadow:0 0 6px var(--green)}
+
+    /* tabs */
+    .tabs{display:flex;border:1px solid var(--border);margin-bottom:1.2rem}
+    .tab{flex:1;text-align:center;padding:.55rem;font-size:11px;letter-spacing:1px;
+      color:var(--green-dim);cursor:pointer;transition:all .2s;user-select:none}
+    .tab.active{background:rgba(57,255,20,.07);color:var(--green)}
+    .tab:first-child{border-right:1px solid var(--border)}
+
+    /* steps */
+    .steps{display:flex;border:1px solid var(--border);margin-bottom:1.2rem}
+    .step{flex:1;text-align:center;padding:.4rem .2rem;font-size:10px;letter-spacing:1px;
+      color:var(--green-dim);border-right:1px solid var(--border);transition:all .3s}
+    .step:last-child{border-right:none}
+    .step.active{background:rgba(57,255,20,.07);color:var(--green)}
+    .step.done{color:var(--green-mid)}
+
+    .form-step{display:none}.form-step.active{display:block}
+
+    /* fields */
+    .field{margin-bottom:1.1rem}
+    .field label{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;
+      color:var(--green-dim);margin-bottom:.4rem}
+    .field input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--green);
+      font-family:var(--mono);font-size:14px;padding:.55rem .8rem;outline:none;
+      transition:border-color .2s,box-shadow .2s;caret-color:var(--green)}
+    .field input:focus{border-color:var(--green-mid);box-shadow:0 0 8px var(--green-dim)}
+    .field input::placeholder{color:var(--green-dim);opacity:.5}
+    .hint{font-size:10px;color:var(--green-dim);margin-top:.3rem}
+
+    /* error/info */
+    .msg-area{min-height:18px;font-size:11px;text-align:center;margin-bottom:.8rem}
+
+    /* button */
+    .btn{width:100%;background:transparent;border:1px solid var(--green-dim);color:var(--green);
+      font-family:var(--mono);font-size:13px;letter-spacing:2px;padding:.65rem;cursor:pointer;
+      text-transform:uppercase;transition:all .2s;margin-top:.3rem}
+    .btn:hover:not(:disabled){background:rgba(57,255,20,.1);border-color:var(--green);box-shadow:0 0 12px var(--green-dim)}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+
+    /* PIN boxes */
+    .pin-row{display:flex;gap:.5rem;justify-content:center;margin-bottom:1.2rem}
+    .pin-box{width:48px;height:56px;background:var(--bg);border:1px solid var(--border);
+      color:var(--green);font-family:var(--display);font-size:2.2rem;text-align:center;
+      outline:none;transition:border-color .2s;caret-color:transparent}
+    .pin-box:focus{border-color:var(--green-mid);box-shadow:0 0 8px var(--green-dim)}
+    .pin-hint{text-align:center;font-size:11px;color:var(--green-dim);margin-bottom:.8rem}
+
+    /* boot */
+    #screen-boot{display:none;min-height:100vh;width:100%;align-items:flex-start;justify-content:center;padding:3rem 2rem}
+    #screen-boot.on{display:flex}
+    .boot-wrap{width:100%;max-width:700px}
+    .boot-bar-outer{height:4px;background:var(--border);margin-top:.5rem}
+    .boot-bar-fill{height:100%;background:var(--green);box-shadow:0 0 6px var(--green);width:0;transition:width .3s}
+    @keyframes lineIn{from{opacity:0}to{opacity:1}}
+    .bline{font-size:13px;line-height:2;opacity:0;white-space:nowrap}
+    .bline.show{animation:lineIn .2s ease forwards}
+    .bok{color:var(--green)}.binfo{color:var(--text)}.bwarn{color:var(--amber)}.bsys{color:#00cfff}
+  </style>
+</head>
+<body>
+
+<!-- LOGIN/REGISTER SCREEN -->
+<div id="screen-login">
+  <div class="box">
+    <div class="scan-line"></div>
+    <div class="topbar">
+      <span class="dot dr"></span><span class="dot da"></span><span class="dot dg"></span>
+      <span class="topbar-title">ARUNCODE_TERM — SECURE ACCESS</span>
+    </div>
+    <div class="inner">
+      <div class="title">ArunCode <span class="cursor"></span></div>
+      <div class="subtitle">// TERMINAL v5.0.0</div>
+
+      <!-- LOGIN / REGISTER TABS -->
+      <div class="tabs" style="display:flex">
+        <div class="tab active" id="tab-login"    onclick="switchTab('login')"   style="border-right:1px solid var(--border)">LOGIN</div>
+        <div class="tab"        id="tab-register" onclick="switchTab('register')" style="border-right:1px solid var(--border)">CREATE ACCOUNT</div>
+        <div class="tab"        id="tab-ip"       onclick="switchTab('ip')">IP LOGIN</div>
+      </div>
+
+      <div class="msg-area" id="msg-area"></div>
+
+      <!-- ══ LOGIN ══ -->
+      <div id="flow-login">
+        <div class="steps">
+          <div class="step active" id="ls1">01 IDENTIFY</div>
+          <div class="step"        id="ls2">02 PASSWORD</div>
+          <div class="step"        id="ls3">03 PIN</div>
+        </div>
+
+        <!-- Step 1: email + username -->
+        <div class="form-step active" id="ll1">
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="l-email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')loginStep1()">
+          </div>
+          <div class="field">
+            <label>Username</label>
+            <input type="text" id="l-user" placeholder="your username" onkeydown="if(event.key==='Enter')loginStep1()">
+          </div>
+          <button class="btn" id="btn-ls1" onclick="loginStep1()">CONTINUE →</button>
+        </div>
+
+        <!-- Step 2: password -->
+        <div class="form-step" id="ll2">
+          <div class="field">
+            <label>Password</label>
+            <input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')loginStep2()">
+            <div class="hint">Logging in as: <span id="l-user-display" style="color:var(--green-mid)"></span></div>
+          </div>
+          <button class="btn" id="btn-ls2" onclick="loginStep2()">AUTHENTICATE →</button>
+        </div>
+
+        <!-- Step 3: PIN (admins only) -->
+        <div class="form-step" id="ll3">
+          <div class="pin-hint">Enter your secret PIN</div>
+          <div class="pin-row" id="pin-row">
+            <input class="pin-box" type="text" maxlength="1" inputmode="numeric" onkeydown="pinKey(this,0,event)" oninput="pinInput(this,0)">
+            <input class="pin-box" type="text" maxlength="1" inputmode="numeric" onkeydown="pinKey(this,1,event)" oninput="pinInput(this,1)">
+            <input class="pin-box" type="text" maxlength="1" inputmode="numeric" onkeydown="pinKey(this,2,event)" oninput="pinInput(this,2)">
+            <input class="pin-box" type="text" maxlength="1" inputmode="numeric" onkeydown="pinKey(this,3,event)" oninput="pinInput(this,3)">
+            <input class="pin-box" type="text" maxlength="1" inputmode="numeric" onkeydown="pinKey(this,4,event)" oninput="pinInput(this,4)">
+            <input class="pin-box" type="text" maxlength="1" inputmode="numeric" onkeydown="pinKey(this,5,event)" oninput="pinInput(this,5)">
+          </div>
+          <button class="btn" id="btn-ls3" onclick="loginStep3()">VERIFY & ENTER →</button>
+        </div>
+      </div>
+
+      <!-- ══ IP LOGIN ══ -->
+      <div id="flow-ip" style="display:none">
+        <div style="font-size:10px;color:var(--green-dim);letter-spacing:1px;margin-bottom:.8rem;line-height:1.8">
+          Enter your encoded IP key.<br>
+          Format: <span style="color:var(--green-mid)">username;;email;;password</span><br>
+          Each char encoded as number, separated by <span style="color:var(--green-mid)">;</span> — space = <span style="color:var(--green-mid)">;;</span>
+        </div>
+        <div class="field">
+          <label>IP Key</label>
+          <input type="text" id="ip-input" placeholder="8;9;;8;9;32;7;13;1;9;12;27;3;15;13;;8;5;12;12;15"
+            style="font-size:11px" onkeydown="if(event.key==='Enter')ipLogin()">
+          <div class="hint" id="ip-decoded" style="min-height:14px;color:var(--green-mid)"></div>
+        </div>
+        <button class="btn" id="btn-ip" onclick="ipLogin()">DECODE & LOGIN →</button>
+      </div>
+
+      <!-- ══ REGISTER ══ -->
+      <div id="flow-register" style="display:none">
+        <div class="field">
+          <label>Username</label>
+          <input type="text" id="r-user" placeholder="cooluser123">
+          <div class="hint">At least 3 characters. No spaces.</div>
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="r-email" placeholder="you@example.com">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="r-pass" placeholder="••••••••">
+          <div class="hint">At least 6 characters.</div>
+        </div>
+        <button class="btn" id="btn-reg" onclick="register()">CREATE ACCOUNT →</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- BOOT SCREEN -->
+<div id="screen-boot">
+  <div class="boot-wrap" id="boot-wrap">
+    LOADING ARUNCODE_TERM...<br>
+    <div class="boot-bar-outer"><div class="boot-bar-fill" id="boot-bar"></div></div>
+    <br>
+  </div>
+</div>
+
+<script>
+  let pendingUser = '';
+  let pendingRole = '';
+
+  // ── TAB SWITCH ──────────────────────────────
+  // ── CIPHER MAP ──────────────────────────────
+  const ENCODE_MAP = {
+    'a':1,'b':2,'c':3,'d':4,'e':5,'f':6,'g':7,'h':8,'i':9,'j':10,
+    'k':11,'l':12,'m':13,'n':14,'o':15,'p':16,'q':17,'r':18,'s':19,'t':20,
+    'u':21,'v':22,'w':23,'x':24,'y':25,'z':26,
+    '.':27,'!':28,'?':29,',':30,':':31,'@':32,'#':33,'-':34,'_':35,
+    '0':36,'1':37,'2':38,'3':39,'4':40,'5':41,'6':42,'7':43,'8':44,'9':45
+  };
+  const DECODE_MAP = Object.fromEntries(Object.entries(ENCODE_MAP).map(([k,v])=>[v,k]));
+
+  function decodeIP(ip) {
+    // Split by ;; first (spaces), then by ; (char separators)
+    const parts = ip.split(';;');
+    return parts.map(part => {
+      if (!part) return '';
+      return part.split(';').map(n => {
+        const num = parseInt(n.trim());
+        return DECODE_MAP[num] || '';
+      }).join('');
+    });
+  }
+
+  function encodeText(text) {
+    return text.toLowerCase().split('').map(c => ENCODE_MAP[c] || '?').join(';');
+  }
+
+  // Live decode preview
+  document.addEventListener('DOMContentLoaded', () => {
+    const inp = document.getElementById('ip-input');
+    if (inp) inp.addEventListener('input', () => {
+      const parts = decodeIP(inp.value.trim());
+      const hint  = document.getElementById('ip-decoded');
+      if (parts.length >= 3) {
+        hint.textContent = `user: ${parts[0]}  email: ${parts[1]}  pass: ${'•'.repeat(parts[2].length)}`;
+      } else if (parts.length === 2) {
+        hint.textContent = `user: ${parts[0]}  email: ${parts[1]}`;
+      } else if (parts.length === 1 && parts[0]) {
+        hint.textContent = `user: ${parts[0]}`;
+      } else {
+        hint.textContent = '';
+      }
+    });
+  });
+
+  function switchTab(t) {
+    document.getElementById('flow-login').style.display    = t==='login'    ? '' : 'none';
+    document.getElementById('flow-register').style.display = t==='register' ? '' : 'none';
+    document.getElementById('flow-ip').style.display       = t==='ip'       ? '' : 'none';
+    document.getElementById('tab-login').classList.toggle('active',    t==='login');
+    document.getElementById('tab-register').classList.toggle('active', t==='register');
+    document.getElementById('tab-ip').classList.toggle('active',       t==='ip');
+    clearMsg();
+  }
+
+  // ── MESSAGES ────────────────────────────────
+  function showErr(msg) {
+    const el = document.getElementById('msg-area');
+    el.style.color = 'var(--red)'; el.textContent = msg;
+    el.style.animation='none'; void el.offsetWidth; el.style.animation='shake .4s ease';
+  }
+  function showOk(msg) {
+    const el = document.getElementById('msg-area');
+    el.style.color = 'var(--green-mid)'; el.textContent = msg;
+  }
+  function clearMsg() { document.getElementById('msg-area').textContent = ''; }
+
+  function setBusy(btnId, busy, label) {
+    const b = document.getElementById(btnId);
+    b.disabled = busy;
+    b.textContent = busy ? 'PLEASE WAIT...' : label;
+  }
+
+  // ── LOGIN STEP DISPLAY ───────────────────────
+  function setLoginStep(n) {
+    [1,2,3].forEach(i => {
+      document.getElementById('ll'+i).classList.toggle('active', i===n);
+      const s = document.getElementById('ls'+i);
+      s.className = 'step' + (i===n?' active':i<n?' done':'');
+    });
+    clearMsg();
+  }
+
+  // ── STEP 1: email + username ─────────────────
+  function loginStep1() {
+    const email = document.getElementById('l-email').value.trim();
+    const user  = document.getElementById('l-user').value.trim();
+    if (!email || !email.includes('@')) { showErr('Enter a valid email.'); return; }
+    if (!user) { showErr('Enter your username.'); return; }
+    pendingUser = user;
+    document.getElementById('l-user-display').textContent = user;
+    setLoginStep(2);
+    document.getElementById('l-pass').focus();
+  }
+
+  // ── STEP 2: password ─────────────────────────
+  async function loginStep2() {
+    const pass = document.getElementById('l-pass').value;
+    if (pass.length < 1) { showErr('Enter your password.'); return; }
+    setBusy('btn-ls2', true, 'AUTHENTICATE →');
+    try {
+      const res  = await fetch('/api/login', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          email:    document.getElementById('l-email').value.trim(),
+          username: pendingUser,
+          password: pass
+        })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        if (data.needs_pin) {
+          // Admin — needs PIN
+          setLoginStep(3);
+          document.querySelector('#pin-row input').focus();
+        } else {
+          // Regular user — complete login immediately
+          const r2 = await fetch('/api/complete_login', {method:'POST'});
+          const d2 = await r2.json();
+          if (d2.ok) { pendingRole = d2.role; boot(); }
+          else showErr(d2.error || 'Login failed.');
+        }
+      } else {
+        showErr(data.error || 'Invalid credentials.');
+      }
+    } catch { showErr('Cannot reach server — is app.py running?'); }
+    finally { setBusy('btn-ls2', false, 'AUTHENTICATE →'); }
+  }
+
+  // ── PIN INPUT HELPERS ────────────────────────
+  function pinInput(el, idx) {
+    const boxes = document.querySelectorAll('.pin-box');
+    if (el.value && idx < 5) boxes[idx+1].focus();
+  }
+  function pinKey(el, idx, e) {
+    if (e.key === 'Backspace' && !el.value && idx > 0)
+      document.querySelectorAll('.pin-box')[idx-1].focus();
+    if (e.key === 'Enter') loginStep3();
+  }
+
+  // ── STEP 3: PIN ──────────────────────────────
+  async function loginStep3() {
+    const boxes = document.querySelectorAll('.pin-box');
+    const code  = Array.from(boxes).map(b => b.value).join('');
+    if (code.length < 6) { showErr('Enter all 6 digits.'); return; }
+    setBusy('btn-ls3', true, 'VERIFY & ENTER →');
+    try {
+      const res  = await fetch('/api/verify', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({code})
+      });
+      const data = await res.json();
+      if (data.ok) { pendingRole = data.role; boot(); }
+      else {
+        showErr(data.error || 'Incorrect PIN.');
+        boxes.forEach(b => b.value = '');
+        boxes[0].focus();
+      }
+    } catch { showErr('Cannot reach server.'); }
+    finally { setBusy('btn-ls3', false, 'VERIFY & ENTER →'); }
+  }
+
+  // ── IP LOGIN ─────────────────────────────────
+  async function ipLogin() {
+    const raw   = document.getElementById('ip-input').value.trim();
+    if (!raw) { showErr('Enter your IP key.'); return; }
+    const parts = decodeIP(raw);
+    if (parts.length < 3 || !parts[0] || !parts[1] || !parts[2]) {
+      showErr('IP key must encode: username;;email;;password'); return;
+    }
+    const [username, email, password] = parts;
+    setBusy('btn-ip', true, 'DECODE & LOGIN →');
+    try {
+      const res  = await fetch('/api/login', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({username, email, password})
+      });
+      const data = await res.json();
+      if (data.ok) {
+        pendingUser = username;
+        if (data.needs_pin) {
+          switchTab('login');
+          setLoginStep(3);
+          document.getElementById('l-user-display').textContent = username;
+          document.querySelector('#pin-row input').focus();
+          showErr('PIN required — enter it below.');
+        } else {
+          const r2 = await fetch('/api/complete_login', {method:'POST'});
+          const d2 = await r2.json();
+          if (d2.ok) { pendingRole = d2.role; boot(); }
+          else showErr(d2.error || 'Login failed.');
+        }
+      } else { showErr(data.error || 'Invalid IP key.'); }
+    } catch { showErr('Cannot reach server.'); }
+    finally { setBusy('btn-ip', false, 'DECODE & LOGIN →'); }
+  }
+
+  // ── REGISTER ─────────────────────────────────
+  async function register() {
+    const user  = document.getElementById('r-user').value.trim();
+    const email = document.getElementById('r-email').value.trim();
+    const pass  = document.getElementById('r-pass').value;
+    if (!user || !email || !pass) { showErr('All fields are required.'); return; }
+    if (user.length < 3)  { showErr('Username must be at least 3 characters.'); return; }
+    if (pass.length < 6)  { showErr('Password must be at least 6 characters.'); return; }
+    if (!email.includes('@')) { showErr('Enter a valid email.'); return; }
+    setBusy('btn-reg', true, 'CREATE ACCOUNT →');
+    try {
+      const res  = await fetch('/api/register', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({username: user, email, password: pass})
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showOk('✔ Account created! Switching to login...');
+        document.getElementById('r-user').value  = '';
+        document.getElementById('r-email').value = '';
+        document.getElementById('r-pass').value  = '';
+        // Pre-fill login
+        document.getElementById('l-email').value = email;
+        document.getElementById('l-user').value  = user;
+        setTimeout(() => { switchTab('login'); clearMsg(); }, 1600);
+      } else {
+        showErr(data.error || 'Registration failed.');
+      }
+    } catch { showErr('Cannot reach server.'); }
+    finally { setBusy('btn-reg', false, 'CREATE ACCOUNT →'); }
+  }
+
+  // ── BOOT SEQUENCE ────────────────────────────
+  function boot() {
+    document.getElementById('screen-login').style.display = 'none';
+    document.getElementById('screen-boot').classList.add('on');
+
+    const lines = [
+      {t:'[  OK  ] Kernel initialised.',             c:'bok',   d:200},
+      {t:'[  OK  ] Loading ArunCode_Term v5.0.0...',  c:'bok',   d:500},
+      {t:'[  OK  ] Python 3.1+ runtime detected.',   c:'bok',   d:800},
+      {t:'[  OK  ] Session authenticated.',          c:'bok',   d:1100},
+      {t:'[ SYS  ] Role: '+(pendingRole||'user').toUpperCase(), c:'bsys', d:1400},
+      {t:'[ SYS  ] Welcome, '+pendingUser+'.',       c:'bsys',  d:1700},
+      {t:'[ SYS  ] All systems nominal.',            c:'bsys',  d:2000},
+      {t:'[ INFO ] Loading dashboard...',            c:'binfo', d:2300},
+    ];
+
+    const wrap = document.getElementById('boot-wrap');
+    const bar  = document.getElementById('boot-bar');
+
+    lines.forEach((l, i) => {
+      setTimeout(() => {
+        const div = document.createElement('div');
+        div.className = 'bline ' + l.c;
+        div.textContent = l.t;
+        wrap.appendChild(div);
+        void div.offsetWidth; div.classList.add('show');
+        bar.style.width = ((i+1)/lines.length*100) + '%';
+      }, l.d);
+    });
+
+    setTimeout(() => {
+      sessionStorage.setItem('aruncode_user', pendingUser);
+      sessionStorage.setItem('aruncode_role', pendingRole || 'user');
+      const params = new URLSearchParams(window.location.search);
+      const next   = params.get('next');
+      window.location.href = (next && next.startsWith('/')) ? next : '/home';
+    }, 2900);
+  }
+</script>
+</body>
+</html>

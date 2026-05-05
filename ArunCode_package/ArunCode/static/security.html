@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArunCode — Security</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#09080a;--bg2:#0d0b10;--bg3:#121018;--red:#ff4444;--red-dim:#7a0000;
+      --amber:#ffb300;--amber-dim:#7a5500;--green:#39ff14;--green-dim:#1a7a06;
+      --blue:#00cfff;--blue-dim:#005577;--purple:#c084fc;--border:#2a1020;
+      --text:#d0b0c0;--mono:'Share Tech Mono',monospace;--title:'Orbitron',sans-serif}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;
+      min-height:100vh;display:flex;flex-direction:column;cursor:crosshair}
+    body::before{content:'';position:fixed;inset:0;
+      background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.1) 2px,rgba(0,0,0,0.1) 4px);
+      pointer-events:none;z-index:9999}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+    @keyframes pulse{0%,100%{box-shadow:0 0 4px var(--red-dim)}50%{box-shadow:0 0 16px var(--red)}}
+
+    /* TOPBAR */
+    .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.6rem 2rem;
+      display:flex;align-items:center;gap:1rem;flex-shrink:0;animation:fadeUp .4s ease}
+    .brand{font-family:var(--title);font-size:.95rem;font-weight:900;letter-spacing:2px;
+      color:var(--red);text-shadow:0 0 8px var(--red-dim)}
+    .brand span{color:var(--amber)}
+    .topbar-right{margin-left:auto;display:flex;align-items:center;gap:.8rem}
+    .user-chip{font-size:10px;color:var(--red);letter-spacing:1px;border:1px solid var(--border);padding:3px 10px;display:flex;align-items:center;gap:6px}
+    .udot{width:6px;height:6px;border-radius:50%;background:var(--red);box-shadow:0 0 6px var(--red);animation:blink 2s infinite}
+    .btn-sm{background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--mono);
+      font-size:10px;letter-spacing:1px;padding:4px 12px;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+    .btn-sm:hover{border-color:var(--red);color:var(--red)}
+
+    /* TABS */
+    .page-tabs{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;padding:0 2rem}
+    .page-tab{padding:.65rem 1.2rem;font-size:11px;letter-spacing:1px;color:#555;cursor:pointer;
+      border-bottom:2px solid transparent;transition:all .2s}
+    .page-tab.active{color:var(--red);border-bottom-color:var(--red)}
+    .page-tab:hover{color:var(--text)}
+
+    main{flex:1;padding:2rem;max-width:1100px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem}
+
+    /* SCREEN */
+    .screen{display:none;flex-direction:column;gap:1.5rem}
+    .screen.active{display:flex}
+
+    /* STATS */
+    .stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;animation:fadeUp .5s ease}
+    .stat-card{border:1px solid var(--border);background:var(--bg2);padding:1.2rem 1.4rem}
+    .stat-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#444;margin-bottom:.5rem}
+    .stat-value{font-family:var(--title);font-size:1.8rem;font-weight:900;line-height:1}
+    .stat-sub{font-size:9px;margin-top:.3rem;color:#444}
+    .sv-red{color:var(--red);text-shadow:0 0 8px var(--red-dim)}
+    .sv-amber{color:var(--amber);text-shadow:0 0 8px var(--amber-dim)}
+    .sv-green{color:var(--green);text-shadow:0 0 8px var(--green-dim)}
+    .sv-blue{color:var(--blue);text-shadow:0 0 8px var(--blue-dim)}
+    .sv-purple{color:var(--purple)}
+
+    /* PANEL */
+    .panel{border:1px solid var(--border);background:var(--bg2);animation:fadeUp .5s ease}
+    .panel-header{padding:.6rem 1.2rem;background:var(--bg3);border-bottom:1px solid var(--border);
+      font-size:9px;letter-spacing:2px;color:#444;display:flex;justify-content:space-between;align-items:center}
+    .panel-header span{color:var(--red)}
+
+    /* USER TABLE */
+    .user-table{width:100%;border-collapse:collapse}
+    .user-table th{padding:.55rem 1.2rem;font-size:9px;letter-spacing:2px;text-transform:uppercase;
+      color:#333;border-bottom:1px solid var(--border);text-align:left;background:var(--bg3)}
+    .user-table td{padding:.75rem 1.2rem;border-bottom:1px solid #0d080c;font-size:12px;transition:background .1s}
+    .user-table tr:hover td{background:rgba(255,68,68,.03)}
+    .user-table tr:last-child td{border-bottom:none}
+    .role-badge{font-size:9px;letter-spacing:1px;padding:2px 8px;border:1px solid}
+    .rb-admin{color:var(--amber);border-color:var(--amber-dim)}
+    .rb-security{color:var(--red);border-color:var(--red-dim)}
+    .rb-user{color:#444;border-color:#2a1a2a}
+    .btn-del{background:transparent;border:1px solid #2a1010;color:#663333;font-family:var(--mono);
+      font-size:10px;letter-spacing:1px;padding:3px 10px;cursor:pointer;transition:all .2s}
+    .btn-del:hover:not(:disabled){border-color:var(--red);color:var(--red)}
+    .btn-del:disabled{opacity:.25;cursor:not-allowed}
+
+    /* LOG */
+    .log-wrap{max-height:420px;overflow-y:auto}
+    .log-wrap::-webkit-scrollbar{width:4px}
+    .log-wrap::-webkit-scrollbar-thumb{background:var(--border)}
+    .log-row{display:flex;align-items:flex-start;gap:.8rem;padding:.55rem 1.2rem;
+      border-bottom:1px solid #0d080c;font-size:11px;font-family:var(--mono)}
+    .log-row:last-child{border-bottom:none}
+    .log-time{color:#333;white-space:nowrap;flex-shrink:0;width:130px}
+    .log-type{flex-shrink:0;width:110px;font-size:9px;letter-spacing:1px;padding:1px 6px;border:1px solid;text-align:center}
+    .lt-ok{color:var(--green);border-color:var(--green-dim)}
+    .lt-fail{color:var(--red);border-color:var(--red-dim)}
+    .lt-warn{color:var(--amber);border-color:var(--amber-dim)}
+    .lt-info{color:var(--blue);border-color:var(--blue-dim)}
+    .log-user{color:var(--text);flex-shrink:0;width:90px}
+    .log-detail{color:#555}
+    .no-logs{padding:2rem;text-align:center;color:#222;font-size:11px}
+
+    .msg-bar{padding:.6rem 1.2rem;font-size:11px;display:none;border-left:2px solid}
+    .msg-bar.show{display:block}
+    .msg-bar.ok{color:var(--green);border-color:var(--green)}
+    .msg-bar.err{color:var(--red);border-color:var(--red)}
+
+    /* ALERT */
+    .threat-banner{background:rgba(255,68,68,.05);border:1px solid var(--red-dim);padding:1rem 1.2rem;
+      display:flex;align-items:center;gap:1rem;animation:pulse 2s ease infinite}
+    .threat-icon{font-size:1.5rem;flex-shrink:0}
+    .threat-text{font-size:12px;line-height:1.6}
+    .threat-title{color:var(--red);letter-spacing:1px;margin-bottom:.2rem;font-size:11px}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">ArunCode <span>Security</span></div>
+  <div class="topbar-right">
+    <div class="user-chip"><span class="udot"></span><span id="topbar-user">—</span></div>
+    <a class="btn-sm" href="/home">← Dashboard</a>
+    <a class="btn-sm" href="/">⌂ Home</a>
+  </div>
+</div>
+
+<div class="page-tabs">
+  <div class="page-tab active" onclick="showTab('overview',this)">OVERVIEW</div>
+  <div class="page-tab"        onclick="showTab('users',this)">USER MANAGEMENT</div>
+  <div class="page-tab"        onclick="showTab('logs',this)">ACCESS LOGS</div>
+</div>
+
+<main id="main">
+  <div style="text-align:center;padding:3rem;color:#333">Checking access...</div>
+</main>
+
+<script>
+let myRole = '';
+let myUser = '';
+
+async function init() {
+  const me = await fetch('/api/me').then(r=>r.json()).catch(()=>null);
+  if (!me || !me.ok) { window.location.href='/terminal?next=/security'; return; }
+  if (!['admin','security'].includes(me.role)) {
+    document.getElementById('main').innerHTML =
+      '<div style="text-align:center;padding:3rem;color:#ff4444">🚫 Access Denied — Security clearance required.</div>';
+    return;
+  }
+  myRole = me.role; myUser = me.username;
+  document.getElementById('topbar-user').textContent = myUser + ' [' + myRole.toUpperCase() + ']';
+  buildUI();
+  loadAll();
+}
+
+function buildUI() {
+  document.getElementById('main').innerHTML = `
+    <!-- OVERVIEW -->
+    <div class="screen active" id="screen-overview">
+      <div id="threat-area"></div>
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value sv-blue" id="st-total">—</div><div class="stat-sub">registered accounts</div></div>
+        <div class="stat-card"><div class="stat-label">Admins</div><div class="stat-value sv-amber" id="st-admins">—</div><div class="stat-sub">full access</div></div>
+        <div class="stat-card"><div class="stat-label">Security</div><div class="stat-value sv-red" id="st-security">—</div><div class="stat-sub">security managers</div></div>
+        <div class="stat-card"><div class="stat-label">Regular</div><div class="stat-value sv-green" id="st-regular">—</div><div class="stat-sub">standard users</div></div>
+        <div class="stat-card"><div class="stat-label">Failed Logins</div><div class="stat-value sv-red" id="st-failed">—</div><div class="stat-sub">since last restart</div></div>
+        <div class="stat-card"><div class="stat-label">Log Entries</div><div class="stat-value sv-purple" id="st-logs">—</div><div class="stat-sub">events recorded</div></div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div class="screen" id="screen-users">
+      <div class="panel">
+        <div class="panel-header"><span>▸ User Management</span><span id="user-count" style="color:#333">loading...</span></div>
+        <div class="msg-bar" id="user-msg"></div>
+        <table class="user-table">
+          <thead><tr><th>Username</th><th>Email</th><th>Role</th><th>Action</th></tr></thead>
+          <tbody id="user-tbody"><tr><td colspan="4" style="padding:1.5rem;text-align:center;color:#333">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LOGS -->
+    <div class="screen" id="screen-logs">
+      <div class="panel">
+        <div class="panel-header">
+          <span>▸ Access Logs</span>
+          <button onclick="loadLogs()" style="background:transparent;border:1px solid #2a1020;color:#555;font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:2px 10px;cursor:pointer;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='#555'">↻ REFRESH</button>
+        </div>
+        <div class="log-wrap" id="log-wrap"><div class="no-logs">Loading...</div></div>
+      </div>
+    </div>
+  `;
+}
+
+async function loadAll() {
+  await Promise.all([loadStats(), loadUsers(), loadLogs()]);
+}
+
+async function loadStats() {
+  const res = await fetch('/api/security/stats').then(r=>r.json()).catch(()=>null);
+  if (!res || !res.ok) return;
+  const s = res.stats;
+  document.getElementById('st-total').textContent    = s.total_users;
+  document.getElementById('st-admins').textContent   = s.admins;
+  document.getElementById('st-security').textContent = s.security;
+  document.getElementById('st-regular').textContent  = s.regular;
+  document.getElementById('st-failed').textContent   = s.failed_logins;
+  document.getElementById('st-logs').textContent     = s.log_entries;
+
+  // Threat banner
+  const area = document.getElementById('threat-area');
+  if (s.failed_logins >= 3) {
+    area.innerHTML = `
+      <div class="threat-banner">
+        <div class="threat-icon">⚠</div>
+        <div class="threat-text">
+          <div class="threat-title">THREAT DETECTED</div>
+          ${s.failed_logins} failed login attempt${s.failed_logins!==1?'s':''} recorded since last server restart. Review access logs.
+        </div>
+      </div>`;
+  } else {
+    area.innerHTML = '';
+  }
+}
+
+async function loadUsers() {
+  const res = await fetch('/api/admin/users').then(r=>r.json()).catch(()=>null);
+  if (!res || !res.ok) return;
+  const users = res.users;
+  document.getElementById('user-count').textContent = Object.keys(users).length + ' accounts';
+  const tbody = document.getElementById('user-tbody');
+  tbody.innerHTML = '';
+  Object.entries(users).sort((a,b)=>{
+    const order = {admin:0,security:1,user:2};
+    return (order[a[1].role]||9)-(order[b[1].role]||9);
+  }).forEach(([u,d]) => {
+    const canDel = u !== 'ArunC' && !(myRole==='security' && ['admin','security'].includes(d.role));
+    const tr = document.createElement('tr');
+    tr.id = 'row-'+u;
+    tr.innerHTML = `
+      <td>${u}${u===myUser?' <span style="font-size:9px;color:#444">(you)</span>':''}</td>
+      <td style="color:#555">${d.email}</td>
+      <td><span class="role-badge rb-${d.role}">${d.role.toUpperCase()}</span></td>
+      <td><button class="btn-del" onclick="deleteUser('${u}')" ${canDel?'':'disabled'}>DELETE</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+async function loadLogs() {
+  const res = await fetch('/api/security/logs').then(r=>r.json()).catch(()=>null);
+  const wrap = document.getElementById('log-wrap');
+  if (!res || !res.ok) { wrap.innerHTML='<div class="no-logs">Could not load logs.</div>'; return; }
+  if (!res.logs.length) { wrap.innerHTML='<div class="no-logs">No events recorded yet.</div>'; return; }
+  wrap.innerHTML = '';
+  res.logs.forEach(l => {
+    const div = document.createElement('div');
+    div.className = 'log-row';
+    const typeClass = {
+      LOGIN_OK:'lt-ok', REGISTER:'lt-info', LOGOUT:'lt-info',
+      LOGIN_FAIL:'lt-fail', PIN_FAIL:'lt-fail', DELETE_USER:'lt-warn',
+      LOGIN_ATTEMPT:'lt-info'
+    }[l.type] || 'lt-info';
+    div.innerHTML = `
+      <div class="log-time">${l.time}</div>
+      <div class="log-type ${typeClass}">${l.type}</div>
+      <div class="log-user">${l.username}</div>
+      <div class="log-detail">${l.detail}${l.ip?' · '+l.ip:''}</div>`;
+    wrap.appendChild(div);
+  });
+}
+
+async function deleteUser(username) {
+  if (!confirm(`Delete account "${username}"?\nThis cannot be undone.`)) return;
+  const res  = await fetch(`/api/admin/users/${username}`, {method:'DELETE'}).then(r=>r.json()).catch(()=>null);
+  const msg  = document.getElementById('user-msg');
+  if (res && res.ok) {
+    document.getElementById('row-'+username)?.remove();
+    msg.className='msg-bar ok show'; msg.textContent=`✔ Account "${username}" deleted.`;
+    loadStats();
+  } else {
+    msg.className='msg-bar err show'; msg.textContent=`✖ ${res?.error||'Failed.'}`;
+  }
+  setTimeout(()=>msg.classList.remove('show'),3000);
+}
+
+function showTab(id, el) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.page-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  el.classList.add('active');
+  if (id==='logs') loadLogs();
+  if (id==='overview') loadStats();
+}
+
+init();
+</script>
+</body>
+</html>

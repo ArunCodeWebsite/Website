@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+// ArunCode Theme Engine v3
+(function(){
+  var T={
+    default:{},
+    amber:  {'--bg':'#0a0700','--bg2':'#110d00','--bg3':'#181100','--green':'#ffaa00','--gdim':'#7a5000','--border':'#2a1f00','--border2':'#3a2a00','--blue':'#ffcc44','--bdim':'#996600','--text':'#9a8060','--textb':'#e8d4a0'},
+    crimson:{'--bg':'#0a0003','--bg2':'#110005','--bg3':'#180008','--green':'#ff2255','--gdim':'#7a0022','--border':'#2a0010','--border2':'#3a0018','--blue':'#ff6688','--bdim':'#881133','--text':'#9a6070','--textb':'#e8a0b0'},
+    aurora: {'--bg':'#000a08','--bg2':'#001110','--bg3':'#001816','--green':'#00ffcc','--gdim':'#007a5e','--border':'#002a24','--border2':'#003a32','--blue':'#00ddff','--bdim':'#006677','--text':'#60a090','--textb':'#a0e8d8'},
+    void:   {'--bg':'#050008','--bg2':'#080010','--bg3':'#0d0018','--green':'#cc44ff','--gdim':'#6600aa','--border':'#1a0030','--border2':'#250040','--blue':'#8844ff','--bdim':'#440088','--text':'#8060a0','--textb':'#c8a0e8'},
+    steel:  {'--bg':'#030609','--bg2':'#050d14','--bg3':'#07121c','--green':'#44aaff','--gdim':'#1155aa','--border':'#0a1828','--border2':'#102233','--blue':'#88ccff','--bdim':'#224466','--text':'#6090b0','--textb':'#a0c8e8'},
+    solar:  {'--bg':'#090500','--bg2':'#110900','--bg3':'#180d00','--green':'#ff8800','--gdim':'#994400','--border':'#2a1500','--border2':'#3a1e00','--blue':'#ffcc00','--bdim':'#886600','--text':'#9a7040','--textb':'#e8c080'},
+    gold:   {'--bg':'#080700','--bg2':'#0f0d00','--bg3':'#161200','--green':'#ffd700','--gdim':'#8a7200','--border':'#2a2400','--border2':'#3a3200','--blue':'#ffee88','--bdim':'#887700','--text':'#9a9060','--textb':'#e8e0a0'},
+  };
+  function apply(theme){
+    var v=T[theme];
+    if(!v||!Object.keys(v).length) return;
+    var css=':root{'+Object.keys(v).map(function(k){return k+':'+v[k]+'!important';}).join(';')+'}';
+    var el=document.getElementById('ac-theme-style');
+    if(!el){el=document.createElement('style');el.id='ac-theme-style';document.head.appendChild(el);}
+    el.textContent=css;
+  }
+  var t=localStorage.getItem('ac_theme')||'default';
+  apply(t);
+  window._applyTheme=apply;
+  fetch('/api/profile',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(p){
+    if(p&&p.ok&&p.theme&&p.theme!==t){
+      localStorage.setItem('ac_theme',p.theme);
+      apply(p.theme);
+    }
+  }).catch(function(){});
+})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Teaching Club</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#08090a;--bg2:#0d1117;--bg3:#141920;--blue:#00cfff;--blue-dim:#00557a;--blue-mid:#009ac0;
+      --green:#39ff14;--green-dim:#1a7a06;--amber:#ffb300;--amber-dim:#7a5500;--purple:#c084fc;--red:#ff4444;
+      --border:#1a2332;--text:#8ba8c0;--text-b:#cde0f0;
+      --mono:'JetBrains Mono',monospace;--ui:'Share Tech Mono',monospace;--title:'Orbitron',sans-serif}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:13px;min-height:100vh;display:flex;flex-direction:column}
+    body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:9999}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+    .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.6rem 2rem;display:flex;align-items:center;gap:1rem;flex-shrink:0}
+    .brand{font-family:var(--title);font-size:.95rem;font-weight:900;letter-spacing:2px;color:var(--blue);text-shadow:0 0 8px var(--blue-dim)}
+    .brand span{color:var(--green)}
+    .topbar-right{margin-left:auto;display:flex;align-items:center;gap:.7rem}
+    .admin-badge{font-size:9px;letter-spacing:1px;color:var(--amber);border:1px solid var(--amber-dim);padding:2px 8px}
+    .btn-sm{background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--ui);font-size:10px;letter-spacing:1px;padding:4px 12px;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+    .btn-sm:hover{border-color:var(--blue-dim);color:var(--blue)}
+    .btn-primary{border-color:var(--blue-dim);color:var(--blue)}
+    .btn-primary:hover{background:rgba(0,207,255,.08);border-color:var(--blue)}
+    .btn-green{border-color:var(--green-dim);color:var(--green)}
+    .btn-green:hover{background:rgba(57,255,20,.06)}
+    .btn-red{border-color:#2a1010;color:#663333}
+    .btn-red:hover{border-color:var(--red);color:var(--red)}
+    .btn-amber{border-color:var(--amber-dim);color:var(--amber)}
+    .btn-amber:hover{background:rgba(255,179,0,.06)}
+
+    .page-tabs{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;padding:0 2rem}
+    .page-tab{padding:.7rem 1.2rem;font-size:11px;letter-spacing:1px;color:var(--text);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+    .page-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+    .page-tab:hover{color:var(--text-b)}
+
+    main{flex:1;padding:2rem;max-width:1100px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem}
+
+    .screen{display:none;flex-direction:column;gap:1.5rem}
+    .screen.active{display:flex;animation:fadeUp .4s ease}
+
+    .panel{border:1px solid var(--border);background:var(--bg2)}
+    .panel-header{padding:.6rem 1.2rem;background:var(--bg3);border-bottom:1px solid var(--border);font-size:9px;letter-spacing:2px;color:var(--blue-dim);display:flex;align-items:center;justify-content:space-between}
+
+    /* LESSONS */
+    .lessons-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
+    .lesson-card{border:1px solid var(--border);background:var(--bg2);padding:1.2rem;cursor:pointer;transition:all .2s;position:relative}
+    .lesson-card:hover{border-color:var(--blue-mid);background:rgba(0,207,255,.04);transform:translateY(-2px)}
+    .lesson-card.done{border-color:var(--green);opacity:.85}
+    .lesson-num{font-size:9px;letter-spacing:2px;color:var(--blue-dim);margin-bottom:.4rem}
+    .lesson-title{font-size:14px;color:var(--text-b);margin-bottom:.4rem}
+    .lesson-desc{font-size:11px;color:var(--text);line-height:1.6}
+    .lesson-tag{display:inline-block;font-size:9px;letter-spacing:1px;padding:2px 8px;border:1px solid;margin-top:.6rem}
+    .tag-beginner{color:var(--green);border-color:var(--green-dim)}
+    .tag-intermediate{color:var(--amber);border-color:var(--amber-dim)}
+    .tag-advanced{color:var(--purple);border-color:#6a3a9a}
+    .done-badge{position:absolute;top:.8rem;right:.8rem;font-size:11px;color:var(--green)}
+    .del-card-btn{position:absolute;bottom:.8rem;right:.8rem;background:none;border:1px solid #2a1010;color:#663333;font-family:var(--ui);font-size:9px;letter-spacing:1px;padding:2px 8px;cursor:pointer;transition:all .2s;display:none}
+    .lesson-card:hover .del-card-btn{display:block}
+    .del-card-btn:hover{border-color:var(--red);color:var(--red)}
+
+    /* LESSON VIEW */
+    .lesson-header{padding:1rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+    .lesson-content{padding:1.5rem;line-height:1.9;font-size:13px}
+    .lesson-content h3{color:var(--blue);font-family:var(--ui);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin:1.2rem 0 .5rem}
+    .lesson-content p{margin-bottom:.8rem;color:var(--text)}
+    .code-block{background:var(--bg);border:1px solid var(--border);padding:1rem 1.2rem;font-family:var(--mono);font-size:12px;margin:.8rem 0;color:var(--text-b);line-height:1.7;overflow-x:auto;white-space:pre}
+    .kw{color:#569cd6}.fn{color:#dcdcaa}.st{color:#ce9178}.cm{color:#6a9955}.num{color:#b5cea8}
+    .quiz-section{margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--border)}
+    .quiz-q{font-size:12px;color:var(--text-b);margin-bottom:.8rem}
+    .quiz-opts{display:flex;flex-direction:column;gap:.4rem}
+    .quiz-opt{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--ui);font-size:11px;padding:.5rem 1rem;cursor:pointer;transition:all .15s;text-align:left}
+    .quiz-opt:hover:not(:disabled){border-color:var(--blue-dim);color:var(--blue)}
+    .quiz-opt.correct{border-color:var(--green);color:var(--green);background:rgba(57,255,20,.05)}
+    .quiz-opt.wrong{border-color:var(--red);color:var(--red);background:rgba(255,68,68,.05)}
+    .quiz-result{margin-top:.8rem;font-size:12px;min-height:18px}
+
+    /* MEMBERS */
+    .member-row{display:flex;align-items:center;gap:1rem;padding:.75rem 1.2rem;border-bottom:1px solid #0d1117;transition:background .15s}
+    .member-row:hover{background:rgba(0,207,255,.03)}
+    .member-row:last-child{border-bottom:none}
+    .member-avatar{width:32px;height:32px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:var(--bg3)}
+    .member-name{color:var(--text-b);font-size:12px}
+    .member-role-label{font-size:9px;letter-spacing:1px;margin-top:2px}
+    .role-founder{color:var(--blue)}
+    .role-member{color:var(--text)}
+    .member-pts{margin-left:auto;font-size:11px;color:var(--amber);margin-right:.5rem}
+    .btn-del-member{background:none;border:1px solid #2a1010;color:#663333;font-family:var(--ui);font-size:9px;letter-spacing:1px;padding:2px 8px;cursor:pointer;transition:all .2s}
+    .btn-del-member:hover{border-color:var(--red);color:var(--red)}
+
+    /* LEADERBOARD */
+    .lb-row{display:flex;align-items:center;gap:1rem;padding:.7rem 1.2rem;border-bottom:1px solid #0d1117}
+    .lb-row:last-child{border-bottom:none}
+    .lb-rank{width:28px;font-size:14px;flex-shrink:0;text-align:center}
+    .lb-name{flex:0 0 130px;font-size:12px;color:var(--text-b)}
+    .lb-bar-wrap{flex:1;height:6px;background:var(--bg3);border:1px solid var(--border)}
+    .lb-bar{height:100%;background:var(--blue);box-shadow:0 0 6px var(--blue-dim)}
+    .lb-pts{margin-left:1rem;font-size:11px;color:var(--amber);flex-shrink:0}
+
+    /* ASSIGNMENTS */
+    .assignment-card{border:1px solid var(--border);background:var(--bg2);padding:1.2rem;position:relative}
+    .asgn-title{font-size:13px;color:var(--text-b);margin-bottom:.4rem}
+    .asgn-due{font-size:10px;color:var(--amber);letter-spacing:1px;margin-bottom:.5rem}
+    .asgn-desc{font-size:11px;color:var(--text);line-height:1.7}
+    .asgn-status{display:inline-block;font-size:9px;letter-spacing:1px;padding:2px 8px;border:1px solid;margin-top:.6rem}
+    .status-open{color:var(--green);border-color:var(--green-dim)}
+    .status-closed{color:#444;border-color:#222}
+    .asgn-admin-btns{position:absolute;top:.8rem;right:.8rem;display:none;gap:.3rem;flex-direction:column}
+    .assignment-card:hover .asgn-admin-btns{display:flex}
+    .assignments-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+    .empty-state{padding:3rem;text-align:center;color:#1a2535;font-size:11px;letter-spacing:1px}
+
+    /* MODAL */
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center}
+    .modal.show{display:flex}
+    .modal-box{background:var(--bg2);border:1px solid var(--border);width:480px;max-width:95vw}
+    .modal-header{padding:.6rem 1rem;background:var(--bg3);border-bottom:1px solid var(--border);font-size:9px;letter-spacing:2px;color:var(--blue-dim);display:flex;justify-content:space-between;align-items:center}
+    .modal-close{background:none;border:none;color:#444;cursor:pointer;font-size:18px;transition:color .2s;line-height:1}
+    .modal-close:hover{color:var(--red)}
+    .modal-body{padding:1.2rem;display:flex;flex-direction:column;gap:.9rem}
+    .mfield label{display:block;font-size:9px;letter-spacing:2px;color:var(--blue-dim);margin-bottom:.4rem}
+    .mfield input,.mfield textarea,.mfield select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text-b);font-family:var(--ui);font-size:12px;padding:.5rem .7rem;outline:none;caret-color:var(--blue);resize:vertical}
+    .mfield input:focus,.mfield textarea:focus,.mfield select:focus{border-color:var(--blue-dim)}
+    .modal-footer{padding:.7rem 1rem;border-top:1px solid var(--border);display:flex;gap:.5rem;justify-content:flex-end}
+    .msg{font-size:11px;padding:.4rem 1rem;display:none}
+    .msg.show{display:block}
+    .msg.ok{color:var(--green)}.msg.err{color:var(--red)}
+  </style>
+
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">Python <span>Teaching Club</span></div>
+  <div class="topbar-right">
+    <span class="admin-badge" id="admin-badge" style="display:none">ADMIN</span>
+    <a class="btn-sm" href="/">⌂ HOME</a>
+  </div>
+</div>
+
+<div class="page-tabs">
+  <div class="page-tab active" onclick="showScreen('lessons',this)">LESSONS</div>
+  <div class="page-tab"        onclick="showScreen('assignments',this)">ASSIGNMENTS</div>
+  <div class="page-tab"        onclick="showScreen('members',this)">MEMBERS</div>
+  <div class="page-tab"        onclick="showScreen('leaderboard',this)">LEADERBOARD</div>
+</div>
+
+<main>
+
+  <!-- LESSONS -->
+  <div class="screen active" id="screen-lessons">
+    <div id="lessons-grid-view">
+      <div class="panel-header" style="border:1px solid var(--border);background:var(--bg2)">
+        <span>▸ Python Fundamentals</span>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <span id="progress-label" style="color:#333">0 / 0 complete</span>
+          <button class="btn-sm btn-primary" id="btn-add-lesson" style="display:none" onclick="openModal('modal-lesson')">+ ADD LESSON</button>
+        </div>
+      </div>
+      <div style="height:.8rem"></div>
+      <div class="lessons-grid" id="lessons-grid"></div>
+    </div>
+    <div id="lesson-view-wrap" style="display:none">
+      <div class="panel">
+        <div class="lesson-header">
+          <button class="btn-sm" onclick="backToGrid()">← BACK</button>
+          <span id="lv-num" style="font-size:10px;color:var(--blue-dim)"></span>
+          <span id="lv-title" style="color:var(--text-b);font-size:14px"></span>
+        </div>
+        <div class="lesson-content" id="lv-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSIGNMENTS -->
+  <div class="screen" id="screen-assignments">
+    <div class="panel-header" style="border:1px solid var(--border);background:var(--bg2)">
+      <span>▸ Assignments</span>
+      <button class="btn-sm btn-amber" id="btn-add-asgn" style="display:none" onclick="openModal('modal-asgn')">+ NEW ASSIGNMENT</button>
+    </div>
+    <div style="height:.5rem"></div>
+    <div class="assignments-grid" id="assignments-grid"></div>
+  </div>
+
+  <!-- MEMBERS -->
+  <div class="screen" id="screen-members">
+    <div class="panel">
+      <div class="panel-header">
+        <span>▸ Club Members</span>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <span id="member-count" style="color:#333">0 members</span>
+          <button class="btn-sm btn-green" id="btn-add-member" style="display:none" onclick="openModal('modal-member')">+ ADD MEMBER</button>
+        </div>
+      </div>
+      <div class="msg" id="member-msg"></div>
+      <div id="join-bar" style="display:none;padding:.8rem 1.2rem;border-bottom:1px solid var(--border);background:var(--bg3)">
+        <button class="btn-sm btn-green" onclick="joinClub()">+ JOIN CLUB</button>
+        <span style="font-size:10px;color:var(--text);margin-left:.8rem">Join the Python Teaching Club as a member</span>
+      </div>
+      <div id="members-list"></div>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="screen" id="screen-leaderboard">
+    <div class="panel">
+      <div class="panel-header"><span>▸ Leaderboard</span></div>
+      <div id="lb-list"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ADD LESSON MODAL -->
+<div class="modal" id="modal-lesson">
+  <div class="modal-box">
+    <div class="modal-header"><span>// NEW LESSON</span><button class="modal-close" onclick="closeModal('modal-lesson')">×</button></div>
+    <div class="modal-body">
+      <div class="mfield"><label>Title</label><input id="l-title" placeholder="e.g. Lists & Dictionaries"></div>
+      <div class="mfield"><label>Level</label>
+        <select id="l-level"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select>
+      </div>
+      <div class="mfield"><label>Description</label><input id="l-desc" placeholder="Short description..."></div>
+      <div class="mfield"><label>Content (markdown supported)</label>
+        <textarea id="l-content" rows="6" placeholder="### Introduction&#10;Write your lesson content here...&#10;&#10;Use ```code blocks``` for code examples."></textarea>
+      </div>
+      <div class="mfield"><label>Quiz Question</label><input id="l-quiz-q" placeholder="What does print() do?"></div>
+      <div class="mfield"><label>Correct Answer</label><input id="l-quiz-correct" placeholder="Correct answer"></div>
+      <div class="mfield"><label>Wrong Answer 1</label><input id="l-quiz-w1" placeholder="Wrong answer 1"></div>
+      <div class="mfield"><label>Wrong Answer 2</label><input id="l-quiz-w2" placeholder="Wrong answer 2"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm" onclick="closeModal('modal-lesson')">CANCEL</button>
+      <button class="btn-sm btn-primary" onclick="addLesson()">CREATE →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD ASSIGNMENT MODAL -->
+<div class="modal" id="modal-asgn">
+  <div class="modal-box">
+    <div class="modal-header"><span>// NEW ASSIGNMENT</span><button class="modal-close" onclick="closeModal('modal-asgn')">×</button></div>
+    <div class="modal-body">
+      <div class="mfield"><label>Title</label><input id="a-title" placeholder="e.g. Build a Calculator"></div>
+      <div class="mfield"><label>Due Date</label><input id="a-due" type="date"></div>
+      <div class="mfield"><label>Description</label><textarea id="a-desc" rows="4" placeholder="Assignment instructions..."></textarea></div>
+      <div class="mfield"><label>Status</label>
+        <select id="a-status"><option value="open">Open</option><option value="closed">Closed</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm" onclick="closeModal('modal-asgn')">CANCEL</button>
+      <button class="btn-sm btn-amber" onclick="addAssignment()">CREATE →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MEMBER MODAL -->
+<div class="modal" id="modal-member">
+  <div class="modal-box">
+    <div class="modal-header"><span>// ADD MEMBER</span><button class="modal-close" onclick="closeModal('modal-member')">×</button></div>
+    <div class="modal-body">
+      <div class="mfield"><label>Username</label><input id="m-name" placeholder="ArunCode username"></div>
+      <div class="mfield"><label>Role</label>
+        <select id="m-role"><option value="member">Member</option><option value="founder">Founder</option></select>
+      </div>
+      <div class="mfield"><label>Points</label><input id="m-pts" type="number" placeholder="0" value="0"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm" onclick="closeModal('modal-member')">CANCEL</button>
+      <button class="btn-sm btn-green" onclick="addMember()">ADD →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State (persisted in localStorage) ──────────
+const STORE_KEY = 'ptc_data';
+
+function loadData() {
+  try {
+    const d = localStorage.getItem(STORE_KEY);
+    if (d) return JSON.parse(d);
+  } catch {}
+  return {
+    lessons: [
+      {id:1,num:"01",title:"Hello, Python!",tag:"beginner",desc:"Write your first Python program and understand print statements.",done:false,
+        content:`<h3>What is Python?</h3><p>Python is a high-level, easy-to-read programming language great for beginners.</p><h3>Your First Program</h3><div class="code-block"><span class="fn">print</span>(<span class="st">"Hello, World!"</span>)</div><p>The <code>print()</code> function outputs text to the screen.</p>`,
+        quiz:{q:"What does print('Hi') do?",correct:"Displays Hi on screen",wrong:["Deletes text","Creates a variable"]}},
+      {id:2,num:"02",title:"Variables & Data Types",tag:"beginner",desc:"Learn about integers, strings, floats, and booleans.",done:false,
+        content:`<h3>Data Types</h3><div class="code-block"><span class="cm"># Integer</span>\nage = <span class="num">15</span>\n<span class="cm"># String</span>\nname = <span class="st">"Arun"</span>\n<span class="cm"># Boolean</span>\nis_student = <span class="kw">True</span></div>`,
+        quiz:{q:"What type is 3.14?",correct:"float",wrong:["int","str"]}},
+      {id:3,num:"03",title:"If Statements",tag:"beginner",desc:"Control the flow of your program with conditions.",done:false,
+        content:`<h3>Conditionals</h3><div class="code-block">score = <span class="num">85</span>\n<span class="kw">if</span> score >= <span class="num">90</span>:\n    <span class="fn">print</span>(<span class="st">"A+"</span>)\n<span class="kw">elif</span> score >= <span class="num">80</span>:\n    <span class="fn">print</span>(<span class="st">"B"</span>)\n<span class="kw">else</span>:\n    <span class="fn">print</span>(<span class="st">"Keep trying!"</span>)</div>`,
+        quiz:{q:"What does the code print when score = 85?",correct:"B",wrong:["A+","Keep trying!"]}},
+      {id:4,num:"04",title:"Loops",tag:"intermediate",desc:"Repeat code with for and while loops.",done:false,
+        content:`<h3>For Loops</h3><div class="code-block"><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>):\n    <span class="fn">print</span>(i)</div><h3>While Loops</h3><div class="code-block">count = <span class="num">0</span>\n<span class="kw">while</span> count < <span class="num">3</span>:\n    <span class="fn">print</span>(count)\n    count += <span class="num">1</span></div>`,
+        quiz:{q:"How many times does `for i in range(3)` loop?",correct:"3",wrong:["2","4"]}},
+      {id:5,num:"05",title:"Functions",tag:"intermediate",desc:"Write reusable blocks of code with functions.",done:false,
+        content:`<h3>Defining Functions</h3><div class="code-block"><span class="kw">def</span> <span class="fn">greet</span>(name):\n    <span class="fn">print</span>(<span class="st">f"Hello, {name}!"</span>)\n\n<span class="fn">greet</span>(<span class="st">"Arun"</span>)</div><h3>Return Values</h3><div class="code-block"><span class="kw">def</span> <span class="fn">add</span>(a, b):\n    <span class="kw">return</span> a + b\n\nresult = <span class="fn">add</span>(<span class="num">3</span>, <span class="num">5</span>)\n<span class="fn">print</span>(result)  <span class="cm"># 8</span></div>`,
+        quiz:{q:"What keyword sends a value back from a function?",correct:"return",wrong:["send","output"]}}
+    ],
+    assignments: [],
+    members: [
+      {id:1, name:"ArunC", role:"founder", pts:980},
+    ]
+  };
+}
+
+function saveData(data) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(data));
+}
+
+let DATA    = loadData();
+let isAdmin = false;
+let myUser  = '';
+let openLessonId = null;
+
+// ── Init ────────────────────────────────────────
+async function init() {
+  const me = await fetch('/api/me').then(r=>r.json()).catch(()=>({ok:false,role:'user',username:'guest'}));
+  isAdmin = (me.role === 'admin');
+  myUser  = me.username || 'guest';
+
+  if (isAdmin) {
+    document.getElementById('admin-badge').style.display    = '';
+    document.getElementById('btn-add-lesson').style.display = '';
+    document.getElementById('btn-add-asgn').style.display   = '';
+    document.getElementById('btn-add-member').style.display = '';
+  }
+
+  renderLessons();
+  renderAssignments();
+  renderMembers();
+  renderLeaderboard();
+}
+
+function updateJoinBar() {
+  const bar = document.getElementById('join-bar');
+  if (isAdmin) { bar.style.display = 'none'; return; }
+  const alreadyMember = DATA.members.find(m => m.name.toLowerCase() === myUser.toLowerCase());
+  bar.style.display = alreadyMember ? 'none' : '';
+}
+
+function joinClub() {
+  if (DATA.members.find(m => m.name.toLowerCase() === myUser.toLowerCase())) {
+    alert('You are already a member!'); return;
+  }
+  DATA.members.push({id: Date.now(), name: myUser, role: 'member', pts: 0});
+  saveData(DATA);
+  updateJoinBar();
+  renderMembers();
+  renderLeaderboard();
+}
+
+// ── Screen tabs ─────────────────────────────────
+function showScreen(id, tab) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.page-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  tab.classList.add('active');
+}
+
+// ── Modals ──────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', function(e){ if(e.target===this) this.classList.remove('show'); }));
+
+// ── LESSONS ─────────────────────────────────────
+function renderLessons() {
+  const grid = document.getElementById('lessons-grid');
+  grid.innerHTML = '';
+  const done = DATA.lessons.filter(l=>l.done).length;
+  document.getElementById('progress-label').textContent = `${done} / ${DATA.lessons.length} complete`;
+
+  DATA.lessons.forEach(l => {
+    const div = document.createElement('div');
+    div.className = 'lesson-card' + (l.done?' done':'');
+    div.innerHTML = `
+      ${l.done?'<div class="done-badge">✔</div>':''}
+      <div class="lesson-num">LESSON ${l.num}</div>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-desc">${l.desc}</div>
+      <span class="lesson-tag tag-${l.tag}">${l.tag}</span>
+      ${isAdmin?`<button class="del-card-btn" onclick="event.stopPropagation();deleteLesson(${l.id})">DELETE</button>`:''}`;
+    div.onclick = () => openLesson(l.id);
+    grid.appendChild(div);
+  });
+
+  if (!DATA.lessons.length) {
+    grid.innerHTML = '<div class="empty-state">No lessons yet. ' + (isAdmin?'Click + ADD LESSON to create one.':'') + '</div>';
+  }
+}
+
+function openLesson(id) {
+  const l = DATA.lessons.find(x=>x.id===id);
+  if (!l) return;
+  openLessonId = id;
+  document.getElementById('lessons-grid-view').style.display = 'none';
+  document.getElementById('lesson-view-wrap').style.display  = 'block';
+  document.getElementById('lv-num').textContent   = 'LESSON ' + l.num;
+  document.getElementById('lv-title').textContent = l.title;
+
+  const answers = shuffle([
+    {text: l.quiz.correct, correct: true},
+    {text: l.quiz.wrong[0], correct: false},
+    {text: l.quiz.wrong[1], correct: false},
+  ]);
+
+  document.getElementById('lv-content').innerHTML = l.content + `
+    <div class="quiz-section">
+      <div class="quiz-q">🧠 ${l.quiz.q}</div>
+      <div class="quiz-opts">
+        ${answers.map(a=>`<button class="quiz-opt" onclick="answer(this,${a.correct})">${a.text}</button>`).join('')}
+      </div>
+      <div class="quiz-result" id="quiz-result"></div>
+    </div>
+    <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1rem">
+      <button onclick="markDone(${l.id})" style="background:transparent;border:1px solid var(--${l.done?'green-dim':'blue-dim'});color:var(--${l.done?'green':'blue'});font-family:var(--ui);font-size:11px;letter-spacing:1px;padding:6px 18px;cursor:pointer">
+        ${l.done?'✔ COMPLETED':'MARK AS DONE'}
+      </button>
+    </div>`;
+}
+
+function shuffle(arr) { return arr.sort(()=>Math.random()-.5); }
+
+function answer(btn, correct) {
+  btn.parentElement.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+  btn.classList.add(correct?'correct':'wrong');
+  const r = document.getElementById('quiz-result');
+  r.textContent = correct ? '✔ Correct!' : '✖ Not quite — try reviewing the lesson!';
+  r.style.color = correct ? 'var(--green)' : 'var(--red)';
+}
+
+function markDone(id) {
+  const l = DATA.lessons.find(x=>x.id===id);
+  if (l) { l.done = true; saveData(DATA); openLesson(id); renderLessons(); }
+}
+
+function backToGrid() {
+  document.getElementById('lessons-grid-view').style.display = '';
+  document.getElementById('lesson-view-wrap').style.display  = 'none';
+  renderLessons();
+}
+
+function addLesson() {
+  const title   = document.getElementById('l-title').value.trim();
+  const tag     = document.getElementById('l-level').value;
+  const desc    = document.getElementById('l-desc').value.trim();
+  const content = document.getElementById('l-content').value.trim();
+  const quizQ   = document.getElementById('l-quiz-q').value.trim();
+  const correct = document.getElementById('l-quiz-correct').value.trim();
+  const w1      = document.getElementById('l-quiz-w1').value.trim();
+  const w2      = document.getElementById('l-quiz-w2').value.trim();
+  if (!title || !desc) return;
+  const num = String(DATA.lessons.length + 1).padStart(2,'0');
+  const id  = Date.now();
+  DATA.lessons.push({
+    id, num, title, tag, desc, done: false,
+    content: content || `<p>${desc}</p>`,
+    quiz: { q: quizQ||'Quiz coming soon!', correct: correct||'Answer A', wrong: [w1||'Answer B', w2||'Answer C'] }
+  });
+  saveData(DATA);
+  closeModal('modal-lesson');
+  ['l-title','l-desc','l-content','l-quiz-q','l-quiz-correct','l-quiz-w1','l-quiz-w2'].forEach(id=>document.getElementById(id).value='');
+  renderLessons();
+}
+
+function deleteLesson(id) {
+  if (!confirm('Delete this lesson?')) return;
+  DATA.lessons = DATA.lessons.filter(l=>l.id!==id);
+  saveData(DATA);
+  renderLessons();
+}
+
+// ── ASSIGNMENTS ──────────────────────────────────
+function renderAssignments() {
+  const grid = document.getElementById('assignments-grid');
+  grid.innerHTML = '';
+  if (!DATA.assignments.length) {
+    grid.innerHTML = '<div class="empty-state">No assignments yet.' + (isAdmin?' Click + NEW ASSIGNMENT to create one.':'') + '</div>';
+    return;
+  }
+  DATA.assignments.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'assignment-card';
+    div.innerHTML = `
+      <div class="asgn-title">${a.title}</div>
+      <div class="asgn-due">DUE: ${a.due || 'No due date'}</div>
+      <div class="asgn-desc">${a.desc}</div>
+      <span class="asgn-status status-${a.status}">${a.status.toUpperCase()}</span>
+      ${isAdmin?`<div class="asgn-admin-btns">
+        <button class="btn-sm btn-amber" onclick="toggleAsgn(${a.id})">${a.status==='open'?'CLOSE':'REOPEN'}</button>
+        <button class="btn-sm btn-red" onclick="deleteAsgn(${a.id})">DELETE</button>
+      </div>`:''}`;
+    grid.appendChild(div);
+  });
+}
+
+function addAssignment() {
+  const title  = document.getElementById('a-title').value.trim();
+  const due    = document.getElementById('a-due').value;
+  const desc   = document.getElementById('a-desc').value.trim();
+  const status = document.getElementById('a-status').value;
+  if (!title) return;
+  DATA.assignments.push({id: Date.now(), title, due, desc, status});
+  saveData(DATA);
+  closeModal('modal-asgn');
+  ['a-title','a-due','a-desc'].forEach(id=>document.getElementById(id).value='');
+  renderAssignments();
+}
+
+function toggleAsgn(id) {
+  const a = DATA.assignments.find(x=>x.id===id);
+  if (a) { a.status = a.status==='open'?'closed':'open'; saveData(DATA); renderAssignments(); }
+}
+
+function deleteAsgn(id) {
+  if (!confirm('Delete this assignment?')) return;
+  DATA.assignments = DATA.assignments.filter(a=>a.id!==id);
+  saveData(DATA); renderAssignments();
+}
+
+// ── MEMBERS ──────────────────────────────────────
+function renderMembers() {
+  updateJoinBar();
+  const list = document.getElementById('members-list');
+  list.innerHTML = '';
+  document.getElementById('member-count').textContent = DATA.members.length + ' members';
+  if (!DATA.members.length) {
+    list.innerHTML = '<div class="empty-state">No members yet.</div>'; return;
+  }
+  DATA.members.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'member-row';
+    div.innerHTML = `
+      <div class="member-avatar">${m.role==='founder'?'🐍':'💻'}</div>
+      <div>
+        <div class="member-name">${m.name}</div>
+        <div class="member-role-label role-${m.role}">${m.role.toUpperCase()}</div>
+      </div>
+      <div class="member-pts">⭐ ${m.pts} pts</div>
+      ${isAdmin && m.name!=='ArunC' ? `<button class="btn-del-member" onclick="deleteMember(${m.id})">REMOVE</button>` : ''}`;
+    list.appendChild(div);
+  });
+}
+
+function addMember() {
+  const name = document.getElementById('m-name').value.trim();
+  const role = document.getElementById('m-role').value;
+  const pts  = parseInt(document.getElementById('m-pts').value) || 0;
+  if (!name) return;
+  if (DATA.members.find(m=>m.name.toLowerCase()===name.toLowerCase())) {
+    alert('Member already exists!'); return;
+  }
+  DATA.members.push({id: Date.now(), name, role, pts});
+  saveData(DATA);
+  closeModal('modal-member');
+  document.getElementById('m-name').value = '';
+  document.getElementById('m-pts').value  = '0';
+  renderMembers();
+  renderLeaderboard();
+}
+
+function deleteMember(id) {
+  if (!confirm('Remove this member?')) return;
+  DATA.members = DATA.members.filter(m=>m.id!==id);
+  saveData(DATA); renderMembers(); renderLeaderboard();
+}
+
+// ── LEADERBOARD ──────────────────────────────────
+function renderLeaderboard() {
+  const list   = document.getElementById('lb-list');
+  const sorted = [...DATA.members].sort((a,b)=>b.pts-a.pts);
+  const max    = sorted[0]?.pts || 1;
+  list.innerHTML = '';
+  sorted.forEach((u,i) => {
+    const div = document.createElement('div');
+    div.className = 'lb-row';
+    div.innerHTML = `
+      <div class="lb-rank">${['🥇','🥈','🥉'][i]||i+1}</div>
+      <div class="lb-name">${u.name}</div>
+      <div class="lb-bar-wrap"><div class="lb-bar" style="width:${(u.pts/max*100).toFixed(0)}%"></div></div>
+      <div class="lb-pts">⭐ ${u.pts}</div>`;
+    list.appendChild(div);
+  });
+  if (!sorted.length) list.innerHTML = '<div class="empty-state">No members yet.</div>';
+}
+
+init();
+</script>
+</body>
+</html>

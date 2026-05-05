@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About The Creator & ArunCode_Term</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #0a0e0a;
+      --bg2:       #0f140f;
+      --green:     #39ff14;
+      --green-dim: #1a7a06;
+      --green-mid: #22c40a;
+      --amber:     #ffb300;
+      --border:    #1e3a1e;
+      --text:      #c8e6c8;
+      --mono:      'Share Tech Mono', monospace;
+      --display:   'VT323', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 14px;
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.15) 2px,
+        rgba(0,0,0,0.15) 4px
+      );
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    @keyframes flicker {
+      0%,100% { opacity: 1; }
+      92%      { opacity: 1; }
+      93%      { opacity: 0.85; }
+      94%      { opacity: 1; }
+      96%      { opacity: 0.9; }
+      97%      { opacity: 1; }
+    }
+    body { animation: flicker 8s infinite; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+    .glow {
+      color: var(--green);
+      text-shadow: 0 0 4px var(--green), 0 0 12px var(--green-mid), 0 0 30px var(--green-dim);
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 2.5rem 2rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ascii-logo {
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.2;
+      color: var(--green-mid);
+      text-shadow: 0 0 8px var(--green-dim);
+      white-space: pre;
+      margin-bottom: 1.5rem;
+      animation: fadeIn 1s ease both;
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: baseline;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      animation: fadeIn 1s 0.3s ease both;
+    }
+
+    .terminal-title {
+      font-family: var(--display);
+      font-size: 2.8rem;
+      letter-spacing: 2px;
+      color: var(--green);
+      text-shadow: 0 0 10px var(--green), 0 0 30px var(--green-dim);
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 9px;
+      height: 15px;
+      background: var(--green);
+      vertical-align: middle;
+      animation: blink 1s step-end infinite;
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    .breadcrumb {
+      font-size: 12px;
+      color: var(--green-dim);
+    }
+
+    .breadcrumb a {
+      color: var(--green-mid);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--green-dim);
+      transition: color 0.2s;
+    }
+    .breadcrumb a:hover { color: var(--green); }
+
+    /* ── PROMPT BAR ── */
+    .prompt-bar {
+      padding: 0.6rem 2rem;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--green-dim);
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      animation: fadeIn 1s 0.5s ease both;
+    }
+    .prompt-bar span { color: var(--green-mid); }
+
+    /* ── MAIN ── */
+    main {
+      padding: 2rem;
+      max-width: 800px;
+      animation: fadeIn 1s 0.6s ease both;
+    }
+
+    .info-card {
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      padding: 1.5rem 1.8rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .info-card::before {
+      position: absolute;
+      top: -10px;
+      left: 12px;
+      background: var(--bg2);
+      padding: 0 6px;
+      font-size: 11px;
+      color: var(--green-dim);
+    }
+
+    .card-creator::before  { content: '// WHO AM I'; }
+    .card-pets::before     { content: '// MY PETS'; }
+
+    .info-card p {
+      line-height: 1.9;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .info-card a {
+      color: var(--green);
+      text-decoration: none;
+      border-bottom: 1px solid var(--green-dim);
+      transition: all 0.2s;
+    }
+    .info-card a:hover {
+      color: var(--amber);
+      border-color: var(--amber);
+      text-shadow: 0 0 6px var(--amber);
+    }
+
+    .highlight { color: var(--green); }
+    .amber     { color: var(--amber); }
+
+    /* pets grid */
+    .pets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    .pet-item {
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.9rem;
+      font-size: 12px;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .pet-item:hover {
+      border-color: var(--green-mid);
+      color: var(--green);
+    }
+
+    .pet-type {
+      font-size: 10px;
+      color: var(--green-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: 3rem;
+      padding: 1.2rem 2rem;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--green-dim);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="ascii-logo">
+                      ______
+                     /     |
+   ________________ /      |
+   |               /       |____
+   |     &gt;_       /        |    |
+___|______________/         |____|
+ /                               |
+/________________________________|
+  []    []    []    []    []    []</div>
+
+    <div class="header-meta">
+      <div class="terminal-title">ArunCode_Term <span class="cursor"></span></div>
+      <nav class="breadcrumb">
+        <a href="../versionhistory.html">Version History</a> /
+        <span class="glow">About</span>
+      </nav>
+    </div>
+  </header>
+
+  <div class="prompt-bar">
+    <div>user@aruncode:~$ <span>cat about.log</span></div>
+    <div>subject: <span>Arun Chandrasekaran</span></div>
+  </div>
+
+  <main>
+
+    <div class="info-card card-creator">
+      <p>
+        Hello! My name is <span class="highlight">Arun</span>. I am the Creator &amp; Admin of
+        <span class="highlight">ArunCode_Term</span> &amp; Arun Code.
+        Building ArunCode_Term was a lot of work. I would like to say a huge thanks to my
+        <span class="amber">Dad</span>, who taught me how to program.
+        <br><br>
+        Want to see what versions have shipped?
+        <a href="../versionhistory.html">View Version History</a>.
+      </p>
+    </div>
+
+    <div class="info-card card-pets">
+      <p>We have <span class="highlight">11 pets</span> in total:</p>
+      <div class="pets-grid">
+        <div class="pet-item"><div class="pet-type">🐀 Rat</div>Cheesecake</div>
+        <div class="pet-item"><div class="pet-type">🐀 Rat</div>Clementine</div>
+        <div class="pet-item"><div class="pet-type">🐀 Rat</div>Sooshie</div>
+        <div class="pet-item"><div class="pet-type">🐕 Dog</div>Mango</div>
+        <div class="pet-item"><div class="pet-type">🐈 Cat</div>Juniper</div>
+        <div class="pet-item"><div class="pet-type">🐓 Chicken</div>Freeda</div>
+        <div class="pet-item"><div class="pet-type">🐓 Chicken</div>Ethel</div>
+        <div class="pet-item"><div class="pet-type">🐓 Chicken</div>Henrietta</div>
+        <div class="pet-item"><div class="pet-type">🐓 Chicken</div>Betty #1</div>
+        <div class="pet-item"><div class="pet-type">🐓 Chicken</div>Betty #2</div>
+        <div class="pet-item"><div class="pet-type">🐓 Chicken</div>Betty #3</div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <div>ArunCode_Term © 2026 — Arun Chandrasekaran</div>
+    <div>system: <span style="color:var(--green-mid)">ONLINE</span> &nbsp;|&nbsp; build: <span style="color:var(--green-mid)">STABLE</span></div>
+  </footer>
+
+</body>
+</html>

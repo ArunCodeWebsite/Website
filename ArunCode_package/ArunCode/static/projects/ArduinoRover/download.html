@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arduino Rover // Download</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0a0e0a;
+  --bg2: #0f140f;
+  --bg3: #131a13;
+  --green: #39ff14;
+  --green-dim: #1a7a06;
+  --green-mid: #22c40a;
+  --border: #1e3a1e;
+  --text: #c8e6c8;
+  --mono: 'Share Tech Mono', monospace;
+  --display: 'VT323', monospace;
+  --title: 'Orbitron', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* scanlines */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.15) 3px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* subtle flicker */
+@keyframes flicker {
+  0%,100% { opacity: 1; }
+  92% { opacity: 0.98; }
+  94% { opacity: 0.9; }
+  96% { opacity: 1; }
+}
+body { animation: flicker 8s infinite; }
+
+/* container */
+.wrap {
+  width: 600px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  box-shadow: 0 0 30px rgba(57,255,20,0.08);
+  position: relative;
+}
+
+/* header */
+.header {
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 14px;
+  font-family: var(--title);
+  font-size: 13px;
+  color: var(--green);
+  letter-spacing: 2px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: var(--green);
+  box-shadow: 0 0 10px var(--green);
+  border-radius: 50%;
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink { 50% { opacity: 0.3; } }
+
+/* main */
+.main {
+  padding: 26px;
+}
+
+.title {
+  font-family: var(--display);
+  font-size: 60px;
+  color: var(--green);
+  text-shadow: 0 0 12px var(--green-dim);
+  letter-spacing: 2px;
+}
+
+.subtitle {
+  font-size: 11px;
+  color: var(--green-dim);
+  margin-top: 4px;
+}
+
+/* info grid */
+.grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.box {
+  border: 1px solid var(--border);
+  background: #0a0f0a;
+  padding: 10px;
+  font-size: 12px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+}
+
+.label { color: var(--green-dim); }
+.value { color: var(--text); }
+
+/* download button */
+.btn {
+  margin-top: 18px;
+  display: block;
+  text-align: center;
+  padding: 12px;
+  border: 1px solid var(--green);
+  color: var(--green);
+  text-decoration: none;
+  font-weight: bold;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+  transition: 0.2s;
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(57,255,20,0.15);
+  transition: 0.3s;
+}
+
+.btn:hover::before {
+  left: 0;
+}
+
+.btn:hover {
+  box-shadow: 0 0 18px rgba(57,255,20,0.25);
+}
+
+/* back */
+.back {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.back:hover {
+  border-color: var(--green-dim);
+}
+
+/* scan line */
+.scan {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--green), transparent);
+  top: 0;
+  animation: scan 3.5s linear infinite;
+  opacity: 0.15;
+}
+
+@keyframes scan {
+  0% { top: 0; }
+  100% { top: 100%; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <div class="scan"></div>
+
+  <div class="header">
+    <div>PROJECT :: ARDUINO ROVER</div>
+    <div class="dot"></div>
+  </div>
+
+  <div class="main">
+
+    <div class="title">DOWNLOAD</div>
+    <div class="subtitle">// firmware + rover control system package</div>
+
+    <div class="grid">
+      <div class="box">
+        <div class="row"><span class="label">File</span><span class="value">download.html</span></div>
+        <div class="row"><span class="label">Type</span><span class="value">Arduino</span></div>
+        <div class="row"><span class="label">Build</span><span class="value">v1.0</span></div>
+      </div>
+
+      <div class="box">
+        <div class="row"><span class="label">Status</span><span class="value">Stable</span></div>
+        <div class="row"><span class="label">Size</span><span class="value">~12 KB</span></div>
+        <div class="row"><span class="label">Mode</span><span class="value">Rover</span></div>
+      </div>
+    </div>
+
+    <a class="btn" href="/download/rover">
+  ▶ DOWNLOAD ROVER.ino
+    </a>
+
+    <a class="btn back" href="/home">
+      ◀ RETURN TO SYSTEM
+    </a>
+
+  </div>
+</div>
+
+</body>
+</html>

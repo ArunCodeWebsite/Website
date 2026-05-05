@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArunCode Docs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#08090b;--bg2:#0d1017;--bg3:#121620;--blue:#00cfff;--blue-dim:#005577;--blue-mid:#0099bb;
+      --green:#39ff14;--green-dim:#1a7a06;--amber:#ffb300;--red:#ff4444;--purple:#c084fc;
+      --border:#1a2233;--text:#8baac0;--text-b:#cde0f0;
+      --mono:'JetBrains Mono',monospace;--ui:'Share Tech Mono',monospace;--title:'Orbitron',sans-serif}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:13px;
+      height:100vh;display:flex;flex-direction:column;overflow:hidden;cursor:crosshair}
+    body::before{content:'';position:fixed;inset:0;
+      background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
+      pointer-events:none;z-index:9999}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+    /* TOPBAR */
+    .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.6rem 1.5rem;
+      display:flex;align-items:center;gap:1rem;flex-shrink:0;animation:fadeIn .4s ease}
+    .brand{font-family:var(--title);font-size:.95rem;font-weight:900;letter-spacing:2px;
+      color:var(--blue);text-shadow:0 0 8px var(--blue-dim)}
+    .brand span{color:var(--green)}
+    .topbar-right{margin-left:auto;display:flex;align-items:center;gap:.7rem}
+    .btn{background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--ui);
+      font-size:10px;letter-spacing:1px;padding:4px 12px;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+    .btn:hover{border-color:var(--blue-dim);color:var(--blue)}
+    .btn-primary{border-color:var(--blue-dim);color:var(--blue)}
+    .btn-primary:hover{background:rgba(0,207,255,.08);border-color:var(--blue);box-shadow:0 0 8px var(--blue-dim)}
+    .btn-danger{border-color:#2a1010;color:#663333}
+    .btn-danger:hover{border-color:var(--red);color:var(--red)}
+    .btn-success{border-color:var(--green-dim);color:var(--green)}
+    .btn-success:hover{background:rgba(57,255,20,.06);border-color:var(--green)}
+    .admin-badge{font-size:9px;letter-spacing:1px;color:var(--amber);border:1px solid #7a5500;padding:2px 8px}
+
+    /* LAYOUT */
+    .workspace{display:flex;flex:1;overflow:hidden}
+
+    /* SIDEBAR */
+    .sidebar{width:240px;background:var(--bg2);border-right:1px solid var(--border);
+      display:flex;flex-direction:column;flex-shrink:0}
+    .sidebar-header{padding:.5rem .8rem;font-size:9px;letter-spacing:2px;color:var(--blue-dim);
+      border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .sidebar-header button{background:none;border:1px solid var(--border);color:var(--blue-dim);
+      font-family:var(--ui);font-size:9px;letter-spacing:1px;padding:2px 8px;cursor:pointer;transition:all .2s}
+    .sidebar-header button:hover{border-color:var(--blue-dim);color:var(--blue)}
+    .doc-list{flex:1;overflow-y:auto}
+    .doc-list::-webkit-scrollbar{width:4px}
+    .doc-list::-webkit-scrollbar-thumb{background:var(--border)}
+
+    .doc-category{padding:.5rem .8rem .3rem;font-size:9px;letter-spacing:2px;color:var(--blue-dim);
+      text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg3)}
+    .doc-item{display:flex;align-items:center;gap:.5rem;padding:.6rem 1rem;font-size:12px;
+      cursor:pointer;transition:background .15s;border-left:2px solid transparent;color:var(--text)}
+    .doc-item:hover{background:rgba(0,207,255,.04);color:var(--text-b)}
+    .doc-item.active{background:rgba(0,207,255,.07);border-left-color:var(--blue);color:var(--blue)}
+    .doc-item .doc-icon{font-size:11px;flex-shrink:0;opacity:.6}
+    .doc-item .doc-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .doc-item .doc-del{background:none;border:none;color:#222;cursor:pointer;font-size:13px;
+      padding:0 2px;transition:color .2s;display:none}
+    .doc-item:hover .doc-del{display:inline}
+    .doc-item .doc-del:hover{color:var(--red)}
+
+    /* MAIN CONTENT */
+    .doc-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+    /* TOOLBAR */
+    .doc-toolbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.5rem 1.2rem;
+      display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+    .doc-title-input{flex:1;background:transparent;border:none;outline:none;color:var(--text-b);
+      font-family:var(--ui);font-size:14px;letter-spacing:1px;caret-color:var(--blue)}
+    .doc-title-input::placeholder{color:#222}
+    .doc-title-input:read-only{cursor:default;color:var(--text-b)}
+    .save-status{font-size:10px;color:var(--blue-dim);letter-spacing:1px}
+
+    /* EDITOR / VIEWER */
+    .doc-view{flex:1;overflow:hidden;display:flex;flex-direction:column}
+
+    /* EDIT MODE */
+    .editor-wrap{flex:1;display:flex;overflow:hidden}
+    .editor-gutter{width:44px;background:var(--bg2);border-right:1px solid var(--border);
+      padding:.8rem 0;font-size:12px;font-family:var(--mono);color:#1e2e3e;line-height:1.7;
+      text-align:right;overflow:hidden;flex-shrink:0;user-select:none}
+    .editor-gutter span{display:block;padding-right:8px}
+    .doc-editor{flex:1;background:var(--bg);color:var(--text-b);font-family:var(--mono);
+      font-size:13px;line-height:1.7;padding:.8rem 1.2rem;border:none;outline:none;resize:none;
+      overflow-y:auto;tab-size:2;caret-color:var(--blue)}
+    .doc-editor::-webkit-scrollbar{width:6px}
+    .doc-editor::-webkit-scrollbar-thumb{background:var(--border)}
+
+    /* READ MODE */
+    .doc-reader{flex:1;overflow-y:auto;padding:2rem 3rem;max-width:820px;width:100%;margin:0 auto;line-height:1.9}
+    .doc-reader::-webkit-scrollbar{width:6px}
+    .doc-reader::-webkit-scrollbar-thumb{background:var(--border)}
+    .doc-reader h1{font-family:var(--title);font-size:1.6rem;color:var(--blue);letter-spacing:2px;
+      margin-bottom:1rem;padding-bottom:.6rem;border-bottom:1px solid var(--border)}
+    .doc-reader h2{font-family:var(--ui);font-size:13px;letter-spacing:2px;color:var(--blue-mid);
+      text-transform:uppercase;margin:1.5rem 0 .6rem;padding-bottom:.3rem;border-bottom:1px solid #0d1520}
+    .doc-reader h3{font-size:13px;color:var(--text-b);margin:1rem 0 .4rem;letter-spacing:.5px}
+    .doc-reader p{color:var(--text);margin-bottom:.8rem}
+    .doc-reader code{background:var(--bg2);border:1px solid var(--border);color:var(--green);
+      font-family:var(--mono);font-size:11px;padding:1px 6px}
+    .doc-reader pre{background:var(--bg2);border:1px solid var(--border);padding:1rem 1.2rem;
+      margin:.8rem 0;overflow-x:auto;font-family:var(--mono);font-size:12px;color:var(--text-b);line-height:1.7}
+    .doc-reader pre code{background:none;border:none;padding:0;color:inherit}
+    .doc-reader ul,.doc-reader ol{padding-left:1.5rem;margin-bottom:.8rem;color:var(--text)}
+    .doc-reader li{margin-bottom:.3rem;line-height:1.7}
+    .doc-reader blockquote{border-left:3px solid var(--blue-dim);padding:.5rem 1rem;
+      color:var(--text);background:rgba(0,207,255,.03);margin:.8rem 0}
+    .doc-reader strong{color:var(--text-b)}
+    .doc-reader hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
+    .doc-reader a{color:var(--blue);text-decoration:none}
+    .doc-reader a:hover{text-decoration:underline}
+
+    /* EMPTY */
+    .doc-empty{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.8rem;color:#1a2535}
+    .doc-empty .icon{font-size:3rem;opacity:.3}
+
+    /* MODAL */
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center}
+    .modal.show{display:flex}
+    .modal-box{background:var(--bg2);border:1px solid var(--border);width:400px;max-width:95vw}
+    .modal-header{padding:.6rem 1rem;background:var(--bg3);border-bottom:1px solid var(--border);
+      font-size:9px;letter-spacing:2px;color:var(--blue-dim)}
+    .modal-body{padding:1.2rem}
+    .modal-field{margin-bottom:.8rem}
+    .modal-field label{display:block;font-size:9px;letter-spacing:2px;color:var(--blue-dim);margin-bottom:.4rem}
+    .modal-field input,.modal-field select{width:100%;background:var(--bg);border:1px solid var(--border);
+      color:var(--text-b);font-family:var(--ui);font-size:12px;padding:.5rem .7rem;outline:none;caret-color:var(--blue)}
+    .modal-field input:focus,.modal-field select:focus{border-color:var(--blue-dim)}
+    .modal-footer{padding:.7rem 1rem;border-top:1px solid var(--border);display:flex;gap:.5rem;justify-content:flex-end}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">ArunCode <span>Docs</span></div>
+  <div class="topbar-right">
+    <span id="admin-badge" class="admin-badge" style="display:none">ADMIN</span>
+    <span id="save-status" class="save-status"></span>
+    <button class="btn btn-primary" id="btn-edit" style="display:none" onclick="toggleEdit()">✎ EDIT</button>
+    <button class="btn btn-success" id="btn-save" style="display:none" onclick="saveDoc()">✔ SAVE</button>
+    <button class="btn" id="btn-cancel" style="display:none" onclick="cancelEdit()">✖ CANCEL</button>
+    <a class="btn" href="/">⌂ HOME</a>
+  </div>
+</div>
+
+<div class="workspace">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <span>DOCUMENTATION</span>
+      <button id="btn-new-doc" style="display:none" onclick="openNewDoc()">+ NEW</button>
+    </div>
+    <div class="doc-list" id="doc-list"></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="doc-main" id="doc-main">
+    <div class="doc-empty" id="doc-empty">
+      <div class="icon">📄</div>
+      <div style="font-size:11px;letter-spacing:1px">Select a document</div>
+    </div>
+
+    <!-- TOOLBAR (shown when doc is open) -->
+    <div class="doc-toolbar" id="doc-toolbar" style="display:none">
+      <input class="doc-title-input" id="doc-title-input" placeholder="Document title..." readonly>
+      <div id="toolbar-btns"></div>
+    </div>
+
+    <!-- READ view -->
+    <div class="doc-reader" id="doc-reader" style="display:none"></div>
+
+    <!-- EDIT view -->
+    <div class="editor-wrap" id="editor-wrap" style="display:none">
+      <div class="editor-gutter" id="editor-gutter"></div>
+      <textarea class="doc-editor" id="doc-editor" spellcheck="false"
+        oninput="onEditorInput()" onscroll="syncGutter()" onkeydown="handleEditorKey(event)"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- NEW DOC MODAL -->
+<div class="modal" id="modal-new">
+  <div class="modal-box">
+    <div class="modal-header">// NEW DOCUMENT</div>
+    <div class="modal-body">
+      <div class="modal-field">
+        <label>Title</label>
+        <input id="new-title" placeholder="Getting Started" onkeydown="if(event.key==='Enter')confirmNew()">
+      </div>
+      <div class="modal-field">
+        <label>Category</label>
+        <select id="new-category">
+          <option>General</option>
+          <option>ArunCode_Term</option>
+          <option>ArunCode IDE</option>
+          <option>Python Teaching Club</option>
+          <option>Emails</option>
+          <option>API Reference</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">CANCEL</button>
+      <button class="btn btn-primary" onclick="confirmNew()">CREATE →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────
+let isAdmin   = false;
+let editMode  = false;
+let openDocId = null;
+let docs      = [];
+
+// ── Default docs ───────────────────────────────────
+const DEFAULT_DOCS = [
+  {
+    id: 1, title: "Welcome to ArunCode", category: "General",
+    content: `# Welcome to ArunCode
+
+ArunCode is a suite of tools built by **Arun Chandrasekaran**.
+
+## What's Included
+
+- **ArunCode_Term** — A terminal environment for managing your system
+- **ArunCode IDE** — A full code editor with file saving and folder creation
+- **ArunCode_Emails** — Send and receive messages between users
+- **Python Teaching Club** — Learn Python with lessons and quizzes
+- **ArunCode Docs** — You are here!
+
+## Getting Started
+
+1. Log in at \`/terminal\`
+2. You'll be taken to your dashboard at \`/home\`
+3. Click any app card to launch it
+4. Admin users have access to the Admin Panel and Security Manager
+
+## Roles
+
+| Role | Permissions |
+|---|---|
+| admin | Full access — edit docs, manage users |
+| security | View users, access logs, delete regular users |
+| user | Access all apps, read docs |
+
+---
+
+*Version 5.0.0 — Created 2026*`
+  },
+  {
+    id: 2, title: "ArunCode_Term Guide", category: "ArunCode_Term",
+    content: `# ArunCode_Term Guide
+
+ArunCode_Term is the terminal dashboard application.
+
+## Logging In
+
+1. Go to \`/terminal\`
+2. Enter your email and username
+3. Enter your password
+4. **Admin accounts** require a 6-digit PIN as a second factor
+
+## Dashboard Commands
+
+Once logged in, you can use the built-in terminal widget:
+
+\`\`\`
+help     — show all commands
+status   — system status
+version  — current version
+whoami   — logged in user
+date     — current date/time
+ide      — open ArunCode IDE
+logout   — end your session
+clear    — clear the console
+\`\`\`
+
+## Version History
+
+Access the full version history at \`/about/versions/versionhistory.html\``
+  },
+  {
+    id: 3, title: "IDE User Guide", category: "ArunCode IDE",
+    content: `# ArunCode IDE
+
+A browser-based code editor with file saving and folder support.
+
+## Features
+
+- **Syntax highlighting** for Python, JavaScript, HTML, CSS, JSON
+- **Multiple tabs** — open several files at once
+- **File tree** sidebar
+- **Save to server** — files persist in the \`workspace/\` folder
+- **Create folders** — organise your projects
+- **Run code** — execute JavaScript directly, simulate Python output
+- **Line numbers** with gutter sync
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|---|---|
+| Tab | Insert 4 spaces |
+| Enter (in toolbar) | Confirm action |
+
+## Saving Files
+
+Files are saved server-side in the \`workspace/\` directory next to \`app.py\`.
+They persist across sessions.
+
+## Running Code
+
+- **JavaScript** — executes live in the browser, output shown in console
+- **Python** — simulates \`print()\` output (no real Python runtime in browser)`
+  },
+  {
+    id: 4, title: "Python Teaching Club", category: "Python Teaching Club",
+    content: `# Python Teaching Club
+
+Learn Python through structured lessons with quizzes.
+
+## Lessons
+
+| # | Title | Level |
+|---|---|---|
+| 01 | Hello, Python! | Beginner |
+| 02 | Variables & Data Types | Beginner |
+| 03 | If Statements | Beginner |
+| 04 | Loops | Intermediate |
+| 05 | Functions | Intermediate |
+
+## How to Use
+
+1. Go to \`/ptc\`
+2. Click any lesson card to open it
+3. Read through the lesson content and code examples
+4. Answer the quiz question at the bottom
+5. Click **MARK AS DONE** to track your progress
+
+## Leaderboard
+
+Points are tracked and shown on the leaderboard tab.
+Earn points by completing lessons and quizzes.`
+  },
+  {
+    id: 6, title: "File & Folder Layout", category: "General",
+    content: `# File & Folder Layout
+\`\`\`
+ArunCode/
+├── app.py
+├── docs.json
+├── emails.json
+├── users.json
+├── ide/
+│   └── index.html
+├── static/
+│   ├── index.html
+│   ├── launcher.html
+│   ├── home.html
+│   ├── admin.html
+│   ├── security.html
+│   ├── docs.html
+│   ├── emails.html
+│   ├── ptc.html
+│   └── about/
+│       ├── about.html
+│       └── versions/
+│           ├── version.html
+│           └── versionhistory.html
+└── workspace/
+\`\`\`
+`
+  },
+  {
+    id: 5, title: "Email System Guide", category: "Emails",
+    content: `# ArunCode Emails
+
+An internal messaging system between ArunCode users.
+
+## Sending an Email
+
+1. Go to \`/emails\`
+2. Click **+ COMPOSE**
+3. In the **To** field, enter a **username** (e.g. \`ArunC\`) or their email address
+4. Fill in Subject and body
+5. Click **SEND**
+
+> Emails are stored on the server in \`emails.json\` and persist permanently.
+
+## Inbox
+
+- **Unread** emails are highlighted with a purple dot
+- Click an email to read it — it will be marked as read automatically
+- Use the **↩ REPLY** button to reply to a message
+
+## Folders
+
+| Folder | Contents |
+|---|---|
+| Inbox | Emails sent to you |
+| Sent | Emails you sent |
+| Starred | Emails you starred with ⭐ |
+
+## Limitations
+
+- Emails only work between ArunCode users (not external Gmail etc.)
+- No attachments currently supported`
+  }
+];
+
+// ── Init ───────────────────────────────────────────
+async function init() {
+  const me = await fetch('/api/me').then(r=>r.json()).catch(()=>null);
+  if (!me || !me.ok) { window.location.href='/terminal?next=/docs'; return; }
+  isAdmin = (me.role === 'admin');
+
+  if (isAdmin) {
+    document.getElementById('admin-badge').style.display  = '';
+    document.getElementById('btn-new-doc').style.display  = '';
+    document.getElementById('btn-edit').style.display     = '';
+  }
+
+  // Load docs from server or use defaults
+  await loadDocs();
+  renderSidebar();
+  // Auto-open first doc
+  if (docs.length) openDoc(docs[0].id);
+}
+
+async function loadDocs() {
+  const res = await fetch('/api/docs').then(r=>r.json()).catch(()=>null);
+  if (res && res.ok && res.docs.length) {
+    docs = res.docs;
+  } else {
+    docs = JSON.parse(JSON.stringify(DEFAULT_DOCS));
+    if (isAdmin) await saveDocs();
+  }
+}
+
+async function saveDocs() {
+  await fetch('/api/docs', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({docs})
+  }).catch(()=>{});
+}
+
+// ── Sidebar ────────────────────────────────────────
+function renderSidebar() {
+  const list = document.getElementById('doc-list');
+  list.innerHTML = '';
+  const cats = {};
+  docs.forEach(d => {
+    if (!cats[d.category]) cats[d.category] = [];
+    cats[d.category].push(d);
+  });
+  Object.entries(cats).forEach(([cat, items]) => {
+    const ch = document.createElement('div');
+    ch.className = 'doc-category'; ch.textContent = cat;
+    list.appendChild(ch);
+    items.forEach(d => {
+      const div = document.createElement('div');
+      div.className = 'doc-item' + (d.id===openDocId?' active':'');
+      div.id = 'doc-item-'+d.id;
+      div.innerHTML = `<span class="doc-icon">📄</span>
+        <span class="doc-name">${d.title}</span>
+        ${isAdmin ? `<button class="doc-del" onclick="event.stopPropagation();deleteDoc(${d.id})" title="Delete">×</button>` : ''}`;
+      div.onclick = () => openDoc(d.id);
+      list.appendChild(div);
+    });
+  });
+}
+
+// ── Open doc ───────────────────────────────────────
+function openDoc(id) {
+  if (editMode) cancelEdit();
+  const doc = docs.find(d=>d.id===id);
+  if (!doc) return;
+  openDocId = id;
+
+  document.getElementById('doc-empty').style.display   = 'none';
+  document.getElementById('doc-toolbar').style.display = '';
+  document.getElementById('doc-reader').style.display  = '';
+  document.getElementById('editor-wrap').style.display = 'none';
+
+  document.getElementById('doc-title-input').value = doc.title;
+  document.getElementById('doc-title-input').readOnly = true;
+  renderMarkdown(doc.content);
+
+  if (isAdmin) {
+    document.getElementById('btn-edit').style.display   = '';
+    document.getElementById('btn-save').style.display   = 'none';
+    document.getElementById('btn-cancel').style.display = 'none';
+  }
+
+  document.querySelectorAll('.doc-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('doc-item-'+id)?.classList.add('active');
+}
+
+// ── Markdown renderer (simple) ─────────────────────
+function renderMarkdown(md) {
+  let html = md
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    // code blocks
+    .replace(/```[\s\S]*?```/g, m => {
+      const code = m.replace(/^```\w*\n?/,'').replace(/```$/,'');
+      return `<pre><code>${code}</code></pre>`;
+    })
+    // inline code
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    // h1 h2 h3
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,  '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm,   '<h1>$1</h1>')
+    // bold
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    // hr
+    .replace(/^---$/gm, '<hr>')
+    // blockquote
+    .replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>')
+    // tables (simple)
+    .replace(/(\|.+\|\n\|[-| :]+\|\n(?:\|.+\|\n?)+)/g, m => {
+      const rows = m.trim().split('\n').filter(r=>!r.match(/^\|[-| :]+\|$/));
+      const header = rows[0].split('|').filter(c=>c.trim()).map(c=>`<th>${c.trim()}</th>`).join('');
+      const body = rows.slice(1).map(r =>
+        '<tr>'+r.split('|').filter(c=>c.trim()).map(c=>`<td>${c.trim()}</td>`).join('')+'</tr>'
+      ).join('');
+      return `<table style="border-collapse:collapse;width:100%;margin:.8rem 0">${header?`<thead><tr>${header}</tr></thead>`:''}<tbody>${body}</tbody></table>`;
+    })
+    // ul
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
+    // ol
+    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+    // paragraphs
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^(?!<[h|u|o|l|p|b|t|h])/gm, '');
+
+  document.getElementById('doc-reader').innerHTML = `<div>${html}</div>`;
+}
+
+// ── Edit mode ──────────────────────────────────────
+function toggleEdit() {
+  const doc = docs.find(d=>d.id===openDocId);
+  if (!doc || !isAdmin) return;
+  editMode = true;
+  document.getElementById('doc-reader').style.display  = 'none';
+  document.getElementById('editor-wrap').style.display = '';
+  document.getElementById('doc-title-input').readOnly  = false;
+  document.getElementById('doc-title-input').focus();
+  document.getElementById('doc-editor').value = doc.content;
+  document.getElementById('btn-edit').style.display   = 'none';
+  document.getElementById('btn-save').style.display   = '';
+  document.getElementById('btn-cancel').style.display = '';
+  updateGutter();
+}
+
+function cancelEdit() {
+  editMode = false;
+  const doc = docs.find(d=>d.id===openDocId);
+  document.getElementById('doc-title-input').value    = doc?.title || '';
+  document.getElementById('doc-title-input').readOnly = true;
+  document.getElementById('editor-wrap').style.display = 'none';
+  document.getElementById('doc-reader').style.display  = '';
+  document.getElementById('btn-edit').style.display   = '';
+  document.getElementById('btn-save').style.display   = 'none';
+  document.getElementById('btn-cancel').style.display = 'none';
+  if (doc) renderMarkdown(doc.content);
+}
+
+async function saveDoc() {
+  const doc = docs.find(d=>d.id===openDocId);
+  if (!doc) return;
+  doc.title    = document.getElementById('doc-title-input').value.trim() || doc.title;
+  doc.content  = document.getElementById('doc-editor').value;
+  await saveDocs();
+  showSaveStatus('✔ Saved');
+  editMode = false;
+  document.getElementById('doc-title-input').readOnly = true;
+  document.getElementById('editor-wrap').style.display = 'none';
+  document.getElementById('doc-reader').style.display  = '';
+  document.getElementById('btn-edit').style.display   = '';
+  document.getElementById('btn-save').style.display   = 'none';
+  document.getElementById('btn-cancel').style.display = 'none';
+  renderMarkdown(doc.content);
+  renderSidebar();
+}
+
+function showSaveStatus(msg) {
+  const el = document.getElementById('save-status');
+  el.textContent = msg; el.style.color = 'var(--green)';
+  setTimeout(()=>{ el.textContent=''; }, 2500);
+}
+
+// ── Gutter ─────────────────────────────────────────
+function updateGutter() {
+  const editor = document.getElementById('doc-editor');
+  const gutter = document.getElementById('editor-gutter');
+  const lines  = (editor.value||'').split('\n').length;
+  gutter.innerHTML = Array.from({length:lines},(_,i)=>`<span>${i+1}</span>`).join('');
+  syncGutter();
+}
+function syncGutter() {
+  document.getElementById('editor-gutter').scrollTop = document.getElementById('doc-editor').scrollTop;
+}
+function onEditorInput() { updateGutter(); }
+function handleEditorKey(e) {
+  if (e.key==='Tab') {
+    e.preventDefault();
+    const ed = document.getElementById('doc-editor');
+    const s = ed.selectionStart;
+    ed.value = ed.value.substring(0,s)+'  '+ed.value.substring(ed.selectionEnd);
+    ed.selectionStart = ed.selectionEnd = s+2;
+    updateGutter();
+  }
+}
+
+// ── New doc ────────────────────────────────────────
+function openNewDoc() { document.getElementById('modal-new').classList.add('show'); document.getElementById('new-title').focus(); }
+function closeModal()  { document.getElementById('modal-new').classList.remove('show'); }
+
+async function confirmNew() {
+  const title = document.getElementById('new-title').value.trim();
+  const cat   = document.getElementById('new-category').value;
+  if (!title) return;
+  const id = Date.now();
+  docs.push({id, title, category: cat, content: `# ${title}\n\nStart writing your documentation here...`});
+  await saveDocs();
+  closeModal();
+  document.getElementById('new-title').value = '';
+  renderSidebar();
+  openDoc(id);
+  setTimeout(toggleEdit, 100);
+}
+
+// ── Delete doc ─────────────────────────────────────
+async function deleteDoc(id) {
+  if (!confirm('Delete this document? This cannot be undone.')) return;
+  docs = docs.filter(d=>d.id!==id);
+  await saveDocs();
+  if (openDocId===id) {
+    openDocId = null;
+    document.getElementById('doc-empty').style.display   = '';
+    document.getElementById('doc-toolbar').style.display = 'none';
+    document.getElementById('doc-reader').style.display  = 'none';
+    document.getElementById('editor-wrap').style.display = 'none';
+  }
+  renderSidebar();
+}
+
+document.getElementById('modal-new').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+init();
+</script>
+</body>
+</html>

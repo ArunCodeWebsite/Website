@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+// ArunCode Theme Engine v3
+(function(){
+  var T={
+    default:{},
+    amber:  {'--bg':'#0a0700','--bg2':'#110d00','--bg3':'#181100','--green':'#ffaa00','--gdim':'#7a5000','--border':'#2a1f00','--border2':'#3a2a00','--blue':'#ffcc44','--bdim':'#996600','--text':'#9a8060','--textb':'#e8d4a0'},
+    crimson:{'--bg':'#0a0003','--bg2':'#110005','--bg3':'#180008','--green':'#ff2255','--gdim':'#7a0022','--border':'#2a0010','--border2':'#3a0018','--blue':'#ff6688','--bdim':'#881133','--text':'#9a6070','--textb':'#e8a0b0'},
+    aurora: {'--bg':'#000a08','--bg2':'#001110','--bg3':'#001816','--green':'#00ffcc','--gdim':'#007a5e','--border':'#002a24','--border2':'#003a32','--blue':'#00ddff','--bdim':'#006677','--text':'#60a090','--textb':'#a0e8d8'},
+    void:   {'--bg':'#050008','--bg2':'#080010','--bg3':'#0d0018','--green':'#cc44ff','--gdim':'#6600aa','--border':'#1a0030','--border2':'#250040','--blue':'#8844ff','--bdim':'#440088','--text':'#8060a0','--textb':'#c8a0e8'},
+    steel:  {'--bg':'#030609','--bg2':'#050d14','--bg3':'#07121c','--green':'#44aaff','--gdim':'#1155aa','--border':'#0a1828','--border2':'#102233','--blue':'#88ccff','--bdim':'#224466','--text':'#6090b0','--textb':'#a0c8e8'},
+    solar:  {'--bg':'#090500','--bg2':'#110900','--bg3':'#180d00','--green':'#ff8800','--gdim':'#994400','--border':'#2a1500','--border2':'#3a1e00','--blue':'#ffcc00','--bdim':'#886600','--text':'#9a7040','--textb':'#e8c080'},
+    gold:   {'--bg':'#080700','--bg2':'#0f0d00','--bg3':'#161200','--green':'#ffd700','--gdim':'#8a7200','--border':'#2a2400','--border2':'#3a3200','--blue':'#ffee88','--bdim':'#887700','--text':'#9a9060','--textb':'#e8e0a0'},
+  };
+  function apply(theme){
+    var v=T[theme];
+    if(!v||!Object.keys(v).length) return;
+    var css=':root{'+Object.keys(v).map(function(k){return k+':'+v[k]+'!important';}).join(';')+'}';
+    var el=document.getElementById('ac-theme-style');
+    if(!el){el=document.createElement('style');el.id='ac-theme-style';document.head.appendChild(el);}
+    el.textContent=css;
+  }
+  var t=localStorage.getItem('ac_theme')||'default';
+  apply(t);
+  window._applyTheme=apply;
+  fetch('/api/profile',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(p){
+    if(p&&p.ok&&p.theme&&p.theme!==t){
+      localStorage.setItem('ac_theme',p.theme);
+      apply(p.theme);
+    }
+  }).catch(function(){});
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArunCode Premium</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060508;--bg2:#0d0b10;--bg3:#131018;
+  --gold:#ffd700;--gold2:#ffaa00;--gold3:#b8860b;--golddim:#4a3800;
+  --green:#39ff14;--gdim:#1a7a06;--blue:#00cfff;--bdim:#005577;
+  --red:#ff4444;--border:#1e1828;--border2:#2a2035;
+  --text:#8a7fa0;--textb:#d4c8e8;--textd:#3a3050;
+  --mono:'Share Tech Mono',monospace;--title:'Orbitron',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;min-height:100vh;visibility:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);pointer-events:none;z-index:9999}
+body::after{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(255,215,0,.05) 0%,transparent 70%);pointer-events:none;z-index:0}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes pulse-gold{0%,100%{box-shadow:0 0 10px rgba(255,215,0,.15)}50%{box-shadow:0 0 28px rgba(255,215,0,.35)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.5rem 2rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:100}
+.brand{font-family:var(--title);font-size:.85rem;font-weight:900;letter-spacing:2px;color:var(--green)}
+.brand span{color:var(--blue)}
+.brand-prem{font-family:var(--title);font-size:.85rem;font-weight:900;letter-spacing:2px;background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold));background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 2.5s linear infinite}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:.7rem}
+.btn{background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:5px 14px;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+.btn:hover{border-color:var(--bdim);color:var(--blue)}
+.av{width:22px;height:22px;border:1px solid var(--golddim);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:11px;overflow:hidden;flex-shrink:0}
+.av img{width:100%;height:100%;object-fit:cover}
+
+.page{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:4rem 2rem 5rem}
+
+.hero{text-align:center;margin-bottom:3.5rem;animation:fadeUp .5s ease}
+.crown{font-size:3.5rem;display:block;margin-bottom:.8rem;filter:drop-shadow(0 0 16px rgba(255,215,0,.5))}
+.eyebrow{font-size:9px;letter-spacing:5px;color:var(--gold3);margin-bottom:.8rem}
+.hero-title{font-family:var(--title);font-weight:900;letter-spacing:3px;line-height:1.2;margin-bottom:.8rem}
+.ht1{font-size:clamp(1.5rem,4vw,2.5rem);color:var(--textb)}
+.ht2{font-size:clamp(1.8rem,5vw,3rem);background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold3),var(--gold2),var(--gold));background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s linear infinite}
+.hero-sub{font-size:12px;color:var(--text);line-height:1.8;max-width:500px;margin:0 auto 1.5rem}
+.status-pill{display:inline-flex;align-items:center;gap:.5rem;padding:.35rem 1.2rem;border:1px solid;font-size:10px;letter-spacing:2px}
+.pill-free{border-color:var(--border2);color:var(--textd)}
+.pill-premium{border-color:var(--gold3);color:var(--gold);animation:pulse-gold 2.5s ease infinite}
+
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:3rem;animation:fadeUp .6s ease}
+.feat{background:var(--bg2);border:1px solid var(--border2);padding:1.3rem;transition:all .2s;position:relative;overflow:hidden}
+.feat::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity .2s}
+.feat:hover{border-color:var(--golddim);transform:translateY(-2px)}
+.feat:hover::after{opacity:1}
+.feat-ico{font-size:1.5rem;margin-bottom:.6rem;display:block}
+.feat-name{font-family:var(--title);font-size:.65rem;letter-spacing:2px;color:var(--gold2);margin-bottom:.35rem}
+.feat-desc{font-size:10px;color:var(--text);line-height:1.7}
+.feat-badge{position:absolute;top:.5rem;right:.5rem;font-size:9px;color:var(--golddim);border:1px solid var(--golddim);padding:1px 5px;letter-spacing:1px}
+
+.divider{text-align:center;margin:2rem 0;animation:fadeUp .7s ease}
+.div-line{border:none;border-top:1px solid var(--border2);margin-bottom:.8rem}
+.div-label{font-size:9px;letter-spacing:4px;color:var(--textd)}
+
+.card{background:var(--bg2);border:1px solid var(--border2);padding:1.5rem;animation:fadeUp .8s ease}
+.card-title{font-size:9px;letter-spacing:3px;color:var(--gold3);margin-bottom:1.2rem;display:flex;align-items:center;gap:.7rem}
+.card-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--golddim),transparent)}
+
+#code-input{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--textb);font-family:var(--mono);font-size:13px;padding:.7rem 1rem;outline:none;letter-spacing:2px;caret-color:var(--gold);transition:border-color .2s;margin-bottom:.7rem}
+#code-input:focus{border-color:var(--golddim)}
+#code-input::placeholder{letter-spacing:0;color:var(--textd);font-size:11px}
+.redeem-btn{width:100%;background:transparent;border:1px solid var(--golddim);color:var(--gold);font-family:var(--mono);font-size:11px;letter-spacing:3px;padding:.75rem;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.redeem-btn:hover:not(:disabled){background:rgba(255,215,0,.06);border-color:var(--gold2)}
+.redeem-btn:disabled{opacity:.4;cursor:not-allowed}
+.msg{font-size:11px;margin-top:.6rem;padding:.4rem .7rem;border:1px solid;display:none}
+.msg.ok{color:var(--green);border-color:var(--gdim);background:rgba(57,255,20,.04)}
+.msg.err{color:var(--red);border-color:#3a1010;background:rgba(255,68,68,.04)}
+.hint{font-size:10px;color:var(--textd);margin-top:.8rem;line-height:1.7}
+.hint b{color:var(--golddim)}
+
+.perks-list{display:flex;flex-direction:column;gap:.55rem;margin-bottom:1.2rem}
+.perk{display:flex;align-items:center;gap:.7rem;font-size:11px;color:var(--textb)}
+.perk-dot{color:var(--gold);font-size:13px}
+
+.theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:.6rem;margin-bottom:.5rem}
+.sw{aspect-ratio:1;border:2px solid var(--border2);cursor:pointer;transition:all .2s;position:relative;border-radius:2px}
+.sw:hover,.sw.on{border-color:var(--gold2)}
+.sw.on::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--gold);text-shadow:0 0 6px var(--gold)}
+.sw-label{font-size:9px;color:var(--textd);text-align:center;margin-top:.25rem;letter-spacing:1px}
+
+#scr-premium{display:none}
+#scr-free{display:block}
+
+.footer{text-align:center;padding-top:2rem;font-size:10px;color:var(--textd);letter-spacing:1px}
+</style>
+
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">ArunCode <span>_</span></div>
+  <div class="brand-prem">PREMIUM</div>
+  <div class="tb-right">
+    <div class="av" id="top-av"><span id="top-init">?</span></div>
+    <span id="top-name" style="font-size:11px;color:var(--textb)">...</span>
+    <a class="btn" href="/home">&#8962; HOME</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- FREE SCREEN -->
+  <div id="scr-free">
+    <div class="hero">
+      <span class="crown">&#9819;</span>
+      <div class="eyebrow">EXCLUSIVE ACCESS</div>
+      <div class="hero-title">
+        <div class="ht1">UNLOCK</div>
+        <div class="ht2">ARUNCODE PREMIUM</div>
+      </div>
+      <div class="hero-sub">Supercharge your ArunCode experience with exclusive features, priority status, and full platform control.</div>
+      <div class="status-pill pill-free">&#9656; CURRENT PLAN: FREE</div>
+    </div>
+
+    <div class="features">
+      <div class="feat">
+        <span class="feat-ico">&#127912;</span>
+        <div class="feat-name">CUSTOM THEMES</div>
+        <div class="feat-desc">Personalise your entire ArunCode with exclusive colour themes — amber, crimson, aurora, void and more.</div>
+        <div class="feat-badge">&#11041; PREMIUM</div>
+      </div>
+      <div class="feat">
+        <span class="feat-ico">&#128274;</span>
+        <div class="feat-name">PRIVATE REPOS</div>
+        <div class="feat-desc">Create unlimited private repositories, fully hidden from public view. Share only with who you choose.</div>
+        <div class="feat-badge">&#11041; PREMIUM</div>
+      </div>
+      <div class="feat">
+        <span class="feat-ico">&#9889;</span>
+        <div class="feat-name">PRIORITY BADGE</div>
+        <div class="feat-desc">Stand out with an exclusive &#9889; badge on your profile, showing your premium status across the platform.</div>
+        <div class="feat-badge">&#11041; PREMIUM</div>
+      </div>
+      <div class="feat">
+        <span class="feat-ico">&#128230;</span>
+        <div class="feat-name">10x STORAGE</div>
+        <div class="feat-desc">Upload files up to 20MB — 10 times the free 2MB limit. Built for large projects and media-heavy repos.</div>
+        <div class="feat-badge">&#11041; PREMIUM</div>
+      </div>
+    </div>
+
+    <div class="divider"><hr class="div-line"><div class="div-label">REDEEM YOUR ACCESS CODE</div></div>
+
+    <div class="card">
+      <div class="card-title">ACCESS CODE</div>
+      <input id="code-input" oninput="this.value=this.value.toUpperCase()" placeholder="Enter your code  e.g.  ARUNPREM-2025" maxlength="30">
+      <button class="redeem-btn" id="redeem-btn" onclick="redeemCode()">&#11041; &nbsp; UNLOCK PREMIUM &nbsp; &#11041;</button>
+      <div class="msg" id="redeem-msg"></div>
+      <div class="hint">Codes are issued by <b>@ArunC</b> (admin). Each code is single-use and tied to your account permanently.</div>
+    </div>
+  </div>
+
+  <!-- PREMIUM SCREEN -->
+  <div id="scr-premium">
+    <div class="hero">
+      <span class="crown">&#9819;</span>
+      <div class="eyebrow">YOU ARE PREMIUM</div>
+      <div class="hero-title">
+        <div class="ht2">WELCOME BACK</div>
+      </div>
+      <div class="status-pill pill-premium">&#9889; ARUNCODE PREMIUM — ACTIVE</div>
+    </div>
+
+    <div class="card" style="margin-bottom:1.2rem">
+      <div class="card-title">ACTIVE PERKS</div>
+      <div class="perks-list">
+        <div class="perk"><span class="perk-dot">&#10022;</span> Custom profile themes — unlocked</div>
+        <div class="perk"><span class="perk-dot">&#10022;</span> Unlimited private repositories</div>
+        <div class="perk"><span class="perk-dot">&#10022;</span> &#9889; Priority badge on your profile</div>
+        <div class="perk"><span class="perk-dot">&#10022;</span> 20MB file upload limit (10x)</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">PROFILE THEME</div>
+      <div style="font-size:10px;color:var(--text);margin-bottom:.5rem">Select your ArunCode colour theme — applies site-wide:</div>
+      <div class="theme-grid" id="theme-grid">
+        <div><div class="sw on" id="sw-default" onclick="setTheme('default')" style="background:linear-gradient(135deg,#070b0f,#0c1016)"></div><div class="sw-label">DEFAULT</div></div>
+        <div><div class="sw" id="sw-amber"   onclick="setTheme('amber')"   style="background:linear-gradient(135deg,#0f0a00,#1f1400)"></div><div class="sw-label">AMBER</div></div>
+        <div><div class="sw" id="sw-crimson" onclick="setTheme('crimson')" style="background:linear-gradient(135deg,#0f0005,#1e000c)"></div><div class="sw-label">CRIMSON</div></div>
+        <div><div class="sw" id="sw-aurora"  onclick="setTheme('aurora')"  style="background:linear-gradient(135deg,#001510,#001f18)"></div><div class="sw-label">AURORA</div></div>
+        <div><div class="sw" id="sw-void"    onclick="setTheme('void')"    style="background:linear-gradient(135deg,#080010,#100020)"></div><div class="sw-label">VOID</div></div>
+        <div><div class="sw" id="sw-steel"   onclick="setTheme('steel')"   style="background:linear-gradient(135deg,#05090f,#0a1520)"></div><div class="sw-label">STEEL</div></div>
+        <div><div class="sw" id="sw-solar"   onclick="setTheme('solar')"   style="background:linear-gradient(135deg,#100600,#1a0e00)"></div><div class="sw-label">SOLAR</div></div>
+        <div><div class="sw" id="sw-gold"    onclick="setTheme('gold')"    style="background:linear-gradient(135deg,#100d00,#1a1500)"></div><div class="sw-label">GOLD</div></div>
+      </div>
+      <div class="msg" id="theme-msg"></div>
+      <div style="font-size:10px;color:var(--textd);margin-top:.6rem">Theme is saved to your account and persists across sessions.</div>
+    </div>
+  </div>
+
+  <div class="footer">ArunCode Premium // Access via code only &nbsp;<span style="animation:blink 1s step-end infinite;display:inline-block">_</span></div>
+</div>
+
+<script>
+var ME='', IS_PREMIUM=false, MY_THEME='default';
+
+async function init(){
+  var me;
+  try{ me=await fetch('/api/me').then(function(r){return r.json();}); }catch(e){me=null;}
+  if(!me||!me.ok){ window.location.href='/terminal?next=/premium'; return; }
+  ME=me.username;
+  document.getElementById('top-name').textContent=ME;
+  document.getElementById('top-init').textContent=ME[0].toUpperCase();
+  try{
+    var p=await fetch('/api/profile').then(function(r){return r.json();});
+    if(p&&p.ok){
+      if(p.avatar){
+        var av=document.getElementById('top-av');
+        if(p.avatar.startsWith('data:')) av.innerHTML='<img src="'+p.avatar+'">';
+        else av.innerHTML='<span>'+p.avatar+'</span>';
+      }
+      IS_PREMIUM=!!p.premium;
+      MY_THEME=p.theme||'default';
+    }
+  }catch(e){}
+  if(IS_PREMIUM) showPremium();
+  document.body.style.visibility='visible';
+}
+
+function showPremium(){
+  document.getElementById('scr-free').style.display='none';
+  document.getElementById('scr-premium').style.display='block';
+  document.querySelectorAll('.sw').forEach(function(s){s.classList.remove('on');});
+  var sw=document.getElementById('sw-'+MY_THEME);
+  if(sw) sw.classList.add('on');
+}
+
+async function redeemCode(){
+  var code=document.getElementById('code-input').value.trim().toUpperCase();
+  var msg=document.getElementById('redeem-msg');
+  var btn=document.getElementById('redeem-btn');
+  if(!code){ showMsg(msg,'Enter an access code first.',false); return; }
+  btn.disabled=true; btn.textContent='// Verifying...';
+  try{
+    var res=await fetch('/api/premium/redeem',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      credentials:'same-origin',body:JSON.stringify({code:code})
+    }).then(function(r){return r.json();});
+    if(res.ok){
+      showMsg(msg,'&#9889; '+res.message,true);
+      IS_PREMIUM=true;
+      setTimeout(showPremium, 1500);
+    } else {
+      showMsg(msg,'&#10006; '+res.error,false);
+      btn.disabled=false; btn.textContent='&#11041;  UNLOCK PREMIUM  &#11041;';
+    }
+  }catch(e){
+    showMsg(msg,'&#10006; Connection error.',false);
+    btn.disabled=false; btn.textContent='&#11041;  UNLOCK PREMIUM  &#11041;';
+  }
+}
+
+async function setTheme(theme){
+  var msg=document.getElementById('theme-msg');
+  try{
+    var res=await fetch('/api/premium/theme',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      credentials:'same-origin',body:JSON.stringify({theme:theme})
+    }).then(function(r){return r.json();});
+    if(res.ok){
+      MY_THEME=theme;
+      try{localStorage.setItem('ac_theme',theme);}catch(e){}
+      // apply immediately
+      var T={
+        default:{},
+        amber:  {'--bg':'#0a0700','--bg2':'#110d00','--bg3':'#181100','--green':'#ffaa00','--gdim':'#7a5000','--border':'#2a1f00','--border2':'#3a2a00','--blue':'#ffcc44','--bdim':'#886600'},
+        crimson:{'--bg':'#0a0003','--bg2':'#110005','--bg3':'#180008','--green':'#ff2255','--gdim':'#7a0022','--border':'#2a0010','--border2':'#3a0018','--blue':'#ff6688','--bdim':'#881133'},
+        aurora: {'--bg':'#000a08','--bg2':'#001110','--bg3':'#001816','--green':'#00ffcc','--gdim':'#007a5e','--border':'#002a24','--border2':'#003a32','--blue':'#00ddff','--bdim':'#006677'},
+        void:   {'--bg':'#050008','--bg2':'#080010','--bg3':'#0d0018','--green':'#cc44ff','--gdim':'#6600aa','--border':'#1a0030','--border2':'#250040','--blue':'#8844ff','--bdim':'#440088'},
+        steel:  {'--bg':'#030609','--bg2':'#050d14','--bg3':'#07121c','--green':'#44aaff','--gdim':'#1155aa','--border':'#0a1828','--border2':'#102233','--blue':'#88ccff','--bdim':'#224466'},
+        solar:  {'--bg':'#090500','--bg2':'#110900','--bg3':'#180d00','--green':'#ff8800','--gdim':'#994400','--border':'#2a1500','--border2':'#3a1e00','--blue':'#ffcc00','--bdim':'#886600'},
+        gold:   {'--bg':'#080700','--bg2':'#0f0d00','--bg3':'#161200','--green':'#ffd700','--gdim':'#8a7200','--border':'#2a2400','--border2':'#3a3200','--blue':'#ffee88','--bdim':'#887700'},
+      };
+      var v=T[theme]||{};
+      Object.keys(v).forEach(function(k){document.documentElement.style.setProperty(k,v[k]);});
+      document.querySelectorAll('.sw').forEach(function(s){s.classList.remove('on');});
+      var sw=document.getElementById('sw-'+theme);
+      if(sw) sw.classList.add('on');
+      showMsg(msg,'&#10022; Theme set to '+theme.toUpperCase(),true);
+    } else showMsg(msg,'&#10006; '+res.error,false);
+  }catch(e){ showMsg(msg,'&#10006; Error saving theme.',false); }
+}
+
+function showMsg(el,text,ok){
+  el.innerHTML=text; el.className='msg '+(ok?'ok':'err'); el.style.display='block';
+  if(ok) setTimeout(function(){el.style.display='none';},3000);
+}
+
+document.getElementById('code-input').addEventListener('keydown',function(e){
+  if(e.key==='Enter') redeemCode();
+});
+
+init();
+</script>
+</body>
+</html>

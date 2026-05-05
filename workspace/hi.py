@@ -1,0 +1,3 @@
+answer = input()
+
+print(answer)

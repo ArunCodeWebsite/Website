@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+// ArunCode Theme Engine v3
+(function(){
+  var T={
+    default:{},
+    amber:  {'--bg':'#0a0700','--bg2':'#110d00','--bg3':'#181100','--green':'#ffaa00','--gdim':'#7a5000','--border':'#2a1f00','--border2':'#3a2a00','--blue':'#ffcc44','--bdim':'#996600','--text':'#9a8060','--textb':'#e8d4a0'},
+    crimson:{'--bg':'#0a0003','--bg2':'#110005','--bg3':'#180008','--green':'#ff2255','--gdim':'#7a0022','--border':'#2a0010','--border2':'#3a0018','--blue':'#ff6688','--bdim':'#881133','--text':'#9a6070','--textb':'#e8a0b0'},
+    aurora: {'--bg':'#000a08','--bg2':'#001110','--bg3':'#001816','--green':'#00ffcc','--gdim':'#007a5e','--border':'#002a24','--border2':'#003a32','--blue':'#00ddff','--bdim':'#006677','--text':'#60a090','--textb':'#a0e8d8'},
+    void:   {'--bg':'#050008','--bg2':'#080010','--bg3':'#0d0018','--green':'#cc44ff','--gdim':'#6600aa','--border':'#1a0030','--border2':'#250040','--blue':'#8844ff','--bdim':'#440088','--text':'#8060a0','--textb':'#c8a0e8'},
+    steel:  {'--bg':'#030609','--bg2':'#050d14','--bg3':'#07121c','--green':'#44aaff','--gdim':'#1155aa','--border':'#0a1828','--border2':'#102233','--blue':'#88ccff','--bdim':'#224466','--text':'#6090b0','--textb':'#a0c8e8'},
+    solar:  {'--bg':'#090500','--bg2':'#110900','--bg3':'#180d00','--green':'#ff8800','--gdim':'#994400','--border':'#2a1500','--border2':'#3a1e00','--blue':'#ffcc00','--bdim':'#886600','--text':'#9a7040','--textb':'#e8c080'},
+    gold:   {'--bg':'#080700','--bg2':'#0f0d00','--bg3':'#161200','--green':'#ffd700','--gdim':'#8a7200','--border':'#2a2400','--border2':'#3a3200','--blue':'#ffee88','--bdim':'#887700','--text':'#9a9060','--textb':'#e8e0a0'},
+  };
+  function apply(theme){
+    var v=T[theme];
+    if(!v||!Object.keys(v).length) return;
+    var css=':root{'+Object.keys(v).map(function(k){return k+':'+v[k]+'!important';}).join(';')+'}';
+    var el=document.getElementById('ac-theme-style');
+    if(!el){el=document.createElement('style');el.id='ac-theme-style';document.head.appendChild(el);}
+    el.textContent=css;
+  }
+  var t=localStorage.getItem('ac_theme')||'default';
+  apply(t);
+  window._applyTheme=apply;
+  fetch('/api/profile',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(p){
+    if(p&&p.ok&&p.theme&&p.theme!==t){
+      localStorage.setItem('ac_theme',p.theme);
+      apply(p.theme);
+    }
+  }).catch(function(){});
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArunCode_Github</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b0f;--bg2:#0c1016;--bg3:#111620;
+  --green:#39ff14;--gdim:#1a7a06;--blue:#00cfff;--bdim:#005577;
+  --purple:#a78bfa;--pdim:#4c3a8a;--amber:#ffb300;--adim:#7a5500;
+  --red:#ff4444;--border:#1a2535;--text:#7a9ab8;--textb:#c8dff0;
+  --mono:'Share Tech Mono',monospace;--code:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none;z-index:9999}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.5rem 1.5rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:100}
+.brand{font-family:'Orbitron',sans-serif;font-size:.85rem;font-weight:900;letter-spacing:2px;color:var(--green);text-shadow:0 0 8px var(--gdim);white-space:nowrap}
+.brand span{color:var(--blue)}
+#searchbar{flex:1;max-width:300px;background:var(--bg3);border:1px solid var(--border);color:var(--textb);font-family:var(--mono);font-size:12px;padding:.35rem .7rem;outline:none;caret-color:var(--green)}
+#searchbar:focus{border-color:var(--bdim)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:.6rem}
+.btn{background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:5px 13px;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+.btn:hover{border-color:var(--bdim);color:var(--blue)}
+.btn-g{border-color:var(--gdim);color:var(--green)}
+.btn-g:hover{background:rgba(57,255,20,.07)}
+.btn-p{border-color:var(--pdim);color:var(--purple)}
+.btn-p:hover{background:rgba(167,139,250,.07)}
+.btn-a{border-color:var(--adim);color:var(--amber)}
+.btn-a:hover{background:rgba(255,179,0,.07)}
+.btn-r{border-color:#2a1010;color:#553333}
+.btn-r:hover{border-color:var(--red);color:var(--red)}
+.userpill{display:flex;align-items:center;gap:.5rem;border:1px solid var(--border);padding:3px 10px 3px 5px;font-size:11px;color:var(--textb)}
+.av{width:22px;height:22px;border:1px solid var(--gdim);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:11px;overflow:hidden;flex-shrink:0}
+.av img,.av-lg img{width:100%;height:100%;object-fit:cover}
+.av-lg{width:64px;height:64px;border:2px solid var(--gdim);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;flex-shrink:0}
+.layout{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 44px)}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:1rem .7rem}
+.sb-hd{font-size:9px;letter-spacing:3px;color:var(--bdim);padding:.6rem .4rem .2rem}
+.sb-lnk{display:flex;align-items:center;gap:.6rem;padding:.38rem .6rem;font-size:11px;color:var(--text);cursor:pointer;border-left:2px solid transparent;transition:all .15s}
+.sb-lnk:hover,.sb-lnk.on{color:var(--textb);background:rgba(0,207,255,.04);border-left-color:var(--blue)}
+.sb-cnt{margin-left:auto;font-size:9px;color:var(--bdim);background:var(--bg3);border:1px solid var(--border);padding:1px 5px}
+.main{padding:1.2rem;display:flex;flex-direction:column;gap:1rem;overflow-y:auto}
+.scr{display:none;flex-direction:column;gap:1rem;animation:fadeUp .25s ease}
+.scr.on{display:flex}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.9rem}
+.card{border:1px solid var(--border);background:var(--bg2);padding:1rem;cursor:pointer;transition:all .2s;position:relative}
+.card:hover{border-color:var(--bdim);background:var(--bg3);transform:translateY(-1px)}
+.card-acts{position:absolute;top:.5rem;right:.5rem;display:none;gap:.3rem}
+.card:hover .card-acts{display:flex}
+.card-ow{display:flex;align-items:center;gap:.4rem;margin-bottom:.4rem}
+.card-name{font-size:13px;color:var(--textb);margin-bottom:.3rem}
+.card-desc{font-size:11px;color:var(--text);line-height:1.6;margin-bottom:.6rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.card-meta{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.tag{font-size:9px;letter-spacing:1px;padding:2px 6px;border:1px solid}
+.tag-python{color:var(--blue);border-color:var(--bdim)}.tag-javascript{color:var(--amber);border-color:var(--adim)}
+.tag-html{color:#ff6b35;border-color:#7a3010}.tag-css{color:var(--purple);border-color:var(--pdim)}
+.tag-other{color:var(--text);border-color:var(--border)}.tag-pub{color:var(--green);border-color:var(--gdim)}
+.tag-prv{color:var(--text);border-color:var(--border)}
+.empty-state{padding:2.5rem;text-align:center;border:1px solid var(--border);color:#1a2535;font-size:11px;letter-spacing:2px}
+.rv-box{border:1px solid var(--border);background:var(--bg2);padding:1.2rem}
+.rv-title{font-size:1rem;color:var(--textb)}.rv-ow{font-size:10px;color:var(--blue);cursor:pointer;margin-bottom:.4rem}
+.rv-desc{font-size:12px;color:var(--text);line-height:1.7;margin-bottom:.7rem}
+.rv-bar{display:flex;gap:.7rem;align-items:center;flex-wrap:wrap}
+.panel{border:1px solid var(--border);background:var(--bg2)}
+.panel-hd{background:var(--bg3);border-bottom:1px solid var(--border);padding:.4rem 1rem;font-size:9px;letter-spacing:2px;color:var(--bdim);display:flex;justify-content:space-between;align-items:center}
+.frow{display:flex;align-items:center;gap:.7rem;padding:.45rem 1rem;border-bottom:1px solid #0a1018;cursor:pointer;transition:background .15s}
+.frow:hover{background:rgba(0,207,255,.04)}.frow:last-child{border-bottom:none}
+.frow-name{color:var(--blue);font-size:12px;flex:1}.frow-sz{font-size:10px;color:var(--text)}
+.code-box{border:1px solid var(--border);background:var(--bg)}
+.code-body{padding:1rem;font-family:var(--code);font-size:12px;line-height:1.8;color:var(--textb);overflow:auto;white-space:pre;max-height:500px}
+.ln{color:#1a3a5a;user-select:none;margin-right:1.2rem;display:inline-block;width:3ch;text-align:right}
+.readme-box{border:1px solid var(--border);background:var(--bg2)}
+.readme-body{padding:1.2rem;font-size:12px;line-height:1.9;color:var(--text)}
+.readme-body h1,.readme-body h2,.readme-body h3{color:var(--textb);margin:.6rem 0 .3rem}
+.readme-body code{font-family:var(--code);background:var(--bg3);padding:1px 5px;color:var(--green)}
+.readme-body pre{background:var(--bg);border:1px solid var(--border);padding:.8rem;font-family:var(--code);font-size:11px;overflow-x:auto;margin:.4rem 0;color:var(--textb);white-space:pre}
+.cs-wrap{display:grid;grid-template-columns:210px 1fr;gap:.8rem;height:calc(100vh - 160px)}
+.cs-tree{border:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;overflow:hidden}
+.cs-tree-hd{background:var(--bg3);border-bottom:1px solid var(--border);padding:.4rem .7rem;font-size:9px;letter-spacing:2px;color:var(--bdim);flex-shrink:0}
+.cs-tree-body{overflow-y:auto;flex:1}
+.ti{display:flex;align-items:center;gap:.5rem;padding:.38rem .7rem;font-size:11px;cursor:pointer;border-left:2px solid transparent;transition:background .15s}
+.ti:hover{background:rgba(0,207,255,.04)}.ti.on{border-left-color:var(--green);color:var(--textb);background:rgba(57,255,20,.03)}
+.ti-del{margin-left:auto;background:none;border:none;color:#222;cursor:pointer;font-size:11px;padding:0 2px;line-height:1}
+.ti-del:hover{color:var(--red)}
+.cs-right{display:flex;flex-direction:column;gap:.6rem}
+.cs-edit-box{border:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;flex:1}
+.cs-edit-bar{background:var(--bg3);border-bottom:1px solid var(--border);padding:.35rem .8rem;font-size:9px;display:flex;align-items:center;gap:.7rem;flex-shrink:0;letter-spacing:1px;color:var(--bdim)}
+#cs-editor{flex:1;background:var(--bg);border:none;color:var(--textb);font-family:var(--code);font-size:13px;padding:.8rem;outline:none;resize:none;caret-color:var(--green);line-height:1.8;min-height:300px}
+.cs-out-box{border:1px solid var(--border);background:var(--bg)}
+.cs-out-hd{background:var(--bg3);border-bottom:1px solid var(--border);padding:.35rem .8rem;font-size:9px;letter-spacing:2px;color:var(--gdim);display:flex;justify-content:space-between;align-items:center}
+#cs-out{padding:.7rem 1rem;font-family:var(--code);font-size:12px;color:var(--green);min-height:70px;max-height:130px;overflow-y:auto;white-space:pre-wrap}
+.pv-head{border:1px solid var(--border);background:var(--bg2);padding:1.3rem;display:flex;gap:1.2rem;align-items:flex-start}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;align-items:center;justify-content:center}
+.modal.on{display:flex}
+.mbox{background:var(--bg2);border:1px solid var(--border);width:500px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.m-hd{background:var(--bg3);border-bottom:1px solid var(--border);padding:.6rem 1rem;font-size:9px;letter-spacing:2px;color:var(--bdim);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1}
+.m-x{background:none;border:none;color:#444;cursor:pointer;font-size:18px;line-height:1}
+.m-x:hover{color:var(--red)}
+.m-body{padding:1.1rem;display:flex;flex-direction:column;gap:.8rem}
+.mf label{display:block;font-size:9px;letter-spacing:2px;color:var(--bdim);margin-bottom:.3rem}
+.mf input,.mf textarea,.mf select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--textb);font-family:var(--mono);font-size:12px;padding:.45rem .65rem;outline:none;resize:vertical;caret-color:var(--green)}
+.mf input:focus,.mf textarea:focus,.mf select:focus{border-color:var(--gdim)}
+.m-ft{padding:.6rem 1rem;border-top:1px solid var(--border);display:flex;gap:.5rem;justify-content:flex-end;align-items:center}
+.m-err{font-size:10px;color:var(--red);flex:1}
+.drop-z{border:1px dashed var(--border);padding:1.2rem;text-align:center;font-size:11px;color:var(--text);transition:all .2s}
+.drop-z:hover{border-color:var(--gdim);color:var(--green);background:rgba(57,255,20,.03)}
+.chips{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.4rem}
+.chip{font-size:10px;padding:2px 8px;background:var(--bg3);border:1px solid var(--border);color:var(--textb);display:flex;align-items:center;gap:.4rem}
+.chip-x{background:none;border:none;color:#333;cursor:pointer;font-size:13px;line-height:1}
+.chip-x:hover{color:var(--red)}
+</style>
+
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">ArunCode <span>_Github</span></div>
+  <input id="searchbar" placeholder="Search repos..." oninput="renderAll()">
+  <div class="tb-right">
+    <button class="btn btn-g" onclick="openModal('modal-new')">+ NEW REPO</button>
+    <div class="userpill">
+      <div class="av" id="top-av"><span id="top-init">?</span></div>
+      <span id="top-name">...</span>
+    </div>
+    <a class="btn" href="/home">&#8962; HOME</a>
+  </div>
+</div>
+
+<div class="layout">
+<div class="sidebar">
+  <div class="sb-hd">EXPLORE</div>
+  <div class="sb-lnk on" id="sl-all"     onclick="goTab('all',this)">&#127760; All Repos<span class="sb-cnt" id="c-all">0</span></div>
+  <div class="sb-lnk"    id="sl-mine"    onclick="goTab('mine',this)">&#128193; My Repos<span class="sb-cnt" id="c-mine">0</span></div>
+  <div class="sb-lnk"    id="sl-starred" onclick="goTab('starred',this)">&#11088; Starred<span class="sb-cnt" id="c-star">0</span></div>
+  <div class="sb-hd">LANGUAGE</div>
+  <div class="sb-lnk on" id="lang-"          onclick="setLang('',this)">All</div>
+  <div class="sb-lnk"    id="lang-python"     onclick="setLang('python',this)">&#128013; Python</div>
+  <div class="sb-lnk"    id="lang-javascript" onclick="setLang('javascript',this)">&#9889; JavaScript</div>
+  <div class="sb-lnk"    id="lang-html"       onclick="setLang('html',this)">&#127760; HTML</div>
+  <div class="sb-lnk"    id="lang-css"        onclick="setLang('css',this)">&#127912; CSS</div>
+  <div class="sb-lnk"    id="lang-other"      onclick="setLang('other',this)">&#128196; Other</div>
+  <div class="sb-hd">USERS</div>
+  <div id="sb-users"></div>
+</div>
+
+<div class="main">
+
+  <div class="scr on" id="scr-all">
+    <div style="font-size:9px;letter-spacing:3px;color:var(--bdim)">ALL REPOSITORIES</div>
+    <div class="grid" id="grid-all"><div style="padding:2rem;color:var(--bdim);font-size:11px;letter-spacing:2px">Loading...</div></div>
+  </div>
+
+  <div class="scr" id="scr-mine">
+    <div style="font-size:9px;letter-spacing:3px;color:var(--bdim)">MY REPOSITORIES</div>
+    <div class="grid" id="grid-mine"></div>
+  </div>
+
+  <div class="scr" id="scr-starred">
+    <div style="font-size:9px;letter-spacing:3px;color:var(--bdim)">STARRED</div>
+    <div class="grid" id="grid-starred"></div>
+  </div>
+
+  <div class="scr" id="scr-repo">
+    <div style="display:flex;gap:.5rem;align-items:center">
+      <button class="btn" onclick="goBack()">&#8592; BACK</button>
+      <span id="rv-crumb" style="font-size:10px;color:var(--bdim)"></span>
+    </div>
+    <div class="rv-box" id="rv-head"></div>
+    <div class="panel" id="rv-files"></div>
+    <div class="code-box" id="rv-code" style="display:none">
+      <div class="panel-hd"><span id="rv-fname"></span><button class="btn" onclick="document.getElementById('rv-code').style.display='none'">X CLOSE</button></div>
+      <div class="code-body" id="rv-code-body"></div>
+    </div>
+    <div class="readme-box" id="rv-readme" style="display:none">
+      <div class="panel-hd">README.md</div>
+      <div class="readme-body" id="rv-readme-body"></div>
+    </div>
+  </div>
+
+  <div class="scr" id="scr-cs">
+    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+      <button class="btn" onclick="goScr('repo')">&#8592; BACK TO REPO</button>
+      <span id="cs-crumb" style="font-size:10px;color:var(--bdim)"></span>
+      <div style="margin-left:auto;display:flex;gap:.4rem">
+        <button class="btn btn-a" id="cs-folder-btn" onclick="csAddFolder()">FOLDER</button>
+        <button class="btn btn-g" id="cs-file-btn"   onclick="csAddFile()">+ FILE</button>
+        <button class="btn btn-g" id="cs-save-btn"   onclick="csSave()">SAVE</button>
+        <button class="btn btn-a" id="cs-run-btn"    onclick="csRun()">RUN</button>
+      </div>
+    </div>
+    <div class="cs-wrap">
+      <div class="cs-tree">
+        <div class="cs-tree-hd">FILES</div>
+        <div class="cs-tree-body" id="cs-tree"></div>
+      </div>
+      <div class="cs-right">
+        <div class="cs-edit-box">
+          <div class="cs-edit-bar">
+            <span id="cs-active-file">No file open</span>
+            <span id="cs-dirty" style="color:var(--amber);display:none">unsaved</span>
+          </div>
+          <textarea id="cs-editor" placeholder="Open a file to edit..." oninput="csMakeDirty()" onkeydown="csTab(event)"></textarea>
+        </div>
+        <div class="cs-out-box">
+          <div class="cs-out-hd">
+            <span>OUTPUT</span>
+            <button class="btn" style="padding:1px 7px" onclick="document.getElementById('cs-out').textContent='// cleared'">CLEAR</button>
+          </div>
+          <div id="cs-out">// No output yet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scr" id="scr-profile">
+    <button class="btn" style="align-self:flex-start" onclick="goBack()">&#8592; BACK</button>
+    <div class="pv-head" id="pv-head"></div>
+    <div style="font-size:9px;letter-spacing:3px;color:var(--bdim)">REPOSITORIES</div>
+    <div class="grid" id="grid-profile"></div>
+  </div>
+
+</div>
+</div>
+
+<!-- NEW REPO MODAL -->
+<div class="modal" id="modal-new">
+<div class="mbox">
+  <div class="m-hd"><span>// NEW REPOSITORY</span><button class="m-x" onclick="closeModal('modal-new')">x</button></div>
+  <div class="m-body">
+    <div class="mf"><label>NAME *</label><input id="new-name" placeholder="my-project"></div>
+    <div class="mf"><label>DESCRIPTION</label><input id="new-desc" placeholder="What does this do?"></div>
+    <div class="mf"><label>LANGUAGE</label>
+      <select id="new-lang"><option value="python">Python</option><option value="javascript">JavaScript</option><option value="html">HTML</option><option value="css">CSS</option><option value="other">Other</option></select>
+    </div>
+    <div class="mf"><label>VISIBILITY</label>
+      <select id="new-vis"><option value="public">Public</option><option value="private">Private (Premium)</option></select>
+    </div>
+    <div class="mf"><label>README (optional)</label>
+      <textarea id="new-readme" rows="4" placeholder="# My Project"></textarea>
+    </div>
+    <div class="mf">
+      <label>UPLOAD FILES (optional)</label>
+      <div class="drop-z" ondragover="event.preventDefault();this.style.borderColor='var(--green)'" ondragleave="this.style.borderColor=''" ondrop="event.preventDefault();this.style.borderColor='';handleDrop(event,'new')">
+        Drag and drop files or folders here
+      </div>
+      <div style="display:flex;gap:.5rem;margin-top:.4rem">
+        <button class="btn btn-g" style="flex:1" onclick="document.getElementById('new-file-inp').click()">+ FILES</button>
+        <button class="btn btn-a" style="flex:1" onclick="document.getElementById('new-folder-inp').click()">UPLOAD FOLDER</button>
+      </div>
+      <input type="file" id="new-file-inp"   multiple style="display:none" onchange="addFiles(this.files,'new')">
+      <input type="file" id="new-folder-inp" multiple style="display:none" webkitdirectory onchange="addFiles(this.files,'new')">
+      <div class="chips" id="new-chips"></div>
+    </div>
+  </div>
+  <div class="m-ft">
+    <span class="m-err" id="new-err"></span>
+    <button class="btn" onclick="closeModal('modal-new')">CANCEL</button>
+    <button class="btn btn-g" id="new-submit" onclick="doCreateRepo()">CREATE REPO</button>
+  </div>
+</div>
+</div>
+
+<!-- UPLOAD MODAL -->
+<div class="modal" id="modal-upload">
+<div class="mbox">
+  <div class="m-hd"><span>// UPLOAD FILES</span><button class="m-x" onclick="closeModal('modal-upload')">x</button></div>
+  <div class="m-body">
+    <div class="mf">
+      <label>FILES</label>
+      <div class="drop-z" ondragover="event.preventDefault();this.style.borderColor='var(--green)'" ondragleave="this.style.borderColor=''" ondrop="event.preventDefault();this.style.borderColor='';handleDrop(event,'up')">
+        Drag and drop files or folders here
+      </div>
+      <div style="display:flex;gap:.5rem;margin-top:.4rem">
+        <button class="btn btn-g" style="flex:1" onclick="document.getElementById('up-file-inp').click()">+ FILES</button>
+        <button class="btn btn-a" style="flex:1" onclick="document.getElementById('up-folder-inp').click()">UPLOAD FOLDER</button>
+      </div>
+      <input type="file" id="up-file-inp"   multiple style="display:none" onchange="addFiles(this.files,'up')">
+      <input type="file" id="up-folder-inp" multiple style="display:none" webkitdirectory onchange="addFiles(this.files,'up')">
+      <div class="chips" id="up-chips"></div>
+    </div>
+  </div>
+  <div class="m-ft">
+    <span class="m-err" id="up-err"></span>
+    <button class="btn" onclick="closeModal('modal-upload')">CANCEL</button>
+    <button class="btn btn-g" id="up-submit" onclick="doUpload()">UPLOAD</button>
+  </div>
+</div>
+</div>
+
+<script>
+var ME='', MY_AV='';
+var repos=[];
+var userAvatars={};  // {username: avatarString}
+var viewingId=null;
+var csId=null, csFilePath=null, csDirtyFlag=false, csOpenFolders={};
+var pendingNew=[], pendingUp=[];
+var tab='all', langF='';
+
+function api(method,url,body){
+  var opts={method:method,headers:{'Content-Type':'application/json'},credentials:'same-origin'};
+  if(body!==undefined) opts.body=JSON.stringify(body);
+  return fetch(url,opts).then(function(r){return r.json();});
+}
+function apiGet(url){return api('GET',url);}
+function apiPost(url,body){return api('POST',url,body);}
+function apiPut(url,body){return api('PUT',url,body);}
+function apiDel(url){return api('DELETE',url);}
+
+async function init(){
+  var me;
+  try{me=await apiGet('/api/me');}catch(e){me=null;}
+  if(!me||!me.ok){window.location.href='/terminal?next=/github';return;}
+  ME=me.username;
+  document.getElementById('top-name').textContent=ME;
+  document.getElementById('top-init').textContent=ME[0].toUpperCase();
+  try{
+    var p=await apiGet('/api/profile');
+    if(p&&p.ok&&p.avatar){MY_AV=p.avatar;setAvEl(document.getElementById('top-av'),MY_AV);}
+  }catch(e){}
+  await fetchRepos();
+  await fetchUserAvatars();
+}
+
+async function fetchUserAvatars() {
+  try {
+    var r = await apiGet('/api/users');
+    if (r && r.ok) {
+      userAvatars = {};
+      Object.keys(r.users).forEach(function(u) {
+        if (r.users[u].avatar) userAvatars[u] = r.users[u].avatar;
+      });
+      // Re-render with fresh avatars
+      renderAll();
+      renderUsers();
+    }
+  } catch(e) {}
+}
+
+async function fetchRepos(){
+  try{
+    var r=await apiGet('/api/repos');
+    repos=(r&&r.ok)?r.repos||[]:[];
+  }catch(e){repos=[];}
+  renderAll();
+  renderUsers();
+}
+
+function setAvEl(el,av){
+  if(!av)return;
+  if(av.startsWith('data:'))el.innerHTML='<img src="'+av+'">';
+  else el.innerHTML='<span>'+av+'</span>';
+}
+function avHTML(av,letter,big){
+  var fs=big?'2rem':'11px';
+  if(!av)return'<span>'+(letter||'?')[0].toUpperCase()+'</span>';
+  if(av.startsWith('data:'))return'<img src="'+av+'" style="width:100%;height:100%;object-fit:cover">';
+  return'<span style="font-size:'+fs+'">'+av+'</span>';
+}
+
+function goScr(id){
+  document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on');});
+  document.getElementById('scr-'+id).classList.add('on');
+}
+function goBack(){
+  document.getElementById('rv-code').style.display='none';
+  document.getElementById('rv-readme').style.display='none';
+  goScr('all');tab='all';
+  document.querySelectorAll('.sb-lnk[id^="sl-"]').forEach(function(l){l.classList.remove('on');});
+  document.getElementById('sl-all').classList.add('on');
+  renderAll();
+}
+function goTab(t,el){
+  tab=t;
+  document.querySelectorAll('.sb-lnk[id^="sl-"]').forEach(function(l){l.classList.remove('on');});
+  el.classList.add('on');
+  goScr(t==='mine'?'mine':t==='starred'?'starred':'all');
+  renderAll();
+}
+function setLang(lang,el){
+  langF=lang;
+  document.querySelectorAll('.sb-lnk[id^="lang-"]').forEach(function(l){l.classList.remove('on');});
+  el.classList.add('on');renderAll();
+}
+
+function renderAll(){
+  var q=(document.getElementById('searchbar').value||'').toLowerCase();
+  var all=repos.filter(function(r){
+    if(r.vis==='private'&&r.owner!==ME)return false;
+    if(langF&&r.lang!==langF)return false;
+    if(q)return(r.name||'').toLowerCase().includes(q)||(r.desc||'').toLowerCase().includes(q)||(r.owner||'').toLowerCase().includes(q);
+    return true;
+  });
+  var mine=repos.filter(function(r){return r.owner===ME;});
+  var starred=repos.filter(function(r){return(r.starredBy||[]).indexOf(ME)>=0;});
+  document.getElementById('c-all').textContent=all.length;
+  document.getElementById('c-mine').textContent=mine.length;
+  document.getElementById('c-star').textContent=starred.length;
+  renderGrid('grid-all',all);
+  renderGrid('grid-mine',mine);
+  renderGrid('grid-starred',starred);
+}
+
+function renderGrid(gid,list){
+  var el=document.getElementById(gid);
+  if(!list.length){el.innerHTML='<div class="empty-state">NO REPOSITORIES</div>';return;}
+  el.innerHTML=list.map(cardHTML).join('');
+}
+
+function cardHTML(r){
+  var isOwner=r.owner===ME;
+  var isStar=(r.starredBy||[]).indexOf(ME)>=0;
+  var av=avHTML(userAvatars[r.owner]||r.av,r.owner,false);
+  return'<div class="card" onclick="viewRepo('+r.id+')">'
+    +'<div class="card-acts" onclick="event.stopPropagation()">'
+      +'<button class="btn" style="padding:3px 8px'+(isStar?';color:var(--amber);border-color:var(--adim)':'')+'" onclick="toggleStar('+r.id+')">'+(isStar?'UNSTAR':'STAR')+'</button>'
+      +(isOwner?'<button class="btn btn-r" style="padding:3px 8px" onclick="delRepo('+r.id+')">DEL</button>':'')
+    +'</div>'
+    +'<div class="card-ow">'
+      +'<div class="av" style="cursor:pointer" onclick="event.stopPropagation();viewProfile(\''+esc(r.owner)+'\')">'+av+'</div>'
+      +'<span style="font-size:10px;color:var(--blue);cursor:pointer" onclick="event.stopPropagation();viewProfile(\''+esc(r.owner)+'\')">'+r.owner+'</span>'
+      +'<span class="tag '+(r.vis==='public'?'tag-pub':'tag-prv')+'" style="margin-left:auto">'+(r.vis||'public')+'</span>'
+    +'</div>'
+    +'<div class="card-name">'+esc2(r.name)+'</div>'
+    +'<div class="card-desc">'+esc2(r.desc||'No description')+'</div>'
+    +'<div class="card-meta">'
+      +'<span class="tag tag-'+r.lang+'">'+r.lang+'</span>'
+      +'<span style="font-size:10px;color:var(--amber)">STARS: '+(r.stars||0)+'</span>'
+      +'<span style="font-size:10px;color:var(--text)">FILES: '+((r.files||[]).length)+'</span>'
+      +'<span style="font-size:10px;color:var(--text);margin-left:auto">'+(r.date||'')+'</span>'
+    +'</div>'
+  +'</div>';
+}
+
+function renderUsers(){
+  var owners=[];
+  repos.forEach(function(r){if(owners.indexOf(r.owner)<0)owners.push(r.owner);});
+  var el=document.getElementById('sb-users');
+  if(!owners.length){el.innerHTML='<div style="font-size:10px;color:#1a2535;padding:.4rem .7rem">No users yet</div>';return;}
+  el.innerHTML=owners.map(function(u){
+    var av=userAvatars[u]||'';
+    if(!av) for(var i=0;i<repos.length;i++){if(repos[i].owner===u){av=repos[i].av||'';break;}}
+    return'<div class="sb-lnk" onclick="viewProfile(\''+esc(u)+'\')"><div style="width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:var(--bg3);border:1px solid var(--border);overflow:hidden;font-size:10px;flex-shrink:0">'+avHTML(av,u,false)+'</div>'+u+'</div>';
+  }).join('');
+}
+
+function viewRepo(id){
+  var r=repos.find(function(x){return x.id===id;});
+  if(!r)return;
+  viewingId=id;
+  document.getElementById('rv-code').style.display='none';
+  document.getElementById('rv-readme').style.display='none';
+  document.getElementById('rv-crumb').textContent=r.owner+' / '+r.name;
+  goScr('repo');
+  var isOwner=r.owner===ME;
+  var isStar=(r.starredBy||[]).indexOf(ME)>=0;
+  document.getElementById('rv-head').innerHTML=
+    '<div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.5rem">'
+      +'<div class="av" style="cursor:pointer" onclick="viewProfile(\''+esc(r.owner)+'\')">'+avHTML(userAvatars[r.owner]||r.av,r.owner,false)+'</div>'
+      +'<div><div class="rv-ow" onclick="viewProfile(\''+esc(r.owner)+'\')">'+r.owner+'</div><div class="rv-title">'+esc2(r.name)+'</div></div>'
+      +'<span class="tag '+(r.vis==='public'?'tag-pub':'tag-prv')+'" style="margin-left:auto">'+(r.vis||'public')+'</span>'
+    +'</div>'
+    +'<div class="rv-desc">'+esc2(r.desc||'')+'</div>'
+    +'<div class="rv-bar">'
+      +'<span class="tag tag-'+r.lang+'">'+r.lang+'</span>'
+      +'<button class="btn" style="padding:3px 10px;'+(isStar?'color:var(--amber);border-color:var(--adim)':'')+'" onclick="toggleStar('+r.id+')">'+(isStar?'UNSTAR':'STAR')+' ('+( r.stars||0)+')</button>'
+      +'<span style="font-size:10px;color:var(--text)">'+(r.date||'')+'</span>'
+      +'<div style="margin-left:auto;display:flex;gap:.4rem">'
+        +(isOwner?'<button class="btn btn-g" onclick="openModal(\'modal-upload\')">UPLOAD</button>':'')
+        +'<button class="btn btn-p" onclick="openCS('+id+')">CODESPACE</button>'
+      +'</div>'
+    +'</div>';
+
+  var files=(r.files||[]).filter(function(f){return f.type!=='folder';});
+  document.getElementById('rv-files').innerHTML=
+    '<div class="panel-hd"><span>FILES</span><span>'+files.length+' files</span></div>'
+    +(files.length?files.map(function(f){
+      var path=f.folder?f.folder+'/'+f.name:f.name;
+      return'<div class="frow" onclick="viewFile('+id+',\''+esc(path)+'\')">'
+        +'<span>'+ficon(f.name)+'</span>'
+        +'<span class="frow-name">'+esc2(path)+'</span>'
+        +'<span class="frow-sz">'+fsize(f.content)+'</span>'
+      +'</div>';
+    }).join(''):'<div class="empty-state" style="border:none">No files yet</div>');
+
+  var readme=files.find(function(f){return f.name.toLowerCase()==='readme.md';});
+  if(readme){document.getElementById('rv-readme').style.display='';document.getElementById('rv-readme-body').innerHTML=mdToHtml(readme.content||'');}
+}
+
+function viewFile(id,path){
+  var r=repos.find(function(x){return x.id===id;});
+  if(!r)return;
+  var parts=path.split('/'),name=parts.pop(),folder=parts.length?parts.join('/'):null;
+  var f=(r.files||[]).find(function(x){return x.name===name&&(folder?x.folder===folder:!x.folder);});
+  if(!f)return;
+  document.getElementById('rv-fname').textContent=path;
+  var body=document.getElementById('rv-code-body');
+  if(f.content&&f.content.startsWith('data:'))body.innerHTML='<span style="color:var(--text)">[Binary file]</span>';
+  else body.innerHTML=(f.content||'').split('\n').map(function(l,i){return'<span class="ln">'+(i+1)+'</span>'+escHtml(l);}).join('\n');
+  document.getElementById('rv-code').style.display='';
+}
+
+function viewProfile(username){
+  var pRepos=repos.filter(function(r){return r.owner===username&&(r.vis==='public'||r.owner===ME);});
+  var av=userAvatars[username]||'';
+  if(!av) repos.forEach(function(r){if(r.owner===username&&!av)av=r.av||'';});
+  document.getElementById('pv-head').innerHTML=
+    '<div class="av-lg">'+avHTML(av,username,true)+'</div>'
+    +'<div><div style="font-size:1rem;color:var(--textb);margin-bottom:.3rem">'+username+'</div><div style="font-size:11px;color:var(--text)">'+pRepos.length+' repos</div></div>';
+  renderGrid('grid-profile',pRepos);goScr('profile');
+}
+
+function openCS(id){
+  var r=repos.find(function(x){return x.id===id;});
+  if(!r)return;
+  csId=id;csFilePath=null;csDirtyFlag=false;csOpenFolders={};
+  var isOwner=r.owner===ME;
+  document.getElementById('cs-crumb').textContent=r.owner+' / '+r.name+' — CODESPACE';
+  document.getElementById('cs-folder-btn').style.display=isOwner?'':'none';
+  document.getElementById('cs-file-btn').style.display=isOwner?'':'none';
+  document.getElementById('cs-save-btn').style.display=isOwner?'':'none';
+  document.getElementById('cs-editor').disabled=!isOwner;
+  document.getElementById('cs-editor').value='';
+  document.getElementById('cs-active-file').textContent='No file open';
+  document.getElementById('cs-dirty').style.display='none';
+  document.getElementById('cs-out').textContent='// No output yet';
+  goScr('cs');renderTree();
+}
+
+function renderTree(){
+  var r=repos.find(function(x){return x.id===csId;});
+  var el=document.getElementById('cs-tree');
+  var items=r?(r.files||[]):[];
+  if(!items.length){el.innerHTML='<div style="padding:.8rem;font-size:10px;color:#1a2535">No files yet. Add one above.</div>';return;}
+  var isOwner=r.owner===ME;
+  var folders={},roots=[];
+  items.forEach(function(f){
+    if(f.type==='folder'){if(!folders[f.name])folders[f.name]=[];}
+    else if(f.folder){if(!folders[f.folder])folders[f.folder]=[];folders[f.folder].push(f);}
+    else roots.push(f);
+  });
+  var html='';
+  Object.keys(folders).sort().forEach(function(fn){
+    var open=!!csOpenFolders[fn];
+    html+='<div class="ti" onclick="csToggleFolder(\''+esc(fn)+'\')" style="color:var(--amber)">'
+      +(open?'[OPEN] ':'[FOLDER] ')+'<span style="flex:1">'+fn+'</span>'
+      +(isOwner?'<button class="ti-del" onclick="event.stopPropagation();csDelFolder(\''+esc(fn)+'\')">X</button>':'')
+    +'</div>';
+    if(open)(folders[fn]||[]).forEach(function(f){html+=tiFile(f.name,fn+'/'+f.name,'1.4rem',isOwner);});
+  });
+  roots.forEach(function(f){html+=tiFile(f.name,f.name,'.8rem',isOwner);});
+  el.innerHTML=html;
+}
+
+function tiFile(name,path,indent,isOwner){
+  var active=csFilePath===path;
+  return'<div class="ti'+(active?' on':'')+'" onclick="csOpenFile(\''+esc(path)+'\')" style="padding-left:'+indent+'">'
+    +ficon(name)+' '+name
+    +(isOwner?'<button class="ti-del" onclick="event.stopPropagation();csDelFile(\''+esc(path)+'\')">X</button>':'')
+  +'</div>';
+}
+
+function csToggleFolder(name){csOpenFolders[name]=!csOpenFolders[name];renderTree();}
+
+function csOpenFile(path){
+  if(csDirtyFlag&&!confirm('Unsaved changes — discard?'))return;
+  var r=repos.find(function(x){return x.id===csId;});
+  var parts=path.split('/'),name=parts.pop(),folder=parts.length?parts.join('/'):null;
+  var f=(r.files||[]).find(function(x){return x.name===name&&(folder?x.folder===folder:!x.folder);});
+  if(!f)return;
+  csFilePath=path;csDirtyFlag=false;
+  document.getElementById('cs-active-file').textContent=path;
+  document.getElementById('cs-dirty').style.display='none';
+  var ed=document.getElementById('cs-editor');
+  ed.value=(f.content&&f.content.startsWith('data:'))?'// [binary file]':(f.content||'');
+  ed.disabled=r.owner!==ME;
+  renderTree();
+}
+
+function csMakeDirty(){csDirtyFlag=true;document.getElementById('cs-dirty').style.display='';}
+
+function csTab(e){
+  if(e.key!=='Tab')return;e.preventDefault();
+  var t=e.target,s=t.selectionStart,en=t.selectionEnd;
+  t.value=t.value.slice(0,s)+'  '+t.value.slice(en);
+  t.selectionStart=t.selectionEnd=s+2;csMakeDirty();
+}
+
+async function csSave(){
+  if(!csFilePath)return;
+  var parts=csFilePath.split('/'),name=parts.pop(),folder=parts.length?parts.join('/'):null;
+  var content=document.getElementById('cs-editor').value;
+  var out=document.getElementById('cs-out');
+  try{
+    var res=await apiPut('/api/repos/'+csId+'/files/'+encodeURIComponent(name),{content:content,folder:folder||''});
+    if(res&&res.ok){
+      var r=repos.find(function(x){return x.id===csId;});
+      var f=(r.files||[]).find(function(x){return x.name===name&&(folder?x.folder===folder:!x.folder);});
+      if(f)f.content=content;
+      csDirtyFlag=false;document.getElementById('cs-dirty').style.display='none';
+      out.textContent='// Saved: '+csFilePath;
+    }else out.textContent='// Error: '+(res&&res.error||'failed');
+  }catch(e){out.textContent='// Error: '+e.message;}
+}
+
+function csRun(){
+  if(!csFilePath)return;
+  var code=document.getElementById('cs-editor').value;
+  var ext=csFilePath.split('.').pop().toLowerCase();
+  var out=document.getElementById('cs-out');
+  if(ext==='js'){
+    try{
+      var logs=[];
+      var con={
+        log:function(){logs.push(Array.from(arguments).join(' '));},
+        error:function(){logs.push('ERR: '+Array.from(arguments).join(' '));},
+        warn:function(){logs.push('WARN: '+Array.from(arguments).join(' '));}
+      };
+      new Function('console',code)(con);
+      out.textContent=logs.join('\n')||'// (no output)';
+    }catch(e){out.textContent='ERROR: '+e.message;}
+  }else if(ext==='html'){
+    var w=window.open('','_blank');w.document.write(code);w.document.close();
+    out.textContent='// Opened in new tab';
+  }else if(ext==='py'){
+    out.textContent='// Python cannot run in browser.\n// In your terminal: python '+csFilePath;
+  }else{
+    out.textContent='// Cannot run .'+ext+' in browser';
+  }
+}
+
+async function csAddFile(){
+  var r=repos.find(function(x){return x.id===csId;});
+  var folderNames=(r.files||[]).filter(function(f){return f.type==='folder';}).map(function(f){return f.name;});
+  var folder='';
+  if(folderNames.length)folder=(prompt('Folder (blank=root): '+folderNames.join(', '))||'').trim();
+  var name=(prompt('File name:')||'').trim();
+  if(!name)return;
+  try{
+    var res=await apiPost('/api/repos/'+csId+'/newfile',{name:name,folder:folder});
+    if(res&&res.ok){
+      r.files=r.files||[];
+      if(folder&&!r.files.find(function(f){return f.type==='folder'&&f.name===folder;}))r.files.push({type:'folder',name:folder});
+      r.files.push(folder?{name:name,content:'',folder:folder}:{name:name,content:''});
+      if(folder)csOpenFolders[folder]=true;
+      renderTree();csOpenFile(folder?folder+'/'+name:name);
+    }else alert('Error: '+(res&&res.error||'unknown'));
+  }catch(e){alert('Error: '+e.message);}
+}
+
+async function csAddFolder(){
+  var name=(prompt('Folder name:')||'').trim();
+  if(!name)return;
+  try{
+    var res=await apiPost('/api/repos/'+csId+'/folder',{name:name});
+    if(res&&res.ok){
+      var r=repos.find(function(x){return x.id===csId;});
+      r.files=r.files||[];
+      if(!r.files.find(function(f){return f.type==='folder'&&f.name===name;}))r.files.push({type:'folder',name:name});
+      csOpenFolders[name]=true;renderTree();
+    }else alert('Error: '+(res&&res.error||'unknown'));
+  }catch(e){alert('Error: '+e.message);}
+}
+
+async function csDelFile(path){
+  if(!confirm('Delete '+path+'?'))return;
+  var parts=path.split('/'),name=parts.pop(),folder=parts.length?parts.join('/'):null;
+  try{
+    var res=await apiPost('/api/repos/'+csId+'/delfile',{name:name,folder:folder||''});
+    if(res&&res.ok){
+      var r=repos.find(function(x){return x.id===csId;});
+      r.files=(r.files||[]).filter(function(f){return!(f.name===name&&(folder?f.folder===folder:!f.folder));});
+      if(csFilePath===path){csFilePath=null;document.getElementById('cs-editor').value='';document.getElementById('cs-active-file').textContent='No file open';csDirtyFlag=false;document.getElementById('cs-dirty').style.display='none';}
+      renderTree();
+    }
+  }catch(e){alert('Error: '+e.message);}
+}
+
+async function csDelFolder(name){
+  if(!confirm('Delete folder "'+name+'" and all files inside?'))return;
+  try{
+    var res=await apiPost('/api/repos/'+csId+'/delfolder',{name:name});
+    if(res&&res.ok){
+      var r=repos.find(function(x){return x.id===csId;});
+      r.files=(r.files||[]).filter(function(f){return!(f.type==='folder'&&f.name===name)&&f.folder!==name;});
+      delete csOpenFolders[name];renderTree();
+    }
+  }catch(e){alert('Error: '+e.message);}
+}
+
+async function doCreateRepo(){
+  var name=document.getElementById('new-name').value.trim();
+  var err=document.getElementById('new-err');
+  err.textContent='';
+  if(!name){err.textContent='Name is required.';return;}
+  var readme=document.getElementById('new-readme').value.trim();
+  var files=[];
+  var seenFolders={};
+  pendingNew.forEach(function(f){
+    if(f.folder&&!seenFolders[f.folder]){files.push({type:'folder',name:f.folder});seenFolders[f.folder]=true;}
+    files.push(f);
+  });
+  if(readme)files.unshift({name:'README.md',content:readme});
+  // Check premium for private repos
+  var vis = document.getElementById('new-vis').value;
+  if (vis === 'private') {
+    try {
+      var ps = await apiGet('/api/premium/status');
+      if (!ps.premium) {
+        err.textContent = 'Private repos require ArunCode Premium. Get it at /premium';
+        return;
+      }
+    } catch(e) {}
+  }
+  var btn=document.getElementById('new-submit');
+  btn.disabled=true;btn.textContent='CREATING...';
+  try{
+    var res=await apiPost('/api/repos',{
+      name:name,
+      desc:document.getElementById('new-desc').value.trim(),
+      lang:document.getElementById('new-lang').value,
+      vis:document.getElementById('new-vis').value,
+      av:MY_AV,
+      files:files
+    });
+    if(res&&res.ok){
+      repos.unshift(res.repo);
+      pendingNew=[];
+      document.getElementById('new-chips').innerHTML='';
+      ['new-name','new-desc','new-readme'].forEach(function(id){document.getElementById(id).value='';});
+      closeModal('modal-new');
+      renderAll();renderUsers();viewRepo(res.repo.id);
+    }else err.textContent='Error: '+(res&&res.error||'unknown');
+  }catch(e){err.textContent='Error: '+e.message;}
+  btn.disabled=false;btn.textContent='CREATE REPO';
+}
+
+async function doUpload(){
+  var err=document.getElementById('up-err');
+  if(!pendingUp.length){err.textContent='Select at least one file.';return;}
+  var btn=document.getElementById('up-submit');
+  btn.disabled=true;btn.textContent='UPLOADING...';
+  try{
+    var res=await apiPost('/api/repos/'+viewingId+'/files',{files:pendingUp});
+    if(res&&res.ok){
+      var r=repos.find(function(x){return x.id===viewingId;});
+      r.files=r.files||[];
+      pendingUp.forEach(function(f){
+        if(f.folder&&!r.files.find(function(x){return x.type==='folder'&&x.name===f.folder;}))r.files.push({type:'folder',name:f.folder});
+        var i=r.files.findIndex(function(x){return x.name===f.name&&x.folder===f.folder;});
+        if(i>=0)r.files[i]=f;else r.files.push(f);
+      });
+      pendingUp=[];document.getElementById('up-chips').innerHTML='';
+      closeModal('modal-upload');viewRepo(viewingId);
+    }else err.textContent='Error: '+(res&&res.error||'unknown');
+  }catch(e){err.textContent='Error: '+e.message;}
+  btn.disabled=false;btn.textContent='UPLOAD';
+}
+
+async function toggleStar(id){
+  try{
+    var res=await apiPost('/api/repos/'+id+'/stars');
+    if(res&&res.ok){
+      var r=repos.find(function(x){return x.id===id;});
+      r.stars=res.stars;r.starredBy=r.starredBy||[];
+      if(res.starred){if(r.starredBy.indexOf(ME)<0)r.starredBy.push(ME);}
+      else r.starredBy=r.starredBy.filter(function(u){return u!==ME;});
+      renderAll();if(viewingId===id)viewRepo(id);
+    }
+  }catch(e){}
+}
+
+async function delRepo(id){
+  if(!confirm('Permanently delete this repository?'))return;
+  try{
+    var res=await apiDel('/api/repos/'+id);
+    if(res&&res.ok){
+      repos=repos.filter(function(r){return r.id!==id;});
+      renderAll();renderUsers();
+      if(viewingId===id)goBack();
+    }
+  }catch(e){alert('Error: '+e.message);}
+}
+
+function handleDrop(e,prefix){
+  var items=e.dataTransfer.items;
+  if(items&&items.length&&items[0].webkitGetAsEntry){
+    for(var i=0;i<items.length;i++){var entry=items[i].webkitGetAsEntry();if(entry)readEntry(entry,'',prefix);}
+  }else addFiles(e.dataTransfer.files,prefix);
+}
+function readEntry(entry,base,prefix){
+  if(entry.isFile)entry.file(function(f){addFileObject(f,base,prefix);});
+  else if(entry.isDirectory){
+    var dir=base?base+'/'+entry.name:entry.name;
+    entry.createReader().readEntries(function(entries){entries.forEach(function(e){readEntry(e,dir,prefix);});});
+  }
+}
+function addFileObject(file,folder,prefix){
+  var arr=prefix==='new'?pendingNew:pendingUp;
+  if(!folder&&file.webkitRelativePath){var parts=file.webkitRelativePath.split('/');if(parts.length>1)folder=parts.slice(0,-1).join('/');}
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var obj={name:file.name,content:ev.target.result};
+    if(folder)obj.folder=folder;
+    arr.push(obj);refreshChips(prefix);
+  };
+  var ext=file.name.split('.').pop().toLowerCase();
+  if(['png','jpg','jpeg','gif','svg','webp','ico','bmp'].indexOf(ext)>=0)reader.readAsDataURL(file);
+  else reader.readAsText(file);
+}
+function addFiles(fileList,prefix){Array.prototype.forEach.call(fileList,function(f){addFileObject(f,'',prefix);});}
+function refreshChips(prefix){
+  var arr=prefix==='new'?pendingNew:pendingUp;
+  var chips=document.getElementById(prefix+'-chips');
+  chips.innerHTML=arr.map(function(f,i){
+    var label=f.folder?f.folder+'/'+f.name:f.name;
+    return'<div class="chip">'+ficon(f.name)+' '+esc2(label)+'<button class="chip-x" onclick="removeFile('+i+',\''+prefix+'\')">x</button></div>';
+  }).join('');
+}
+function removeFile(i,prefix){var arr=prefix==='new'?pendingNew:pendingUp;arr.splice(i,1);refreshChips(prefix);}
+
+function openModal(id){document.getElementById(id).classList.add('on');}
+function closeModal(id){document.getElementById(id).classList.remove('on');}
+document.querySelectorAll('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('on');});});
+
+function ficon(n){var e=(n||'').split('.').pop().toLowerCase();return{py:'[py]',js:'[js]',html:'[html]',css:'[css]',md:'[md]',txt:'[txt]',json:'[json]',sh:'[sh]',xml:'[xml]',png:'[img]',jpg:'[img]',gif:'[img]',svg:'[img]',webp:'[img]'}[e]||'[f]';}
+function fsize(c){if(!c)return'0 B';var b=c.length;return b<1024?b+' B':(b/1024).toFixed(1)+' KB';}
+function esc(s){return(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
+function esc2(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function mdToHtml(md){
+  return escHtml(md)
+    .replace(/^### (.+)/gm,'<h3>$1</h3>').replace(/^## (.+)/gm,'<h2>$1</h2>').replace(/^# (.+)/gm,'<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/```([\s\S]*?)```/g,function(_,c){return'<pre>'+c+'</pre>';})
+    .replace(/\n/g,'<br>');
+}
+
+init();
+</script>
+</body>
+</html>

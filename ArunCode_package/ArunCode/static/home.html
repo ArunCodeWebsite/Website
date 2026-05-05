@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArunCode_Term — Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #0a0e0a;
+      --bg2:       #0f140f;
+      --bg3:       #131a13;
+      --green:     #39ff14;
+      --green-dim: #1a7a06;
+      --green-mid: #22c40a;
+      --amber:     #ffb300;
+      --red:       #ff3c3c;
+      --blue:      #00cfff;
+      --border:    #1e3a1e;
+      --text:      #c8e6c8;
+      --mono:      'Share Tech Mono', monospace;
+      --display:   'VT323', monospace;
+      --title:     'Orbitron', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      cursor: crosshair;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    @keyframes flicker {
+      0%,100%{opacity:1} 93%{opacity:.88} 94%{opacity:1} 96%{opacity:.93} 97%{opacity:1}
+    }
+    body { animation: flicker 9s infinite; }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(14px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    @keyframes blink    { 0%,100%{opacity:1} 50%{opacity:0} }
+    @keyframes pulse    { 0%,100%{box-shadow:0 0 4px var(--green-dim)} 50%{box-shadow:0 0 16px var(--green)} }
+    @keyframes countUp  { from{opacity:0} to{opacity:1} }
+    @keyframes scanDown { 0%{top:-2px} 100%{top:100%} }
+
+    .glow {
+      color: var(--green);
+      text-shadow: 0 0 4px var(--green), 0 0 16px var(--green-mid), 0 0 32px var(--green-dim);
+    }
+
+    .cursor-block {
+      display: inline-block;
+      width: 9px; height: 15px;
+      background: var(--green);
+      vertical-align: middle;
+      animation: blink 1s step-end infinite;
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 0.6rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .topbar-left { display: flex; align-items: center; gap: 1.5rem; }
+
+    .brand {
+      font-family: var(--title);
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--green);
+      text-shadow: 0 0 8px var(--green-dim);
+    }
+
+    .topbar-nav { display: flex; gap: 0; }
+
+    .nav-link {
+      color: #2a4a2a;
+      text-decoration: none;
+      font-size: 11px;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-right: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .nav-link:last-child { border-right: none; }
+    .nav-link:hover { color: var(--green); background: rgba(57,255,20,0.05); }
+    .nav-link.active { color: var(--green); }
+
+    .topbar-right { display: flex; align-items: center; gap: 1rem; font-size: 11px; }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--green-mid);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+    }
+
+    .user-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: blink 2s ease infinite;
+    }
+
+    .btn-logout {
+      background: transparent;
+      border: 1px solid #3a1a1a;
+      color: var(--red);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      padding: 3px 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-logout:hover { background: rgba(255,60,60,0.08); border-color: var(--red); }
+
+    /* ── MAIN ── */
+    main { flex: 1; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; max-width: 1100px; width: 100%; margin: 0 auto; }
+
+    /* ── HERO BANNER ── */
+    .hero-banner {
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      padding: 2rem 2.5rem;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    .hero-banner::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 50%; height: 100%;
+      background: linear-gradient(to left, rgba(57,255,20,0.03), transparent);
+      pointer-events: none;
+    }
+
+    .hero-scan {
+      position: absolute;
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--green), transparent);
+      opacity: 0.15;
+      animation: scanDown 4s linear infinite;
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--green-dim);
+      margin-bottom: 0.6rem;
+    }
+
+    .hero-title {
+      font-family: var(--display);
+      font-size: 3.5rem;
+      color: var(--green);
+      text-shadow: 0 0 10px var(--green), 0 0 30px var(--green-dim);
+      letter-spacing: 3px;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-sub {
+      font-size: 12px;
+      color: var(--green-dim);
+      letter-spacing: 1px;
+    }
+
+    .hero-sub span { color: var(--green-mid); }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .stat-card {
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      padding: 1.2rem 1.4rem;
+      position: relative;
+    }
+
+    .stat-label {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--green-dim);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-family: var(--display);
+      font-size: 2.4rem;
+      color: var(--green);
+      text-shadow: 0 0 8px var(--green-dim);
+      line-height: 1;
+    }
+
+    .stat-unit {
+      font-size: 10px;
+      color: var(--green-dim);
+      margin-top: 0.3rem;
+    }
+
+    .stat-card.amber .stat-value { color: var(--amber); text-shadow: 0 0 8px #7a5500; }
+    .stat-card.blue  .stat-value { color: var(--blue);  text-shadow: 0 0 8px #006a8a; }
+
+    /* ── GRID ── */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+
+    @media (max-width: 700px) { .content-grid { grid-template-columns: 1fr; } }
+
+    /* ── PANEL ── */
+    .panel {
+      border: 1px solid var(--border);
+      background: var(--bg2);
+    }
+
+    .panel-header {
+      padding: 0.6rem 1.2rem;
+      background: var(--bg3);
+      border-bottom: 1px solid var(--border);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--green-dim);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-header a {
+      color: var(--green-dim);
+      text-decoration: none;
+      font-size: 9px;
+      letter-spacing: 1px;
+      transition: color 0.2s;
+    }
+    .panel-header a:hover { color: var(--green); }
+
+    /* ── QUICK LINKS ── */
+    .quick-links { display: flex; flex-direction: column; }
+
+    .quick-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .quick-link:last-child { border-bottom: none; }
+    .quick-link:hover { background: rgba(57,255,20,0.04); }
+
+    .ql-icon {
+      font-size: 1.2rem;
+      width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .ql-info { flex: 1; }
+    .ql-title { font-size: 12px; color: var(--text); margin-bottom: 2px; }
+    .ql-desc  { font-size: 10px; color: var(--green-dim); }
+    .ql-arrow { color: var(--green-dim); font-size: 12px; transition: transform 0.2s, color 0.2s; }
+    .quick-link:hover .ql-arrow { transform: translate(2px,-2px); color: var(--green); }
+
+    /* ── ACTIVITY LOG ── */
+    .activity-list { padding: 0.5rem 0; }
+
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      padding: 0.6rem 1.2rem;
+      border-bottom: 1px solid #0f1a0f;
+      font-size: 11px;
+    }
+    .activity-item:last-child { border-bottom: none; }
+
+    .act-time { color: var(--green-dim); white-space: nowrap; flex-shrink: 0; }
+    .act-msg  { color: var(--text); line-height: 1.5; }
+    .act-ok   { color: var(--green); }
+    .act-warn { color: var(--amber); }
+    .act-info { color: var(--blue); }
+
+    /* ── TERMINAL WIDGET ── */
+    .terminal-widget {
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      animation: fadeUp 0.6s 0.4s ease both;
+    }
+
+    .term-body {
+      padding: 1rem 1.2rem;
+      font-family: var(--mono);
+      font-size: 12px;
+      min-height: 100px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+
+    .term-body::-webkit-scrollbar { width: 4px; }
+    .term-body::-webkit-scrollbar-thumb { background: var(--border); }
+
+    .t-line { line-height: 2; }
+    .t-prompt { color: var(--green-mid); }
+    .t-cmd    { color: var(--green); }
+    .t-out    { color: var(--text); padding-left: 1rem; }
+    .t-dim    { color: var(--green-dim); }
+
+    .term-input-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1.2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .t-label { color: var(--green-mid); font-size: 12px; white-space: nowrap; }
+
+    .term-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: 12px;
+      caret-color: var(--green);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+      font-size: 10px;
+      color: var(--green-dim);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="brand">ArunCode_Term</div>
+      <nav class="topbar-nav">
+        <a class="nav-link active" href="#">Home</a>
+        <a class="nav-link" href="/about/versions/version.html">Versions</a>
+        <a class="nav-link" href="/about/versions/versionhistory.html">History</a>
+        <a class="nav-link" href="/about/about.html">About</a>
+        <a class="nav-link" href="/">⌂ Launcher</a>
+      </nav>
+    </div>
+    <div class="topbar-right">
+      <div class="user-chip">
+        <span class="user-dot"></span>
+        <span id="username-display">ArunC</span>
+      </div>
+      <button class="btn-logout" onclick="logout()">LOGOUT</button>
+    </div>
+  </div>
+
+  <main>
+
+    <!-- HERO BANNER -->
+    <div class="hero-banner">
+      <div class="hero-scan"></div>
+      <div class="hero-eyebrow">// DASHBOARD</div>
+      <div class="hero-title">Welcome back, <span class="glow" id="hero-name">ArunC</span> <span class="cursor-block"></span></div>
+      <div class="hero-sub">
+        ArunCode_Term <span>v5.0.0</span> &nbsp;·&nbsp;
+        Session: <span id="session-timer">00:00</span> &nbsp;·&nbsp;
+        Status: <span>NOMINAL</span>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Current Version</div>
+        <div class="stat-value">5.0.0</div>
+        <div class="stat-unit">stable release</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-label">Downloads</div>
+        <div class="stat-value" id="dl-count">2</div>
+        <div class="stat-unit">total downloads</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Rating</div>
+        <div class="stat-value">95%</div>
+        <div class="stat-unit">user satisfaction</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-label">Python</div>
+        <div class="stat-value">3.1+</div>
+        <div class="stat-unit">required version</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Build Time</div>
+        <div class="stat-value">2mo</div>
+        <div class="stat-unit">development time</div>
+      </div>
+    </div>
+
+    <!-- CONTENT GRID -->
+    <div class="content-grid">
+
+      <!-- QUICK LINKS -->
+      <div class="panel">
+        <div class="panel-header"><span>▸ Quick Links</span></div>
+        <div class="quick-links">
+          <a class="quick-link" href="/about/versions/versionhistory.html">
+            <div class="ql-icon">📋</div>
+            <div class="ql-info">
+              <div class="ql-title">Version History</div>
+              <div class="ql-desc">Browse all releases & ratings</div>
+            </div>
+            <div class="ql-arrow">↗</div>
+          </a>
+          <a class="quick-link" href="/about/versions/version.html">
+            <div class="ql-icon">📦</div>
+            <div class="ql-info">
+              <div class="ql-title">Versions</div>
+              <div class="ql-desc">Changelogs, fixes & downloads</div>
+            </div>
+            <div class="ql-arrow">↗</div>
+          </a>
+          <a class="quick-link" href="/about/about.html">
+            <div class="ql-icon">ℹ</div>
+            <div class="ql-info">
+              <div class="ql-title">About</div>
+              <div class="ql-desc">Creator & ArunCode_Term story</div>
+            </div>
+            <div class="ql-arrow">↗</div>
+          </a>
+          <a class="quick-link" href="/ide">
+            <div class="ql-icon">{ }</div>
+            <div class="ql-info">
+              <div class="ql-title">ArunCode IDE</div>
+              <div class="ql-desc">Open the code editor</div>
+            </div>
+            <div class="ql-arrow">↗</div>
+          </a>
+          <a class="quick-link" href="/emails">
+            <div class="ql-icon">✉</div>
+            <div class="ql-info">
+              <div class="ql-title">Emails</div>
+              <div class="ql-desc">Send & receive messages</div>
+            </div>
+            <div class="ql-arrow">↗</div>
+          </a>
+          <a class="quick-link" href="/ptc">
+            <div class="ql-icon">🐍</div>
+            <div class="ql-info">
+              <div class="ql-title">Python Teaching Club</div>
+              <div class="ql-desc">Lessons, quizzes & members</div>
+            </div>
+            <div class="ql-arrow">↗</div>
+          </a>
+          <a class="quick-link" href="/github">
+            <div class="ql-icon">🐙</div>
+            <div class="ql-info">
+              <div class="ql-title">ArunCode Github</div>
+              <div class="ql-desc">Repos, code & version control</div>
+            </div>
+            <div class="ql-arrow">↗</div>
+          </a>
+          <a class="quick-link" href="/docs">
+            <div class="ql-icon">📄</div>
+            <div class="ql-info">
+              <div class="ql-title">Docs</div>
+              <div class="ql-desc">Guides and documentation</div>
+            </div>
+            <div class="ql-arrow">↗</div>
+          </a>
+          <a class="quick-link" href="/news">
+            <div class="ql-icon">📰</div>
+            <div class="ql-info">
+              <div class="ql-title">ArunCode News</div>
+              <div class="ql-desc">Latest announcements</div>
+            </div>
+            <div class="ql-arrow">↗</div>
+          </a>
+          <a class="quick-link" href="/github">
+            <div class="ql-icon">🐙</div>
+            <div class="ql-info">
+              <div class="ql-title">ArunCode_Github</div>
+              <div class="ql-desc">Repos, code & profiles</div>
+            </div>
+            <div class="ql-arrow">↗</div>
+          </a>
+          <a class="quick-link" href="/profile">
+            <div class="ql-icon">👤</div>
+            <div class="ql-info">
+              <div class="ql-title">Profile</div>
+              <div class="ql-desc">Change name, email, password, PIN</div>
+            </div>
+            <div class="ql-arrow">↗</div>
+          </a>
+          <a class="quick-link" href="/news">
+            <div class="ql-icon">📰</div>
+            <div class="ql-info">
+              <div class="ql-title">ArunCode News</div>
+              <div class="ql-desc">Latest announcements</div>
+            </div>
+            <div class="ql-arrow">↗</div>
+          </a>
+          <a class="quick-link" id="link-security" href="/security" style="display:none">
+            <div class="ql-icon">🔒</div>
+            <div class="ql-info">
+              <div class="ql-title">Security Manager</div>
+              <div class="ql-desc">Users, logs & threat monitor</div>
+            </div>
+            <div class="ql-arrow" style="color:var(--red)">↗</div>
+          </a>
+          <a class="quick-link" id="link-admin" href="/admin" style="display:none">
+            <div class="ql-icon">⚙</div>
+            <div class="ql-info">
+              <div class="ql-title">Admin Panel</div>
+              <div class="ql-desc">Manage accounts</div>
+            </div>
+            <div class="ql-arrow">↗</div>
+          </a>
+          <a class="quick-link" href="/">
+            <div class="ql-icon">⌂</div>
+            <div class="ql-info">
+              <div class="ql-title">Launcher</div>
+              <div class="ql-desc">Back to ArunCode home</div>
+            </div>
+            <div class="ql-arrow">↗</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- ACTIVITY LOG -->
+      <div class="panel">
+        <div class="panel-header"><span>▸ Activity Log</span></div>
+        <div class="activity-list">
+          <div class="activity-item">
+            <span class="act-time">NOW</span>
+            <span class="act-msg act-ok">✔ Session started successfully</span>
+          </div>
+          <div class="activity-item">
+            <span class="act-time">NOW</span>
+            <span class="act-msg act-ok">✔ PIN verification passed</span>
+          </div>
+          <div class="activity-item">
+            <span class="act-time">BOOT</span>
+            <span class="act-msg act-info">▸ ArunCode_Term v5.0.0 loaded</span>
+          </div>
+          <div class="activity-item">
+            <span class="act-time">BOOT</span>
+            <span class="act-msg act-info">▸ Python ≥ 3.1.0 detected</span>
+          </div>
+          <div class="activity-item">
+            <span class="act-time">BOOT</span>
+            <span class="act-msg">System integrity check passed</span>
+          </div>
+          <div class="activity-item">
+            <span class="act-time">BOOT</span>
+            <span class="act-msg act-warn">⚠ Only 2 downloads — keep sharing!</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TERMINAL WIDGET -->
+    <div class="terminal-widget">
+      <div class="panel-header">
+        <span>▸ Terminal</span>
+        <span style="color:var(--green-dim);font-size:9px;">type <span style="color:var(--green-mid)">help</span> for commands</span>
+      </div>
+      <div class="term-body" id="term-output">
+        <div class="t-line t-dim">// ArunCode_Term interactive shell — v5.0.0</div>
+      </div>
+      <div class="term-input-row">
+        <span class="t-label">aruncode@term:~$</span>
+        <input class="term-input" id="term-input" type="text"
+          placeholder="enter command..."
+          onkeydown="handleCmd(event)"
+          autocomplete="off" spellcheck="false">
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <div>ArunCode_Term © 2026 — Arun Chandrasekaran</div>
+    <div>system: <span style="color:var(--green-mid)">ONLINE</span> &nbsp;|&nbsp; build: <span style="color:var(--green-mid)">STABLE</span> &nbsp;|&nbsp; session: <span style="color:var(--green-mid)" id="footer-timer">00:00</span></div>
+  </footer>
+
+  <script>
+    // ── SESSION TIMER ──
+    const start = Date.now();
+    function tick() {
+      const s = Math.floor((Date.now() - start) / 1000);
+      const t = String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+      document.getElementById('session-timer').textContent = t;
+      document.getElementById('footer-timer').textContent  = t;
+    }
+    setInterval(tick, 1000);
+
+    // ── USERNAME ──
+    const stored = sessionStorage.getItem('aruncode_user') || 'ArunC';
+    const role   = sessionStorage.getItem('aruncode_role') || 'user';
+    if (role === 'security' || role === 'admin') {
+      document.getElementById('link-security').style.display = '';
+    }
+    if (role === 'admin') {
+      document.getElementById('link-admin').style.display = '';
+    }
+    document.getElementById('username-display').textContent = stored;
+    document.getElementById('hero-name').textContent = stored;
+
+    // ── TERMINAL ──
+    const cmds = {
+      help:    '▸ Commands: help, status, version, about, whoami, date, clear, ide, logout',
+      status:  '▸ ArunCode_Term v5.0.0 — RUNNING | Rating: 95% | Python ≥ 3.1.0',
+      version: '▸ v5.0.0 — Released 2026-02-18 — STABLE',
+      about:   '▸ Created by Arun Chandrasekaran. Took 2 months to build.',
+      whoami:  () => `▸ Logged in as: ${stored}`,
+      date:    () => `▸ ${new Date().toLocaleString()}`,
+      ide:     () => { window.location.href = '/ide'; return '▸ Opening IDE...'; },
+      logout:  () => { logout(); return '▸ Logging out...'; },
+      clear:   '__clear__',
+    };
+
+    function handleCmd(e) {
+      if (e.key !== 'Enter') return;
+      const input  = document.getElementById('term-input');
+      const output = document.getElementById('term-output');
+      const cmd    = input.value.trim().toLowerCase();
+      input.value  = '';
+      if (!cmd) return;
+
+      // echo
+      const echo = document.createElement('div');
+      echo.className = 't-line';
+      echo.innerHTML = `<span class="t-prompt">aruncode@term:~$</span> <span class="t-cmd">${esc(cmd)}</span>`;
+      output.appendChild(echo);
+
+      const result = cmds[cmd];
+      if (result === '__clear__') {
+        output.innerHTML = '<div class="t-line t-dim">// Screen cleared</div>';
+      } else {
+        const val = typeof result === 'function' ? result() : result;
+        const out = document.createElement('div');
+        out.className = 't-line t-out';
+        out.textContent = val || `▸ Unknown command: "${cmd}". Type help.`;
+        output.appendChild(out);
+      }
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function esc(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ── LOGOUT ──
+    async function logout() {
+      await fetch('/api/logout', { method: 'POST' }).catch(()=>{});
+      sessionStorage.clear();
+      window.location.href = '/terminal';
+    }
+  </script>
+
+</body>
+</html>

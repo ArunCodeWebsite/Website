@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+// ArunCode Theme Engine v3
+(function(){
+  var T={
+    default:{},
+    amber:  {'--bg':'#0a0700','--bg2':'#110d00','--bg3':'#181100','--green':'#ffaa00','--gdim':'#7a5000','--border':'#2a1f00','--border2':'#3a2a00','--blue':'#ffcc44','--bdim':'#996600','--text':'#9a8060','--textb':'#e8d4a0'},
+    crimson:{'--bg':'#0a0003','--bg2':'#110005','--bg3':'#180008','--green':'#ff2255','--gdim':'#7a0022','--border':'#2a0010','--border2':'#3a0018','--blue':'#ff6688','--bdim':'#881133','--text':'#9a6070','--textb':'#e8a0b0'},
+    aurora: {'--bg':'#000a08','--bg2':'#001110','--bg3':'#001816','--green':'#00ffcc','--gdim':'#007a5e','--border':'#002a24','--border2':'#003a32','--blue':'#00ddff','--bdim':'#006677','--text':'#60a090','--textb':'#a0e8d8'},
+    void:   {'--bg':'#050008','--bg2':'#080010','--bg3':'#0d0018','--green':'#cc44ff','--gdim':'#6600aa','--border':'#1a0030','--border2':'#250040','--blue':'#8844ff','--bdim':'#440088','--text':'#8060a0','--textb':'#c8a0e8'},
+    steel:  {'--bg':'#030609','--bg2':'#050d14','--bg3':'#07121c','--green':'#44aaff','--gdim':'#1155aa','--border':'#0a1828','--border2':'#102233','--blue':'#88ccff','--bdim':'#224466','--text':'#6090b0','--textb':'#a0c8e8'},
+    solar:  {'--bg':'#090500','--bg2':'#110900','--bg3':'#180d00','--green':'#ff8800','--gdim':'#994400','--border':'#2a1500','--border2':'#3a1e00','--blue':'#ffcc00','--bdim':'#886600','--text':'#9a7040','--textb':'#e8c080'},
+    gold:   {'--bg':'#080700','--bg2':'#0f0d00','--bg3':'#161200','--green':'#ffd700','--gdim':'#8a7200','--border':'#2a2400','--border2':'#3a3200','--blue':'#ffee88','--bdim':'#887700','--text':'#9a9060','--textb':'#e8e0a0'},
+  };
+  function apply(theme){
+    var v=T[theme];
+    if(!v||!Object.keys(v).length) return;
+    var css=':root{'+Object.keys(v).map(function(k){return k+':'+v[k]+'!important';}).join(';')+'}';
+    var el=document.getElementById('ac-theme-style');
+    if(!el){el=document.createElement('style');el.id='ac-theme-style';document.head.appendChild(el);}
+    el.textContent=css;
+  }
+  var t=localStorage.getItem('ac_theme')||'default';
+  apply(t);
+  window._applyTheme=apply;
+  fetch('/api/profile',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(p){
+    if(p&&p.ok&&p.theme&&p.theme!==t){
+      localStorage.setItem('ac_theme',p.theme);
+      apply(p.theme);
+    }
+  }).catch(function(){});
+})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArunCode — Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#08090a;--bg2:#0d1017;--bg3:#121620;--green:#39ff14;--green-dim:#1a7a06;--green-mid:#22c40a;
+      --blue:#00cfff;--blue-dim:#005577;--amber:#ffb300;--amber-dim:#7a5500;--red:#ff4444;
+      --border:#1a2332;--text:#8baac0;--text-b:#cde0f0;--mono:'Share Tech Mono',monospace;--title:'Orbitron',sans-serif}
+    .avatar{cursor:pointer;position:relative;overflow:hidden}
+    .avatar:hover::after{content:'📷';position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+    .avatar img{width:100%;height:100%;object-fit:cover}
+    /* avatar picker modal */
+    .preset-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.5rem;margin-bottom:1rem}
+    .preset-opt{width:100%;aspect-ratio:1;border:2px solid var(--border);background:var(--bg3);
+      display:flex;align-items:center;justify-content:center;font-size:1.6rem;cursor:pointer;transition:all .15s}
+    .preset-opt:hover{border-color:var(--green-dim);transform:scale(1.08)}
+    .preset-opt.selected{border-color:var(--green);box-shadow:0 0 8px var(--green-dim)}
+    .upload-zone{border:1px dashed var(--border);padding:1.2rem;text-align:center;cursor:pointer;
+      transition:border-color .2s;font-size:11px;color:var(--text)}
+    .upload-zone:hover{border-color:var(--green-dim);color:var(--green)}
+    .upload-preview{width:80px;height:80px;object-fit:cover;border:2px solid var(--green-dim);margin:.5rem auto;display:block}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;min-height:100vh;display:flex;flex-direction:column}
+    body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:9999}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+    .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.6rem 2rem;display:flex;align-items:center;gap:1rem}
+    .brand{font-family:var(--title);font-size:.95rem;font-weight:900;letter-spacing:2px;color:var(--green);text-shadow:0 0 8px var(--green-dim)}
+    .brand span{color:var(--blue)}
+    .topbar-right{margin-left:auto;display:flex;gap:.7rem}
+    .btn-sm{background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:4px 12px;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+    .btn-sm:hover{border-color:var(--blue-dim);color:var(--blue)}
+
+    main{flex:1;padding:2rem;max-width:640px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem}
+
+    .avatar-row{display:flex;align-items:center;gap:1.5rem;padding:1.5rem;border:1px solid var(--border);background:var(--bg2);animation:fadeUp .4s ease}
+    .avatar{width:64px;height:64px;border:2px solid var(--green-dim);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-family:var(--title);color:var(--green);text-shadow:0 0 8px var(--green-dim);flex-shrink:0}
+    .avatar-info{}
+    .avatar-name{font-size:1.1rem;color:var(--text-b);letter-spacing:1px;margin-bottom:.2rem}
+    .avatar-role{font-size:10px;letter-spacing:2px;padding:2px 8px;border:1px solid;display:inline-block}
+    .role-admin{color:var(--amber);border-color:var(--amber-dim)}
+    .role-security{color:var(--red);border-color:#3a1010}
+    .role-user{color:var(--blue);border-color:var(--blue-dim)}
+
+    .section{border:1px solid var(--border);background:var(--bg2);animation:fadeUp .4s ease}
+    .section-header{padding:.6rem 1.2rem;background:var(--bg3);border-bottom:1px solid var(--border);font-size:9px;letter-spacing:2px;color:var(--blue-dim);display:flex;justify-content:space-between;align-items:center}
+    .section-body{padding:1.2rem;display:flex;flex-direction:column;gap:.9rem}
+
+    .field{display:flex;flex-direction:column;gap:.4rem}
+    .field label{font-size:9px;letter-spacing:2px;color:var(--blue-dim);text-transform:uppercase}
+    .field input{background:var(--bg);border:1px solid var(--border);color:var(--text-b);font-family:var(--mono);font-size:13px;padding:.55rem .8rem;outline:none;caret-color:var(--green);transition:border-color .2s}
+    .field input:focus{border-color:var(--green-dim)}
+    .field input:read-only{color:var(--text);cursor:default;opacity:.6}
+    .field .hint{font-size:10px;color:#2a3a4a}
+
+    .pin-row{display:flex;gap:.5rem}
+    .pin-box{width:44px;height:52px;background:var(--bg);border:1px solid var(--border);color:var(--green);font-family:var(--title);font-size:1.8rem;text-align:center;outline:none;transition:border-color .2s;caret-color:transparent}
+    .pin-box:focus{border-color:var(--green-dim);box-shadow:0 0 6px var(--green-dim)}
+
+    .btn-save{background:transparent;border:1px solid var(--green-dim);color:var(--green);font-family:var(--mono);font-size:11px;letter-spacing:2px;padding:.55rem 1.5rem;cursor:pointer;transition:all .2s;text-transform:uppercase}
+    .btn-save:hover{background:rgba(57,255,20,.08);border-color:var(--green);box-shadow:0 0 10px var(--green-dim)}
+    .btn-save:disabled{opacity:.4;cursor:not-allowed}
+    .btn-danger{border-color:#2a1010;color:#663333}
+    .btn-danger:hover{border-color:var(--red);color:var(--red);background:rgba(255,68,68,.05)}
+
+    .msg{font-size:11px;padding:.4rem 0;min-height:18px;letter-spacing:.5px}
+    .msg.ok{color:var(--green)}
+    .msg.err{color:var(--red);animation:shake .4s ease}
+
+    .divider{border:none;border-top:1px solid var(--border);margin:.2rem 0}
+  
+    :root { --gold:#ffd700; --goldim:#8a7000; }
+    .premium-badge { display:none; align-items:center; gap:.4rem; font-size:9px; letter-spacing:2px; padding:2px 10px; border:1px solid var(--goldim); color:var(--gold); background:rgba(255,215,0,.05); margin-left:.5rem; }
+    .premium-link { display:inline-block; font-size:9px; letter-spacing:2px; padding:3px 10px; border:1px solid #1a2535; color:#2a3a4a; cursor:pointer; text-decoration:none; transition:all .2s; margin-top:.5rem; }
+    .premium-link:hover { border-color:var(--goldim); color:var(--gold); }
+</style>
+
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">ArunCode <span>Profile</span></div>
+  <div class="topbar-right">
+    <a class="btn-sm" href="/home">← Dashboard</a>
+    <a class="btn-sm" href="/">⌂ Home</a>
+  </div>
+</div>
+
+<main>
+
+  <!-- AVATAR -->
+  <div class="avatar-row">
+    <div class="avatar" id="avatar-el" onclick="openAvatarPicker()" title="Click to change avatar">
+      <span id="avatar-letter">?</span>
+    </div>
+    <div class="avatar-info">
+      <div class="avatar-name" id="avatar-name">Loading...</div>
+      <span class="avatar-role" id="avatar-role">USER</span>
+      <span class="premium-badge" id="premium-badge">★ PREMIUM</span>
+      <br>
+      <a class="premium-link" id="premium-link" href="/premium">↗ UPGRADE TO PREMIUM</a>
+      <div style="font-size:9px;color:var(--green-dim);margin-top:.4rem;cursor:pointer" onclick="openAvatarPicker()">CLICK TO CHANGE AVATAR</div>
+    </div>
+  </div>
+
+  <!-- CHANGE USERNAME -->
+  <div class="section">
+    <div class="section-header"><span>▸ Username</span></div>
+    <div class="section-body">
+      <div class="field">
+        <label>New Username</label>
+        <input type="text" id="new-username" placeholder="Enter new username">
+        <div class="hint">Min 3 characters. Core accounts (ArunC, VijiN etc.) cannot change username.</div>
+      </div>
+      <div class="msg" id="msg-username"></div>
+      <button class="btn-save" onclick="changeUsername()">UPDATE USERNAME</button>
+    </div>
+  </div>
+
+  <!-- CHANGE EMAIL -->
+  <div class="section">
+    <div class="section-header"><span>▸ Email</span></div>
+    <div class="section-body">
+      <div class="field">
+        <label>Current Email</label>
+        <input type="email" id="current-email" readonly>
+      </div>
+      <div class="field">
+        <label>New Email</label>
+        <input type="email" id="new-email" placeholder="new@example.com">
+      </div>
+      <div class="msg" id="msg-email"></div>
+      <button class="btn-save" onclick="changeEmail()">UPDATE EMAIL</button>
+    </div>
+  </div>
+
+  <!-- CHANGE PASSWORD -->
+  <div class="section">
+    <div class="section-header"><span>▸ Password</span></div>
+    <div class="section-body">
+      <div class="field">
+        <label>Current Password</label>
+        <input type="password" id="cur-pass" placeholder="••••••••">
+      </div>
+      <div class="field">
+        <label>New Password</label>
+        <input type="password" id="new-pass" placeholder="••••••••">
+        <div class="hint">Min 6 characters.</div>
+      </div>
+      <div class="field">
+        <label>Confirm New Password</label>
+        <input type="password" id="confirm-pass" placeholder="••••••••">
+      </div>
+      <div class="msg" id="msg-pass"></div>
+      <button class="btn-save" onclick="changePassword()">UPDATE PASSWORD</button>
+    </div>
+  </div>
+
+  <!-- CHANGE PIN (privileged roles only) -->
+  <div class="section" id="section-pin" style="display:none">
+    <div class="section-header"><span>▸ Security PIN</span></div>
+    <div class="section-body">
+      <div class="field">
+        <label>New 6-Digit PIN</label>
+        <div class="pin-row" id="pin-boxes">
+          <input class="pin-box" type="text" maxlength="1" inputmode="numeric" oninput="pinInput(this,0)" onkeydown="pinKey(this,0,event)">
+          <input class="pin-box" type="text" maxlength="1" inputmode="numeric" oninput="pinInput(this,1)" onkeydown="pinKey(this,1,event)">
+          <input class="pin-box" type="text" maxlength="1" inputmode="numeric" oninput="pinInput(this,2)" onkeydown="pinKey(this,2,event)">
+          <input class="pin-box" type="text" maxlength="1" inputmode="numeric" oninput="pinInput(this,3)" onkeydown="pinKey(this,3,event)">
+          <input class="pin-box" type="text" maxlength="1" inputmode="numeric" oninput="pinInput(this,4)" onkeydown="pinKey(this,4,event)">
+          <input class="pin-box" type="text" maxlength="1" inputmode="numeric" oninput="pinInput(this,5)" onkeydown="pinKey(this,5,event)">
+        </div>
+        <div class="hint" style="margin-top:.4rem">This PIN is required every time you log in.</div>
+      </div>
+      <div class="msg" id="msg-pin"></div>
+      <button class="btn-save" onclick="changePin()">UPDATE PIN</button>
+    </div>
+  </div>
+
+</main>
+
+<!-- AVATAR PICKER MODAL -->
+<div class="modal" id="modal-avatar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;align-items:center;justify-content:center">
+  <div style="background:var(--bg2);border:1px solid var(--border);width:480px;max-width:95vw">
+    <div style="padding:.7rem 1rem;background:var(--bg3);border-bottom:1px solid var(--border);font-size:9px;letter-spacing:2px;color:var(--blue-dim);display:flex;justify-content:space-between">
+      <span>// CHOOSE AVATAR</span>
+      <button onclick="closeAvatarPicker()" style="background:none;border:none;color:#444;cursor:pointer;font-size:18px">×</button>
+    </div>
+    <div style="padding:1.2rem">
+      <div style="font-size:9px;letter-spacing:2px;color:var(--blue-dim);margin-bottom:.6rem">EMOJI AVATARS</div>
+      <div class="preset-grid" id="preset-grid"></div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--blue-dim);margin-bottom:.6rem;margin-top:.8rem">OR UPLOAD IMAGE</div>
+      <div class="upload-zone" onclick="document.getElementById('avatar-file').click()">
+        <div>Click to upload image (JPG, PNG, GIF)</div>
+        <div style="font-size:10px;color:var(--text);margin-top:.3rem">Max 2MB</div>
+      </div>
+      <input type="file" id="avatar-file" accept="image/*" style="display:none" onchange="previewUpload(this)">
+      <img id="upload-preview" class="upload-preview" style="display:none">
+      <div style="margin-top:.5rem;font-size:10px;color:var(--red);min-height:14px" id="avatar-err"></div>
+    </div>
+    <div style="padding:.7rem 1rem;border-top:1px solid var(--border);display:flex;gap:.5rem;justify-content:flex-end">
+      <button onclick="closeAvatarPicker()" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:4px 12px;cursor:pointer">CANCEL</button>
+      <button onclick="saveAvatar()" style="background:transparent;border:1px solid var(--green-dim);color:var(--green);font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:4px 16px;cursor:pointer">SAVE →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let myUser = '';
+let myRole = '';
+
+const PRESETS = ['😀','😎','🤖','👾','🐍','🦊','🐧','🐱','🐶','🦁','🐸','🎮',
+  '🚀','⚡','🔥','💎','🌙','⭐','🎯','🏆','💻','🛡️','🔑','🌊'];
+
+let selectedPreset = null;
+let uploadDataUrl  = null;
+
+function openAvatarPicker() {
+  selectedPreset = null; uploadDataUrl = null;
+  document.getElementById('upload-preview').style.display = 'none';
+  document.getElementById('avatar-err').textContent = '';
+  document.getElementById('avatar-file').value = '';
+
+  const grid = document.getElementById('preset-grid');
+  grid.innerHTML = '';
+  PRESETS.forEach(emoji => {
+    const div = document.createElement('div');
+    div.className = 'preset-opt';
+    div.textContent = emoji;
+    div.onclick = () => {
+      document.querySelectorAll('.preset-opt').forEach(d=>d.classList.remove('selected'));
+      div.classList.add('selected');
+      selectedPreset = emoji;
+      uploadDataUrl  = null;
+      document.getElementById('upload-preview').style.display = 'none';
+    };
+    grid.appendChild(div);
+  });
+  document.getElementById('modal-avatar').style.display = 'flex';
+}
+
+function closeAvatarPicker() {
+  document.getElementById('modal-avatar').style.display = 'none';
+}
+
+function previewUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 2*1024*1024) {
+    document.getElementById('avatar-err').textContent = 'Image too large (max 2MB).'; return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    uploadDataUrl = e.target.result;
+    selectedPreset = null;
+    document.querySelectorAll('.preset-opt').forEach(d=>d.classList.remove('selected'));
+    const preview = document.getElementById('upload-preview');
+    preview.src = uploadDataUrl;
+    preview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveAvatar() {
+  const err = document.getElementById('avatar-err');
+  if (!selectedPreset && !uploadDataUrl) {
+    err.textContent = 'Pick an emoji or upload an image.'; return;
+  }
+  const avatar = selectedPreset || uploadDataUrl;
+  const res = await fetch('/api/profile/avatar', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({avatar})
+  }).then(r=>r.json()).catch(()=>null);
+
+  if (res && res.ok) {
+    applyAvatar(avatar);
+    closeAvatarPicker();
+  } else {
+    err.textContent = res?.error || 'Failed to save.';
+  }
+}
+
+function applyAvatar(avatar) {
+  const el = document.getElementById('avatar-el');
+  if (avatar && avatar.startsWith('data:')) {
+    el.innerHTML = `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover">`;
+  } else if (avatar && avatar.length <= 4) {
+    el.innerHTML = `<span style="font-size:1.8rem">${avatar}</span>`;
+  } else {
+    el.innerHTML = `<span>${myUser[0].toUpperCase()}</span>`;
+  }
+}
+
+async function init() {
+  const me = await fetch('/api/me').then(r=>r.json()).catch(()=>null);
+  if (!me || !me.ok) { window.location.href = '/terminal?next=/profile'; return; }
+  myUser = me.username;
+  myRole = me.role;
+
+  document.getElementById('avatar-name').textContent = myUser;
+  const roleEl = document.getElementById('avatar-role');
+  roleEl.textContent = myRole.toUpperCase();
+  roleEl.className   = 'avatar-role role-' + myRole;
+
+  const info = await fetch('/api/profile').then(r=>r.json()).catch(()=>null);
+  if (info && info.ok) {
+    document.getElementById('current-email').value = info.email;
+    if (info.avatar) applyAvatar(info.avatar);
+    else document.getElementById('avatar-letter').textContent = myUser[0].toUpperCase();
+    // Premium badge
+    if (info.premium) {
+      const badgeEl = document.getElementById('premium-badge');
+      if (badgeEl) badgeEl.style.display = 'inline-flex';
+      const premLink = document.getElementById('premium-link');
+      if (premLink) { premLink.textContent = '★ PREMIUM ACTIVE'; premLink.style.color='var(--gold)'; premLink.style.borderColor='var(--goldim)'; }
+    }
+  } else {
+    document.getElementById('avatar-letter').textContent = myUser[0].toUpperCase();
+  }
+
+  if (['admin','security'].includes(myRole)) {
+    document.getElementById('section-pin').style.display = '';
+  }
+}
+
+function showMsg(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'msg ' + type;
+  if (type === 'err') { el.style.animation='none'; void el.offsetWidth; el.style.animation='shake .4s ease'; }
+  setTimeout(() => { el.textContent = ''; el.className = 'msg'; }, 3500);
+}
+
+async function changeUsername() {
+  const newName = document.getElementById('new-username').value.trim();
+  if (!newName || newName.length < 3) { showMsg('msg-username','Username must be 3+ characters.','err'); return; }
+  const res = await fetch('/api/profile/username', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({username: newName})
+  }).then(r=>r.json()).catch(()=>null);
+  if (res && res.ok) {
+    showMsg('msg-username','✔ Username updated! Please log in again.','ok');
+    myUser = newName;
+    document.getElementById('avatar-letter').textContent = newName[0].toUpperCase();
+    document.getElementById('avatar-name').textContent   = newName;
+    setTimeout(() => { fetch('/api/logout',{method:'POST'}); window.location.href='/terminal'; }, 2000);
+  } else {
+    showMsg('msg-username', res?.error || 'Failed.', 'err');
+  }
+}
+
+async function changeEmail() {
+  const newEmail = document.getElementById('new-email').value.trim();
+  if (!newEmail || !newEmail.includes('@')) { showMsg('msg-email','Enter a valid email.','err'); return; }
+  const res = await fetch('/api/profile/email', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({email: newEmail})
+  }).then(r=>r.json()).catch(()=>null);
+  if (res && res.ok) {
+    showMsg('msg-email','✔ Email updated!','ok');
+    document.getElementById('current-email').value = newEmail;
+    document.getElementById('new-email').value = '';
+  } else {
+    showMsg('msg-email', res?.error || 'Failed.', 'err');
+  }
+}
+
+async function changePassword() {
+  const cur  = document.getElementById('cur-pass').value;
+  const nw   = document.getElementById('new-pass').value;
+  const conf = document.getElementById('confirm-pass').value;
+  if (!cur || !nw || !conf) { showMsg('msg-pass','All fields required.','err'); return; }
+  if (nw.length < 6)        { showMsg('msg-pass','New password must be 6+ characters.','err'); return; }
+  if (nw !== conf)           { showMsg('msg-pass','Passwords do not match.','err'); return; }
+  const res = await fetch('/api/profile/password', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({current: cur, newpass: nw})
+  }).then(r=>r.json()).catch(()=>null);
+  if (res && res.ok) {
+    showMsg('msg-pass','✔ Password updated!','ok');
+    document.getElementById('cur-pass').value = '';
+    document.getElementById('new-pass').value = '';
+    document.getElementById('confirm-pass').value = '';
+  } else {
+    showMsg('msg-pass', res?.error || 'Failed.', 'err');
+  }
+}
+
+function pinInput(el, idx) {
+  const boxes = document.querySelectorAll('.pin-box');
+  el.value = el.value.replace(/\D/,'');
+  if (el.value && idx < 5) boxes[idx+1].focus();
+}
+function pinKey(el, idx, e) {
+  if (e.key==='Backspace' && !el.value && idx>0)
+    document.querySelectorAll('.pin-box')[idx-1].focus();
+}
+
+async function changePin() {
+  const boxes = document.querySelectorAll('.pin-box');
+  const pin   = Array.from(boxes).map(b=>b.value).join('');
+  if (pin.length < 6) { showMsg('msg-pin','Enter all 6 digits.','err'); return; }
+  const res = await fetch('/api/profile/pin', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({pin})
+  }).then(r=>r.json()).catch(()=>null);
+  if (res && res.ok) {
+    showMsg('msg-pin','✔ PIN updated!','ok');
+    boxes.forEach(b=>b.value='');
+  } else {
+    showMsg('msg-pin', res?.error || 'Failed.', 'err');
+  }
+}
+
+init();
+</script>
+</body>
+</html>
