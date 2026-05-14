@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArunCode PlayStation</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05050f;--bg2:#0a0a1a;--bg3:#0f0f25;--bg4:#141432;
+  --blue:#00cfff;--bdim:#005577;--blue2:#0088cc;
+  --green:#39ff14;--gdim:#1a7a06;
+  --purple:#a855f7;--pdim:#4c1d95;
+  --pink:#ff0080;--pkdim:#7a003d;
+  --amber:#ffb300;--adim:#7a5500;
+  --red:#ff4444;--border:#1a1a3a;--border2:#252550;
+  --text:#7a8ab8;--textb:#c8d4f0;
+  --mono:'Share Tech Mono',monospace;
+  --pixel:'Press Start 2P',monospace;
+  --title:'Orbitron',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;min-height:100vh;overflow-x:hidden;visibility:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);pointer-events:none;z-index:9999}
+
+/* Starfield bg */
+body::after{content:'';position:fixed;inset:0;background:
+  radial-gradient(1px 1px at 10% 20%,rgba(255,255,255,.4) 0%,transparent 100%),
+  radial-gradient(1px 1px at 30% 60%,rgba(255,255,255,.3) 0%,transparent 100%),
+  radial-gradient(1px 1px at 50% 10%,rgba(255,255,255,.5) 0%,transparent 100%),
+  radial-gradient(1px 1px at 70% 80%,rgba(255,255,255,.3) 0%,transparent 100%),
+  radial-gradient(1px 1px at 90% 40%,rgba(255,255,255,.4) 0%,transparent 100%),
+  radial-gradient(2px 2px at 20% 90%,rgba(0,207,255,.3) 0%,transparent 100%),
+  radial-gradient(2px 2px at 80% 15%,rgba(168,85,247,.3) 0%,transparent 100%),
+  radial-gradient(600px 400px at 20% 50%,rgba(0,50,100,.15) 0%,transparent 70%),
+  radial-gradient(600px 400px at 80% 50%,rgba(80,0,100,.12) 0%,transparent 70%);
+pointer-events:none;z-index:0}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes glow-blue{0%,100%{box-shadow:0 0 8px rgba(0,207,255,.3)}50%{box-shadow:0 0 20px rgba(0,207,255,.6)}}
+@keyframes spin-slow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes blink{0%,100%{opacity:1}49%{opacity:1}50%{opacity:0}99%{opacity:0}}
+
+/* TOPBAR */
+.topbar{background:rgba(10,10,26,.95);border-bottom:1px solid var(--border2);padding:.5rem 2rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+.brand{font-family:var(--title);font-size:.8rem;font-weight:900;letter-spacing:2px;color:var(--green)}
+.brand-ps{font-family:var(--title);font-size:.8rem;font-weight:900;letter-spacing:2px;background:linear-gradient(90deg,var(--blue),var(--purple),var(--pink),var(--blue));background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s linear infinite}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:.7rem}
+.btn{background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:5px 13px;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+.btn:hover{border-color:var(--bdim);color:var(--blue)}
+.av{width:22px;height:22px;border:1px solid var(--bdim);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:11px;overflow:hidden;flex-shrink:0}
+.av img{width:100%;height:100%;object-fit:cover}
+
+/* HERO */
+.hero{position:relative;z-index:1;text-align:center;padding:4rem 2rem 2.5rem}
+.ps-logo{font-family:var(--pixel);font-size:clamp(.6rem,2.5vw,1.1rem);letter-spacing:4px;margin-bottom:.8rem;animation:fadeUp .4s ease}
+.ps-logo span{color:var(--blue)}
+.hero-title{font-family:var(--title);font-weight:900;letter-spacing:3px;line-height:1.1;margin-bottom:.8rem;animation:fadeUp .5s ease}
+.ht1{font-size:clamp(1.2rem,3vw,2rem);color:var(--textb)}
+.ht2{font-size:clamp(1.8rem,5vw,3.5rem);background:linear-gradient(90deg,var(--blue),var(--purple),var(--pink),var(--purple),var(--blue));background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 4s linear infinite}
+.hero-sub{font-size:11px;color:var(--text);line-height:1.9;max-width:520px;margin:0 auto 1.5rem;animation:fadeUp .6s ease}
+.hero-tags{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;animation:fadeUp .7s ease}
+.htag{font-size:9px;letter-spacing:2px;padding:3px 10px;border:1px solid}
+.htag-blue{color:var(--blue);border-color:var(--bdim)}
+.htag-green{color:var(--green);border-color:var(--gdim)}
+.htag-purple{color:var(--purple);border-color:var(--pdim)}
+
+/* SECTION */
+.section{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 2rem 3rem}
+.sec-title{font-size:9px;letter-spacing:4px;color:var(--bdim);margin-bottom:1.2rem;display:flex;align-items:center;gap:.8rem}
+.sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border2),transparent)}
+
+/* GAMES GRID */
+.games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem}
+.game-card{background:var(--bg2);border:1px solid var(--border2);position:relative;overflow:hidden;cursor:pointer;transition:all .25s;animation:fadeUp .5s ease}
+.game-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 60%,rgba(0,207,255,.04));pointer-events:none}
+.game-card:hover{border-color:var(--blue2);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,207,255,.12)}
+.gc-banner{height:120px;display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative;overflow:hidden}
+.gc-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,var(--bg2))}
+.gc-body{padding:1rem}
+.gc-name{font-family:var(--title);font-size:.75rem;letter-spacing:2px;color:var(--textb);margin-bottom:.3rem}
+.gc-desc{font-size:10px;color:var(--text);line-height:1.7;margin-bottom:.8rem}
+.gc-tags{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.8rem}
+.gc-tag{font-size:8px;letter-spacing:1px;padding:2px 6px;border:1px solid}
+.gc-actions{display:flex;gap:.4rem}
+.gc-btn{flex:1;background:transparent;border:1px solid;font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:.45rem;cursor:pointer;transition:all .2s;text-align:center;text-decoration:none;display:block}
+.gc-btn-play{border-color:var(--gdim);color:var(--green)}
+.gc-btn-play:hover{background:rgba(57,255,20,.08)}
+.gc-btn-info{border-color:var(--border2);color:var(--text)}
+.gc-btn-info:hover{border-color:var(--bdim);color:var(--blue)}
+.gc-status{position:absolute;top:.6rem;right:.6rem;font-size:8px;letter-spacing:1px;padding:2px 7px;border:1px solid}
+.status-live{color:var(--green);border-color:var(--gdim)}
+.status-ext{color:var(--blue);border-color:var(--bdim)}
+
+/* MINECRAFT BANNER */
+.mc-banner{background:linear-gradient(135deg,#0a1a0a,#0f2010,#0a1505);border:1px solid #1a3a1a}
+.bloxd-banner{background:linear-gradient(135deg,#050a1f,#0a0f2a,#050a20);border:1px solid #1a2a5a}
+.hr-banner{background:linear-gradient(135deg,#1a0505,#1f0a0a,#150505);border:1px solid #3a1a1a}
+.custom-banner{background:linear-gradient(135deg,#0a0a1a,#0f0f25,#0a0a1f);border:1px solid #1a1a3a}
+
+/* GAME VIEWER / IFRAME */
+.game-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:500;flex-direction:column}
+.game-overlay.on{display:flex}
+.go-bar{background:var(--bg2);border-bottom:1px solid var(--border2);padding:.5rem 1rem;display:flex;align-items:center;gap:.8rem;flex-shrink:0}
+.go-title{font-family:var(--title);font-size:.7rem;letter-spacing:2px;color:var(--textb)}
+.go-url{flex:1;background:var(--bg);border:1px solid var(--border2);color:var(--textb);font-family:var(--mono);font-size:11px;padding:.3rem .6rem;outline:none}
+.go-iframe{flex:1;border:none;background:#000}
+
+/* ADD GAME MODAL */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;align-items:center;justify-content:center}
+.modal.on{display:flex}
+.mbox{background:var(--bg2);border:1px solid var(--border2);width:480px;max-width:95vw}
+.m-hd{background:var(--bg3);border-bottom:1px solid var(--border2);padding:.6rem 1rem;font-size:9px;letter-spacing:2px;color:var(--bdim);display:flex;justify-content:space-between;align-items:center}
+.m-x{background:none;border:none;color:#444;cursor:pointer;font-size:18px}
+.m-x:hover{color:var(--red)}
+.m-body{padding:1.1rem;display:flex;flex-direction:column;gap:.8rem}
+.mf label{display:block;font-size:9px;letter-spacing:2px;color:var(--bdim);margin-bottom:.3rem}
+.mf input,.mf textarea,.mf select{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--textb);font-family:var(--mono);font-size:12px;padding:.45rem .65rem;outline:none;caret-color:var(--blue)}
+.mf input:focus,.mf textarea:focus{border-color:var(--bdim)}
+.m-ft{padding:.6rem 1rem;border-top:1px solid var(--border2);display:flex;gap:.5rem;justify-content:flex-end;align-items:center}
+.m-err{font-size:10px;color:var(--red);flex:1}
+.btn-blue{border-color:var(--bdim);color:var(--blue)}
+.btn-blue:hover{background:rgba(0,207,255,.07)}
+.btn-purple{border-color:var(--pdim);color:var(--purple)}
+.btn-purple:hover{background:rgba(168,85,247,.07)}
+
+/* MICROSOFT LOGIN NOTE */
+.ms-note{background:var(--bg2);border:1px solid var(--border2);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;animation:fadeUp .6s ease}
+.ms-icon{font-size:1.5rem;flex-shrink:0}
+.ms-text{font-size:11px;color:var(--text);line-height:1.7}
+.ms-text b{color:var(--blue)}
+
+/* SERVER LIST */
+.server-list{display:flex;flex-direction:column;gap:.5rem;margin-top:.8rem}
+.server-item{background:var(--bg2);border:1px solid var(--border2);padding:.6rem 1rem;display:flex;align-items:center;gap:.8rem;cursor:pointer;transition:all .2s}
+.server-item:hover{border-color:var(--green);background:rgba(57,255,20,.03)}
+.server-status{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.s-green{background:var(--green);box-shadow:0 0 6px var(--green)}
+.s-yellow{background:var(--amber);box-shadow:0 0 6px var(--amber)}
+.s-red{background:var(--red)}
+.server-name{font-size:11px;color:var(--textb);flex:1}
+.server-players{font-size:10px;color:var(--text)}
+.server-ping{font-size:10px;color:var(--gdim)}
+
+.footer-note{text-align:center;padding:2rem;font-size:10px;color:var(--border2);letter-spacing:1px}
+.cursor{animation:blink 1s step-end infinite;display:inline-block}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">ArunCode</div>
+  <div style="color:var(--border2);font-size:10px">_</div>
+  <div class="brand-ps">PLAYSTATION</div>
+  <div class="tb-right">
+    <button class="btn btn-purple" onclick="openModal('modal-add')">+ ADD GAME</button>
+    <div class="av" id="top-av"><span id="top-init">?</span></div>
+    <span id="top-name" style="font-size:11px;color:var(--textb)">...</span>
+    <a class="btn" href="/home">&#8962; HOME</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="ps-logo">ARUNCODE <span>PLAYSTATION</span> // v1.0.0</div>
+  <div class="hero-title">
+    <div class="ht1">PLAY ANY GAME.</div>
+    <div class="ht2">FOR FREE.</div>
+  </div>
+  <div class="hero-sub">All games are free and accept school Microsoft accounts. Real servers, real players — no paying, no gatekeeping.</div>
+  <div class="hero-tags">
+    <div class="htag htag-green">&#9654; ALL FREE</div>
+    <div class="htag htag-blue">MICROSOFT LOGIN</div>
+    <div class="htag htag-purple">REAL SERVERS</div>
+    <div class="htag htag-green">NO ADS</div>
+  </div>
+</div>
+
+<!-- GAMES -->
+<div class="section">
+  <div class="sec-title">GAME LIBRARY</div>
+
+  <div class="ms-note">
+    <div class="ms-icon">&#127918;</div>
+    <div class="ms-text">All games accept your <b>school Microsoft account</b>. Sign in once and play across all games — <b>no payments ever</b>. Human Resources is built in and always free.</div>
+  </div>
+
+  <div class="games-grid" id="games-grid">
+
+    <!-- MINECRAFT -->
+    <div class="game-card">
+      <div class="gc-status status-live">&#9679; LIVE</div>
+      <div class="gc-banner mc-banner" style="font-size:2.5rem">&#129513;</div>
+      <div class="gc-body">
+        <div class="gc-name">MINECRAFT</div>
+        <div class="gc-desc">Real Minecraft servers — play with actual Minecraft players. Browser-based via EaglerCraft. Uses your Microsoft account to connect to real Java Edition servers.</div>
+        <div class="gc-tags">
+          <span class="gc-tag" style="color:var(--green);border-color:var(--gdim)">FREE</span>
+          <span class="gc-tag" style="color:var(--blue);border-color:var(--bdim)">REAL SERVERS</span>
+          <span class="gc-tag" style="color:var(--amber);border-color:var(--adim)">MICROSOFT</span>
+        </div>
+        <div class="gc-actions">
+          <a class="gc-btn gc-btn-play" onclick="playGame('minecraft')">&#9654; PLAY</a>
+          <a class="gc-btn gc-btn-info" onclick="showMCServers()">&#127760; SERVERS</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOXD.IO -->
+    <div class="game-card">
+      <div class="gc-status status-live">&#9679; LIVE</div>
+      <div class="gc-banner bloxd-banner" style="font-size:2.5rem">&#127918;</div>
+      <div class="gc-body">
+        <div class="gc-name">BLOXD.IO</div>
+        <div class="gc-desc">Browser-based voxel game — build, survive, and battle with players worldwide. No download needed. Jump straight in.</div>
+        <div class="gc-tags">
+          <span class="gc-tag" style="color:var(--green);border-color:var(--gdim)">FREE</span>
+          <span class="gc-tag" style="color:var(--blue);border-color:var(--bdim)">MULTIPLAYER</span>
+          <span class="gc-tag" style="color:var(--purple);border-color:var(--pdim)">BROWSER</span>
+        </div>
+        <div class="gc-actions">
+          <a class="gc-btn gc-btn-play" onclick="playGame('bloxd')">&#9654; PLAY</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- HUMAN RESOURCES MACHINE -->
+    <div class="game-card">
+      <div class="gc-status status-live">&#9679; LIVE</div>
+      <div class="gc-banner hr-banner" style="font-size:2.5rem">&#129295;</div>
+      <div class="gc-body">
+        <div class="gc-name">HUMAN RESOURCES</div>
+        <div class="gc-desc">Programming puzzle game — act as an office worker and write programs using simple commands. Free browser version via itch.io. No download needed.</div>
+        <div class="gc-tags">
+          <span class="gc-tag" style="color:var(--green);border-color:var(--gdim)">FREE</span>
+          <span class="gc-tag" style="color:var(--pink);border-color:var(--pkdim)">NO PAYING</span>
+          <span class="gc-tag" style="color:var(--amber);border-color:var(--adim)">PUZZLE</span>
+        </div>
+        <div class="gc-actions">
+          <a class="gc-btn gc-btn-play" onclick="playGame('hr')">&#9654; PLAY</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUSTOM GAMES -->
+    <div id="custom-games"></div>
+
+  </div>
+</div>
+
+<!-- MINECRAFT SERVER LIST -->
+<div class="section" id="mc-server-section" style="display:none">
+  <div class="sec-title">MINECRAFT SERVERS</div>
+  <div style="font-size:11px;color:var(--text);margin-bottom:.8rem">Real Java Edition servers — connect directly from your browser via EaglerCraft.</div>
+  <div class="server-list" id="server-list">
+    <div class="server-item" onclick="playGame('minecraft','play.hypixel.net')">
+      <div class="server-status s-green"></div>
+      <div class="server-name">Hypixel</div>
+      <div class="server-players" id="sp-hypixel">checking...</div>
+      <div class="server-ping">play.hypixel.net</div>
+    </div>
+    <div class="server-item" onclick="playGame('minecraft','mc.mineplex.com')">
+      <div class="server-status s-yellow"></div>
+      <div class="server-name">Mineplex</div>
+      <div class="server-players">—</div>
+      <div class="server-ping">mc.mineplex.com</div>
+    </div>
+    <div class="server-item" onclick="playGame('minecraft','play.cubecraft.net')">
+      <div class="server-status s-green"></div>
+      <div class="server-name">CubeCraft</div>
+      <div class="server-players">—</div>
+      <div class="server-ping">play.cubecraft.net</div>
+    </div>
+    <div class="server-item" onclick="playGame('minecraft','play.wynncraft.com')">
+      <div class="server-status s-green"></div>
+      <div class="server-name">Wynncraft</div>
+      <div class="server-players">—</div>
+      <div class="server-ping">play.wynncraft.com</div>
+    </div>
+    <div class="server-item" onclick="playGame('minecraft','mc.2b2t.org')">
+      <div class="server-status s-green"></div>
+      <div class="server-name">2b2t</div>
+      <div class="server-players">—</div>
+      <div class="server-ping">mc.2b2t.org</div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="footer-note">ArunCode PlayStation // All games free // No payments <span class="cursor">_</span></div>
+
+<!-- GAME OVERLAY (iframe) -->
+<div class="game-overlay" id="game-overlay">
+  <div class="go-bar">
+    <span class="go-title" id="go-title">GAME</span>
+    <span style="font-size:9px;color:var(--text)">URL:</span>
+    <input class="go-url" id="go-url" readonly>
+    <button class="btn" onclick="document.getElementById('go-url').value && window.open(document.getElementById('go-url').value,'_blank')">&#8599; OPEN TAB</button>
+    <button class="btn" style="border-color:#2a1010;color:#553333" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='#2a1010';this.style.color='#553333'" onclick="closeGame()">&#10005; EXIT</button>
+  </div>
+  <iframe class="go-iframe" id="go-iframe" allowfullscreen allow="fullscreen;microphone;camera;gamepad;keyboard-map;pointer-lock" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock allow-modals"></iframe>
+</div>
+
+<!-- ADD GAME MODAL -->
+<div class="modal" id="modal-add">
+<div class="mbox">
+  <div class="m-hd"><span>// ADD GAME</span><button class="m-x" onclick="closeModal('modal-add')">&#215;</button></div>
+  <div class="m-body">
+    <div style="font-size:10px;color:var(--text);line-height:1.7;padding:.5rem;background:var(--bg3);border:1px solid var(--border2)">
+      You can add any browser game by pasting its URL or embed code. The game will be added to the library for everyone.
+    </div>
+    <div class="mf"><label>GAME NAME *</label><input id="add-name" placeholder="My Awesome Game"></div>
+    <div class="mf"><label>GAME URL * (must work in iframe)</label><input id="add-url" placeholder="https://example.com/game"></div>
+    <div class="mf"><label>DESCRIPTION</label><textarea id="add-desc" rows="2" placeholder="What is this game about?"></textarea></div>
+    <div class="mf"><label>ICON (emoji)</label><input id="add-icon" placeholder="🎮" maxlength="4" style="width:80px"></div>
+    <div class="mf"><label>TAGS (comma separated)</label><input id="add-tags" placeholder="FREE, MULTIPLAYER, PUZZLE"></div>
+  </div>
+  <div class="m-ft">
+    <span class="m-err" id="add-err"></span>
+    <button class="btn" onclick="closeModal('modal-add')">CANCEL</button>
+    <button class="btn btn-blue" onclick="addGame()">ADD TO LIBRARY &#8594;</button>
+  </div>
+</div>
+</div>
+
+<script>
+// ── STATE ──
+var ME = '', MY_AV = '';
+var customGames = JSON.parse(localStorage.getItem('ac_ps_games') || '[]');
+var currentServer = '';
+
+// ── INIT ──
+async function init() {
+  var me;
+  try { me = await fetch('/api/me').then(function(r){return r.json();}); } catch(e){ me=null; }
+  if (!me || !me.ok) { window.location.href = '/terminal?next=/playstation'; return; }
+  ME = me.username;
+  document.getElementById('top-name').textContent = ME;
+  document.getElementById('top-init').textContent = ME[0].toUpperCase();
+  try {
+    var p = await fetch('/api/profile').then(function(r){return r.json();});
+    if (p && p.ok && p.avatar) {
+      MY_AV = p.avatar;
+      var av = document.getElementById('top-av');
+      if (MY_AV.startsWith('data:')) av.innerHTML = '<img src="'+MY_AV+'">';
+      else av.innerHTML = '<span>'+MY_AV+'</span>';
+    }
+  } catch(e) {}
+  renderCustomGames();
+  document.body.style.visibility = 'visible';
+}
+
+// ── GAME LAUNCHER ──
+function playGame(game, server) {
+  var overlay = document.getElementById('game-overlay');
+  var iframe   = document.getElementById('go-iframe');
+  var title    = document.getElementById('go-title');
+  var urlEl    = document.getElementById('go-url');
+
+  var url = '';
+  if (game === 'minecraft') {
+    // EaglerCraft — real browser Minecraft
+    // Go to our Minecraft launcher page with all mirrors
+    window.location.href = '/mc';
+    return;
+  } else if (game === 'bloxd') {
+    url = 'https://bloxd.io/';
+    title.textContent = 'BLOXD.IO';
+  } else if (game === 'hr') {
+    url = 'https://humanresourcemachine.com/';
+    title.textContent = 'HUMAN RESOURCES MACHINE';
+  } else {
+    // custom game
+    var cg = customGames.find(function(g){ return g.id === game; });
+    if (!cg) return;
+    url = cg.url;
+    title.textContent = cg.name.toUpperCase();
+  }
+
+  urlEl.value = url;
+  iframe.src  = url;
+  overlay.classList.add('on');
+  document.getElementById('mc-server-section').style.display = 'none';
+  document.getElementById('hr-game-section').style.display   = 'none';
+}
+
+function closeGame() {
+  document.getElementById('game-overlay').classList.remove('on');
+  document.getElementById('go-iframe').src = 'about:blank';
+}
+
+function showMCServers() {
+  var s = document.getElementById('mc-server-section');
+  s.style.display = s.style.display === 'none' ? '' : 'none';
+  if (s.style.display !== 'none') s.scrollIntoView({behavior:'smooth'});
+}
+
+
+
+// ── ADD CUSTOM GAME ──
+function addGame() {
+  var name = document.getElementById('add-name').value.trim();
+  var url  = document.getElementById('add-url').value.trim();
+  var err  = document.getElementById('add-err');
+  err.textContent = '';
+  if (!name) { err.textContent='Name required.'; return; }
+  if (!url)  { err.textContent='URL required.'; return; }
+  if (!url.startsWith('http')) { err.textContent='URL must start with http'; return; }
+  var game = {
+    id:   'cg_'+Date.now(),
+    name: name,
+    url:  url,
+    desc: document.getElementById('add-desc').value.trim()||'A browser game.',
+    icon: document.getElementById('add-icon').value||'🎮',
+    tags: document.getElementById('add-tags').value.split(',').map(function(t){return t.trim();}).filter(Boolean),
+    addedBy: ME
+  };
+  customGames.push(game);
+  localStorage.setItem('ac_ps_games', JSON.stringify(customGames));
+  closeModal('modal-add');
+  renderCustomGames();
+  ['add-name','add-url','add-desc','add-icon','add-tags'].forEach(function(id){document.getElementById(id).value='';});
+}
+
+function renderCustomGames() {
+  var el = document.getElementById('custom-games');
+  if (!customGames.length) { el.innerHTML=''; return; }
+  el.innerHTML = customGames.map(function(g) {
+    return '<div class="game-card">'
+      +'<div class="gc-status status-ext">&#9679; CUSTOM</div>'
+      +'<div class="gc-banner custom-banner" style="font-size:2.5rem">'+g.icon+'</div>'
+      +'<div class="gc-body">'
+        +'<div class="gc-name">'+esc(g.name)+'</div>'
+        +'<div class="gc-desc">'+esc(g.desc)+'</div>'
+        +'<div class="gc-tags">'
+          +g.tags.map(function(t){return'<span class="gc-tag" style="color:var(--blue);border-color:var(--bdim)">'+esc(t)+'</span>';}).join('')
+        +'</div>'
+        +'<div class="gc-actions">'
+          +'<a class="gc-btn gc-btn-play" onclick="playGame(\''+g.id+'\')">&#9654; PLAY</a>'
+          +'<a class="gc-btn gc-btn-info" onclick="removeGame(\''+g.id+'\')" style="color:#553333;border-color:#2a1010">&#10005; REMOVE</a>'
+        +'</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+function removeGame(id) {
+  if (!confirm('Remove this game?')) return;
+  customGames = customGames.filter(function(g){return g.id!==id;});
+  localStorage.setItem('ac_ps_games', JSON.stringify(customGames));
+  renderCustomGames();
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('on'); }
+function closeModal(id) { document.getElementById(id).classList.remove('on'); }
+document.querySelectorAll('.modal').forEach(function(m){ m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('on');}); });
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// Keyboard ESC closes game
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeGame();});
+
+function showMCInfo(server) {
+  var sec = document.getElementById('mc-server-section');
+  sec.style.display = '';
+  sec.scrollIntoView({behavior:'smooth'});
+  // Add a banner at top
+  var banner = document.getElementById('mc-launch-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'mc-launch-banner';
+    banner.style.cssText = 'background:rgba(57,255,20,.06);border:1px solid var(--gdim);padding:.8rem 1rem;margin-bottom:.8rem;font-size:11px;color:var(--green)';
+    banner.innerHTML = '&#9654; Minecraft opened in new tab — use EaglerCraft controls (T=chat, ESC=menu). ' + (server ? 'Server: <b>'+server+'</b>' : 'Click a server below to connect.');
+    sec.insertBefore(banner, sec.firstChild.nextSibling);
+  }
+}
+
+init();
+</script>
+</body>
+</html>

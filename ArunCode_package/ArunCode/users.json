@@ -1,1 +1,38 @@
-{}
+{
+  "VijiN": {
+    "email": "nambi.vijilaxmi@gmail.com",
+    "password": "scrypt:32768:8:1$Y0SVPPvX9lWpUZAV$e9cfe667a155b865afc98407acbcef661ad9f34695e00ffd76031c7876b8bf9ade662136b855fcf96eae380a4cc3b13544c668de3b3a3c8645e37cff92914103",
+    "pin": "438438",
+    "role": "admin"
+  },
+  "ParthyC": {
+    "email": "partheinstein@gmail.com",
+    "password": "scrypt:32768:8:1$FjzR7yRC2IZ1uz1J$59bf12edf626a352c3fe65a1b56ebf7feff9785230249dfe6d07c22aae6a4b0ac9aadb0a24a6792cbb485fea8f59f088adadc07ec5349e6b6aa64a511b927ee0",
+    "pin": "383383",
+    "role": "security"
+  },
+  "SujaC": {
+    "email": "you@gmail.com",
+    "password": "scrypt:32768:8:1$g8QgDe4DavhfEVzo$7ef3e3d6eafec0a22a497e9ad012cf0a232dc41ef1a607b124f33f524313cabc68aaba7436805c27cd64c3eefad5c7d9d7848b21dfa49d264568c308956f70f4",
+    "pin": "383383",
+    "role": "security"
+  },
+  "ChandrasekaranN": {
+    "email": "natarajchand@gmail.com",
+    "password": "scrypt:32768:8:1$nBNN2TB1F1W5FcxM$f5f3d7623289ee5bb2357c37e8658d5d4f1b8123c305323529f854352d29a6ac0531c22151f355081a260fd8fcc10f3b3fd1bc18c448b908bac3f7743ff10569",
+    "pin": "573573",
+    "role": "security"
+  },
+  "News": {
+    "email": "news@aruncode.com",
+    "password": "scrypt:32768:8:1$zCBaN3J1VukwNaQW$15724c37defde960415bd98f6a3c52e014526d9cffffc3a3cdde7e801190cdc287520a99a18ad2d78e7ddde2e9523d05fa0bb5dceced1223109ab36cb89f6767",
+    "pin": "283293",
+    "role": "news"
+  },
+  "ArunC": {
+    "email": "chandrasekarana@student.rcdsb.on.ca",
+    "password": "scrypt:32768:8:1$jGXGme5Kzg3oEHA3$4bfb14cd2a3fea0df74f70702ab1d280078353e8d9878cf958ca0ce0d189155701d83192bfe241df49c7b0ba7b01cc06d4f8ff487585859acbb8ddea0511d5dd",
+    "pin": "283283",
+    "role": "admin"
+  }
+}

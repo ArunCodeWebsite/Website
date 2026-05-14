@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+// ArunCode Theme Engine v3
+(function(){
+  var T={
+    default:{},
+    amber:  {'--bg':'#0a0700','--bg2':'#110d00','--bg3':'#181100','--green':'#ffaa00','--gdim':'#7a5000','--border':'#2a1f00','--border2':'#3a2a00','--blue':'#ffcc44','--bdim':'#996600','--text':'#9a8060','--textb':'#e8d4a0'},
+    crimson:{'--bg':'#0a0003','--bg2':'#110005','--bg3':'#180008','--green':'#ff2255','--gdim':'#7a0022','--border':'#2a0010','--border2':'#3a0018','--blue':'#ff6688','--bdim':'#881133','--text':'#9a6070','--textb':'#e8a0b0'},
+    aurora: {'--bg':'#000a08','--bg2':'#001110','--bg3':'#001816','--green':'#00ffcc','--gdim':'#007a5e','--border':'#002a24','--border2':'#003a32','--blue':'#00ddff','--bdim':'#006677','--text':'#60a090','--textb':'#a0e8d8'},
+    void:   {'--bg':'#050008','--bg2':'#080010','--bg3':'#0d0018','--green':'#cc44ff','--gdim':'#6600aa','--border':'#1a0030','--border2':'#250040','--blue':'#8844ff','--bdim':'#440088','--text':'#8060a0','--textb':'#c8a0e8'},
+    steel:  {'--bg':'#030609','--bg2':'#050d14','--bg3':'#07121c','--green':'#44aaff','--gdim':'#1155aa','--border':'#0a1828','--border2':'#102233','--blue':'#88ccff','--bdim':'#224466','--text':'#6090b0','--textb':'#a0c8e8'},
+    solar:  {'--bg':'#090500','--bg2':'#110900','--bg3':'#180d00','--green':'#ff8800','--gdim':'#994400','--border':'#2a1500','--border2':'#3a1e00','--blue':'#ffcc00','--bdim':'#886600','--text':'#9a7040','--textb':'#e8c080'},
+    gold:   {'--bg':'#080700','--bg2':'#0f0d00','--bg3':'#161200','--green':'#ffd700','--gdim':'#8a7200','--border':'#2a2400','--border2':'#3a3200','--blue':'#ffee88','--bdim':'#887700','--text':'#9a9060','--textb':'#e8e0a0'},
+  };
+  function apply(theme){
+    var v=T[theme];
+    if(!v||!Object.keys(v).length) return;
+    var css=':root{'+Object.keys(v).map(function(k){return k+':'+v[k]+'!important';}).join(';')+'}';
+    var el=document.getElementById('ac-theme-style');
+    if(!el){el=document.createElement('style');el.id='ac-theme-style';document.head.appendChild(el);}
+    el.textContent=css;
+  }
+  var t=localStorage.getItem('ac_theme')||'default';
+  apply(t);
+  window._applyTheme=apply;
+  fetch('/api/profile',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(p){
+    if(p&&p.ok&&p.theme&&p.theme!==t){
+      localStorage.setItem('ac_theme',p.theme);
+      apply(p.theme);
+    }
+  }).catch(function(){});
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArunCode IDE</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b0f;--bg2:#0c1016;--bg3:#111620;--bg4:#161d28;
+  --green:#39ff14;--gdim:#1a7a06;--blue:#00cfff;--bdim:#005577;
+  --amber:#ffb300;--adim:#7a5500;--red:#ff4444;
+  --border:#1a2535;--text:#7a9ab8;--textb:#c8dff0;
+  --mono:'Share Tech Mono',monospace;--code:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;display:flex;flex-direction:column;visibility:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none;z-index:9999}
+
+/* TOPBAR */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.45rem 1.2rem;display:flex;align-items:center;gap:.8rem;flex-shrink:0}
+.brand{font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:900;letter-spacing:2px;color:var(--green);text-shadow:0 0 8px var(--gdim);white-space:nowrap}
+.brand span{color:var(--blue)}
+.file-label{font-size:10px;color:var(--bdim);letter-spacing:1px}
+#file-name{font-size:11px;color:var(--textb)}
+.dirty{color:var(--amber);display:none}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:.5rem}
+.btn{background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:4px 11px;cursor:pointer;transition:all .2s}
+.btn:hover{border-color:var(--bdim);color:var(--blue)}
+.btn-g{border-color:var(--gdim);color:var(--green)}
+.btn-g:hover{background:rgba(57,255,20,.07)}
+.btn-a{border-color:var(--adim);color:var(--amber)}
+.btn-a:hover{background:rgba(255,179,0,.07)}
+.btn-r{border-color:#2a1010;color:#553333}
+.btn-r:hover{border-color:var(--red);color:var(--red)}
+.av{width:20px;height:20px;border:1px solid var(--gdim);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:10px;overflow:hidden;flex-shrink:0}
+.av img{width:100%;height:100%;object-fit:cover}
+
+/* LAYOUT */
+.ide-wrap{display:grid;grid-template-columns:200px 1fr;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sb-hd{padding:.4rem .8rem;background:var(--bg3);border-bottom:1px solid var(--border);font-size:9px;letter-spacing:2px;color:var(--bdim);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.sb-body{overflow-y:auto;flex:1}
+.file-item{display:flex;align-items:center;gap:.5rem;padding:.38rem .8rem;font-size:11px;cursor:pointer;border-left:2px solid transparent;transition:all .15s}
+.file-item:hover{background:rgba(0,207,255,.04);color:var(--textb)}
+.file-item.active{border-left-color:var(--green);color:var(--textb);background:rgba(57,255,20,.03)}
+.file-item-del{margin-left:auto;background:none;border:none;color:#222;cursor:pointer;font-size:11px;line-height:1}
+.file-item-del:hover{color:var(--red)}
+.sb-actions{padding:.5rem;border-top:1px solid var(--border);display:flex;gap:.4rem;flex-shrink:0}
+
+/* EDITOR AREA */
+.editor-area{display:flex;flex-direction:column;overflow:hidden}
+.editor-tabs{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 .8rem;display:flex;align-items:center;gap:0;flex-shrink:0;height:32px}
+.tab{padding:0 1rem;height:32px;display:flex;align-items:center;gap:.4rem;font-size:10px;cursor:pointer;border-bottom:2px solid transparent;color:var(--text);border-right:1px solid var(--border);white-space:nowrap}
+.tab.active{color:var(--textb);border-bottom-color:var(--green)}
+.tab-x{background:none;border:none;color:#333;cursor:pointer;font-size:12px;line-height:1}
+.tab-x:hover{color:var(--red)}
+.editor-body{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#editor{flex:1;background:var(--bg);border:none;color:var(--textb);font-family:var(--code);font-size:14px;padding:1rem;outline:none;resize:none;caret-color:var(--green);line-height:1.8;tab-size:2;white-space:pre;overflow:auto}
+
+/* TERMINAL */
+.terminal{border-top:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:180px}
+.terminal-hd{background:var(--bg3);border-bottom:1px solid var(--border);padding:.35rem .8rem;font-size:9px;letter-spacing:2px;color:var(--gdim);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.terminal-body{flex:1;overflow-y:auto;padding:.5rem 1rem;font-family:var(--code);font-size:12px;color:var(--green);white-space:pre-wrap;line-height:1.7}
+.terminal-input-row{display:flex;align-items:center;gap:.5rem;padding:.3rem .8rem;border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0}
+.prompt{font-size:11px;color:var(--gdim);white-space:nowrap}
+#term-input{flex:1;background:none;border:none;color:var(--green);font-family:var(--code);font-size:12px;outline:none;caret-color:var(--green)}
+
+/* STATUS BAR */
+.statusbar{background:var(--bg3);border-top:1px solid var(--border);padding:.2rem 1rem;font-size:10px;color:var(--bdim);display:flex;gap:1.5rem;flex-shrink:0}
+.sb-item{display:flex;align-items:center;gap:.4rem}
+.sb-item.ok{color:var(--gdim)}
+.sb-item.err{color:var(--red)}
+
+/* CONTEXT MENU */
+.ctx{display:none;position:fixed;background:var(--bg2);border:1px solid var(--border);z-index:1000;min-width:140px}
+.ctx.show{display:block}
+.ctx-item{padding:.5rem 1rem;font-size:11px;cursor:pointer;color:var(--text)}
+.ctx-item:hover{background:rgba(0,207,255,.06);color:var(--textb)}
+.ctx-sep{border-top:1px solid var(--border);margin:.2rem 0}
+</style>
+
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">ArunCode <span>IDE</span></div>
+  <span class="file-label">EDITING:</span>
+  <span id="file-name">No file open</span>
+  <span class="dirty" id="dirty-indicator">● unsaved</span>
+  <div class="tb-right">
+    <button class="btn btn-g" onclick="saveFile()">💾 SAVE</button>
+    <button class="btn btn-a" onclick="runFile()">▶ RUN</button>
+    <button class="btn" onclick="newFile()">+ NEW FILE</button>
+    <div class="av" id="top-av"><span id="top-init">?</span></div>
+    <a class="btn" href="/home">⌂ HOME</a>
+  </div>
+</div>
+
+<div class="ide-wrap">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-hd">
+      <span>FILES</span>
+      <span id="file-count" style="color:var(--bdim);font-size:9px">0 files</span>
+    </div>
+    <div class="sb-body" id="file-list"></div>
+    <div class="sb-actions">
+      <button class="btn btn-g" style="flex:1;padding:3px 6px;font-size:9px" onclick="newFile()">+ NEW</button>
+      <button class="btn" style="flex:1;padding:3px 6px;font-size:9px" onclick="uploadFile()">↑ UPLOAD</button>
+    </div>
+  </div>
+
+  <!-- EDITOR + TERMINAL -->
+  <div class="editor-area">
+    <div class="editor-tabs" id="editor-tabs">
+      <span style="font-size:10px;color:#1a2535;padding:0 .5rem">No files open</span>
+    </div>
+    <div class="editor-body">
+      <textarea id="editor"
+        spellcheck="false"
+        placeholder="// Select or create a file to start editing..."
+        oninput="markDirty()"
+        onkeydown="handleEditorKey(event)"></textarea>
+    </div>
+    <div class="terminal">
+      <div class="terminal-hd">
+        <span>▸ TERMINAL</span>
+        <div style="display:flex;gap:.4rem">
+          <button class="btn" style="padding:1px 7px" onclick="clearTerminal()">CLEAR</button>
+        </div>
+      </div>
+      <div class="terminal-body" id="terminal-output">
+        <span style="color:var(--gdim)">// ArunCode IDE Terminal — type 'help' for commands</span>
+      </div>
+      <div class="terminal-input-row">
+        <span class="prompt" id="term-prompt">ArunCode&gt;</span>
+        <input id="term-input" placeholder="Enter command..." onkeydown="handleTermKey(event)" autocomplete="off" spellcheck="false">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="statusbar">
+  <span class="sb-item" id="sb-file">No file</span>
+  <span class="sb-item" id="sb-lang">—</span>
+  <span class="sb-item" id="sb-lines">0 lines</span>
+  <span class="sb-item" id="sb-cursor">Ln 1, Col 1</span>
+  <span class="sb-item ok" id="sb-status">Ready</span>
+</div>
+
+<!-- Context menu -->
+<div class="ctx" id="ctx-menu">
+  <div class="ctx-item" onclick="ctxRename()">Rename</div>
+  <div class="ctx-item" onclick="ctxDuplicate()">Duplicate</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" style="color:var(--red)" onclick="ctxDelete()">Delete</div>
+</div>
+
+<!-- Hidden upload input -->
+<input type="file" id="upload-inp" multiple style="display:none" onchange="handleUpload(this.files)">
+
+<script>
+// ── STATE ──
+var ME = '', MY_AV = '';
+var files = {};        // {filename: content}
+var folders = {};      // {dirname: [filenames]}
+var folderOpen = {};   // {dirname: bool}
+var openTabs = [];     // [filename, ...]
+var activeFile = null;
+var dirty = {};        // {filename: bool}
+var ctxTarget = null;
+var termHistory = [], termHistIdx = -1;
+
+// ── INIT ──
+async function init() {
+  var me;
+  try { me = await fetch('/api/me').then(function(r){return r.json();}); } catch(e){me=null;}
+  if (!me || !me.ok) { window.location.href = '/terminal?next=/ide'; return; }
+  ME = me.username;
+  document.getElementById('top-init').textContent = ME[0].toUpperCase();
+  document.getElementById('term-prompt').textContent = ME + '>';
+  try {
+    var p = await fetch('/api/profile').then(function(r){return r.json();});
+    if (p && p.ok && p.avatar) { MY_AV = p.avatar; setAv(document.getElementById('top-av'), MY_AV); }
+  } catch(e){}
+  // Load files from server
+  await loadFilesFromServer();
+  document.body.style.visibility = 'visible';
+}
+
+function setAv(el, av) {
+  if (!av) return;
+  if (av.startsWith('data:')) el.innerHTML = '<img src="'+av+'">';
+  else el.innerHTML = '<span>'+av+'</span>';
+}
+
+// ── SERVER FILE API ──
+async function loadFilesFromServer() {
+  try {
+    var r = await fetch('/api/files').then(function(r){return r.json();});
+    if (r && r.ok) {
+      files = {}; folders = {};
+      for (var i=0;i<r.files.length;i++) {
+        var f = r.files[i];
+        if (f.type === 'file')   { files[f.name] = null; }
+        if (f.type === 'folder') { if (!folders[f.name]) folders[f.name] = []; }
+      }
+      renderSidebar();
+    }
+  } catch(e) { termPrint('// Could not load files: ' + e.message, 'err'); }
+}
+
+async function loadFileContent(name) {
+  if (files[name] !== null && files[name] !== undefined) return files[name];
+  try {
+    var r = await fetch('/api/files/'+encodeURIComponent(name)).then(function(r){return r.json();});
+    if (r && r.ok) { files[name] = r.content; return r.content; }
+  } catch(e) {}
+  files[name] = '';
+  return '';
+}
+
+async function saveFileToServer(name, content) {
+  try {
+    var r = await fetch('/api/files/'+encodeURIComponent(name), {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      credentials:'same-origin', body:JSON.stringify({content:content})
+    }).then(function(r){return r.json();});
+    return r && r.ok;
+  } catch(e) { return false; }
+}
+
+async function deleteFileFromServer(name) {
+  try {
+    var r = await fetch('/api/files/'+encodeURIComponent(name), {
+      method:'DELETE', credentials:'same-origin'
+    }).then(function(r){return r.json();});
+    return r && r.ok;
+  } catch(e) { return false; }
+}
+
+// ── SIDEBAR ──
+function renderSidebar() {
+  var fileNames   = Object.keys(files).sort();
+  var folderNames = Object.keys(folders).sort();
+  document.getElementById('file-count').textContent = fileNames.length + ' files';
+  if (!fileNames.length && !folderNames.length) {
+    document.getElementById('file-list').innerHTML = '<div style="padding:.8rem;font-size:10px;color:#1a2535">No files yet. Click + NEW to start.</div>';
+    return;
+  }
+  var html = '';
+  // Folders first
+  folderNames.forEach(function(dir) {
+    var open = !!folderOpen[dir];
+    html += '<div class="file-item" onclick="toggleFolder(\''+esc(dir)+'\')" style="color:var(--amber)">'
+      + '<span style="font-size:11px">'+(open?'📂':'📁')+'</span>'
+      + '<span style="flex:1">'+dir+'</span>'
+      + '<button class="file-item-del" onclick="event.stopPropagation();deleteFolder(\''+esc(dir)+'\')" style="color:#333">✕</button>'
+      + '</div>';
+    if (open) {
+      (folders[dir]||[]).forEach(function(n) {
+        html += '<div class="file-item'+(activeFile===n?' active':'')+'" onclick="openFile(\''+esc(n)+'\')" style="padding-left:1.6rem">'
+          +'<span>'+ficon(n)+'</span><span style="flex:1">'+n+(dirty[n]?'<span style="color:var(--amber)"> ●</span>':'')+'</span>'
+          +'<button class="file-item-del" onclick="event.stopPropagation();deleteFile(\''+esc(n)+'\')">✕</button>'
+          +'</div>';
+      });
+    }
+  });
+  // Root files
+  fileNames.forEach(function(n) {
+    html += '<div class="file-item'+(activeFile===n?' active':'')+'" onclick="openFile(\''+esc(n)+'\')" oncontextmenu="showCtx(event,\''+esc(n)+'\')">'+
+      '<span>'+ficon(n)+'</span><span style="flex:1">'+n+(dirty[n]?'<span style="color:var(--amber)"> ●</span>':'')+'</span>'+
+      '<button class="file-item-del" onclick="event.stopPropagation();deleteFile(\''+esc(n)+'\')">✕</button>'+
+      '</div>';
+  });
+  document.getElementById('file-list').innerHTML = html;
+}
+
+function toggleFolder(dir) {
+  folderOpen[dir] = !folderOpen[dir];
+  renderSidebar();
+}
+
+async function deleteFolder(dir) {
+  if (!confirm('Delete folder "'+dir+'" and all its contents?')) return;
+  try { await fetch('/api/files/'+encodeURIComponent(dir),{method:'DELETE',credentials:'same-origin'}); } catch(e){}
+  delete folders[dir]; delete folderOpen[dir];
+  renderSidebar(); termPrint('// Deleted folder: '+dir);
+}
+
+// ── TABS ──
+function renderTabs() {
+  var el = document.getElementById('editor-tabs');
+  if (!openTabs.length) { el.innerHTML = '<span style="font-size:10px;color:#1a2535;padding:0 .5rem">No files open</span>'; return; }
+  el.innerHTML = openTabs.map(function(n) {
+    return '<div class="tab'+(activeFile===n?' active':'')+'" onclick="switchTab(\''+esc(n)+'\')">'
+      +ficon(n)+' '+n+(dirty[n]?'<span style="color:var(--amber)">●</span>':'')
+      +'<button class="tab-x" onclick="event.stopPropagation();closeTab(\''+esc(n)+'\')">×</button>'
+    +'</div>';
+  }).join('');
+}
+
+async function openFile(name) {
+  var content = await loadFileContent(name);
+  files[name] = content;
+  if (openTabs.indexOf(name) < 0) openTabs.push(name);
+  activeFile = name;
+  document.getElementById('editor').value = content;
+  document.getElementById('editor').disabled = false;
+  updateStatus();
+  renderTabs();
+  renderSidebar();
+}
+
+function switchTab(name) {
+  if (dirty[activeFile]) { files[activeFile] = document.getElementById('editor').value; }
+  openFile(name);
+}
+
+function closeTab(name) {
+  if (dirty[name] && !confirm('Close '+name+' without saving?')) return;
+  openTabs = openTabs.filter(function(t){return t!==name;});
+  delete dirty[name];
+  if (activeFile === name) {
+    activeFile = openTabs.length ? openTabs[openTabs.length-1] : null;
+    if (activeFile) openFile(activeFile);
+    else { document.getElementById('editor').value=''; document.getElementById('editor').disabled=true; document.getElementById('file-name').textContent='No file open'; }
+  }
+  renderTabs(); renderSidebar();
+}
+
+// ── EDITOR ──
+function markDirty() {
+  if (!activeFile) return;
+  dirty[activeFile] = true;
+  document.getElementById('dirty-indicator').style.display = '';
+  updateStatus();
+  renderTabs(); renderSidebar();
+}
+
+function handleEditorKey(e) {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    var t=e.target, s=t.selectionStart, en=t.selectionEnd;
+    t.value=t.value.slice(0,s)+'  '+t.value.slice(en);
+    t.selectionStart=t.selectionEnd=s+2;
+    markDirty();
+  }
+  if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); saveFile(); }
+  updateCursor();
+}
+
+function updateCursor() {
+  var ed=document.getElementById('editor');
+  var txt=ed.value.substring(0,ed.selectionStart);
+  var lines=txt.split('\n');
+  document.getElementById('sb-cursor').textContent='Ln '+lines.length+', Col '+lines[lines.length-1].length;
+}
+
+function updateStatus() {
+  if (!activeFile) return;
+  var content=document.getElementById('editor').value;
+  var lines=content.split('\n').length;
+  document.getElementById('file-name').textContent = activeFile + (dirty[activeFile]?' ●':'');
+  document.getElementById('sb-file').textContent = activeFile;
+  document.getElementById('sb-lang').textContent = langName(activeFile);
+  document.getElementById('sb-lines').textContent = lines + ' lines';
+  document.getElementById('dirty-indicator').style.display = dirty[activeFile] ? '' : 'none';
+}
+
+// ── SAVE ──
+async function saveFile() {
+  if (!activeFile) return;
+  var content = document.getElementById('editor').value;
+  files[activeFile] = content;
+  var ok = await saveFileToServer(activeFile, content);
+  if (ok) {
+    dirty[activeFile] = false;
+    document.getElementById('sb-status').textContent = '✔ Saved';
+    document.getElementById('sb-status').className = 'sb-item ok';
+    setTimeout(function(){ document.getElementById('sb-status').textContent='Ready'; }, 2000);
+    termPrint('// ✔ Saved: ' + activeFile);
+  } else {
+    document.getElementById('sb-status').textContent = '✖ Save failed';
+    document.getElementById('sb-status').className = 'sb-item err';
+    termPrint('// ✖ Save failed', 'err');
+  }
+  updateStatus(); renderTabs(); renderSidebar();
+}
+
+// ── RUN ──
+function runFile() {
+  if (!activeFile) { termPrint('// No file open', 'err'); return; }
+  var code = document.getElementById('editor').value;
+  var ext  = activeFile.split('.').pop().toLowerCase();
+  termPrint('\n$ run ' + activeFile);
+  if (ext === 'js') {
+    try {
+      var logs=[];
+      var con={log:function(){logs.push(Array.from(arguments).join(' '));},error:function(){logs.push('ERR: '+Array.from(arguments).join(' '));},warn:function(){logs.push('WARN: '+Array.from(arguments).join(' '));}};
+      new Function('console',code)(con);
+      termPrint(logs.join('\n')||'// (no output)');
+    } catch(e){termPrint('ERROR: '+e.message,'err');}
+  } else if (ext==='html') {
+    var w=window.open('','_blank'); w.document.write(code); w.document.close();
+    termPrint('// Opened in new tab');
+  } else if (ext==='py') {
+    runPython(activeFile);
+  } else {
+    termPrint('// Cannot run .'+ext+' files in browser');
+  }
+}
+
+function runPython(fname) {
+  termPrint('$ python3 ' + fname);
+  fetch('/api/run', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    credentials:'same-origin', body:JSON.stringify({filename:fname})
+  }).then(function(r){return r.json();}).then(function(res){
+    if (res.ok) {
+      if (res.stdout) termPrint(res.stdout.trimEnd());
+      if (res.stderr) termPrint(res.stderr.trimEnd(), 'err');
+      if (!res.stdout && !res.stderr) termPrint('// (no output)');
+      if (res.code !== 0) termPrint('// Exit code: '+res.code, 'err');
+    } else {
+      termPrint('Error: '+res.error, 'err');
+    }
+  }).catch(function(e){ termPrint('Run error: '+e.message,'err'); });
+}
+
+// ── NEW / DELETE / UPLOAD ──
+async function newFile() {
+  var name = (prompt('File name (e.g. main.py, index.html):')||'').trim();
+  if (!name) return;
+  if (files[name] !== undefined) { alert('File already exists.'); return; }
+  var ok = await saveFileToServer(name, '');
+  if (ok) {
+    files[name] = '';
+    await openFile(name);
+    termPrint('// Created: ' + name);
+    renderSidebar();
+  } else termPrint('// Failed to create file', 'err');
+}
+
+async function deleteFile(name) {
+  if (!confirm('Delete ' + name + '?')) return;
+  var ok = await deleteFileFromServer(name);
+  if (ok) {
+    delete files[name]; delete dirty[name];
+    openTabs = openTabs.filter(function(t){return t!==name;});
+    if (activeFile===name) {
+      activeFile = openTabs.length ? openTabs[openTabs.length-1] : null;
+      if (activeFile) openFile(activeFile);
+      else { document.getElementById('editor').value=''; document.getElementById('file-name').textContent='No file open'; }
+    }
+    termPrint('// Deleted: '+name);
+    renderSidebar(); renderTabs();
+  } else termPrint('// Failed to delete file', 'err');
+}
+
+function uploadFile() { document.getElementById('upload-inp').click(); }
+function handleUpload(fileList) {
+  Array.prototype.forEach.call(fileList, function(file) {
+    var reader = new FileReader();
+    reader.onload = async function(e) {
+      var content = e.target.result;
+      var ok = await saveFileToServer(file.name, content);
+      if (ok) {
+        files[file.name] = content;
+        termPrint('// Uploaded: '+file.name);
+        renderSidebar();
+      }
+    };
+    var ext=file.name.split('.').pop().toLowerCase();
+    if(['png','jpg','jpeg','gif','svg','webp'].indexOf(ext)>=0) reader.readAsDataURL(file);
+    else reader.readAsText(file);
+  });
+}
+
+// ── TERMINAL ──
+function termPrint(text, type) {
+  var out = document.getElementById('terminal-output');
+  var color = type==='err' ? 'var(--red)' : type==='info' ? 'var(--blue)' : 'var(--green)';
+  out.innerHTML += '<span style="color:'+color+'">' + text + '</span>\n';
+  out.scrollTop = out.scrollHeight;
+}
+
+function clearTerminal() {
+  document.getElementById('terminal-output').innerHTML = '<span style="color:var(--gdim)">// Terminal cleared</span>\n';
+}
+
+function handleTermKey(e) {
+  if (e.key === 'Enter') {
+    var cmd = e.target.value.trim();
+    e.target.value = '';
+    tabCycleMatches = []; tabCycleIdx = -1;
+    if (!cmd) return;
+    termHistory.unshift(cmd); termHistIdx = -1;
+    termPrint(ME + '> ' + cmd, 'info');
+    handleCommand(cmd);
+  }
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    termHistIdx = Math.min(termHistIdx+1, termHistory.length-1);
+    if (termHistory[termHistIdx]) e.target.value = termHistory[termHistIdx];
+  }
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    termHistIdx = Math.max(termHistIdx-1, -1);
+    e.target.value = termHistIdx>=0 ? termHistory[termHistIdx] : '';
+  }
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    tabComplete(e.target);
+  }
+}
+
+// ── TAB COMPLETION ──
+var tabCycleMatches = [];
+var tabCycleIdx = -1;
+var tabCycleBase = '';
+
+function tabComplete(input) {
+  var val   = input.value;
+  var parts = val.split(' ');
+  var last  = parts[parts.length-1];
+  var prefix= parts.slice(0,-1).join(' ');
+
+  // if first word (command), complete commands
+  if (parts.length === 1) {
+    var cmds = ['ls','touch','nano','rm','cp','mkdir','cd','cat','unzip','python','python3','sudo','save','run','open','clear','whoami','pwd','help'];
+    var matches = cmds.filter(function(c){ return c.indexOf(last)===0; });
+    if (!matches.length) return;
+    if (matches.length === 1) { input.value = matches[0]+' '; return; }
+    // cycle
+    if (tabCycleBase !== last || !tabCycleMatches.length) {
+      tabCycleMatches = matches; tabCycleIdx = -1; tabCycleBase = last;
+    }
+    tabCycleIdx = (tabCycleIdx+1) % tabCycleMatches.length;
+    input.value = tabCycleMatches[tabCycleIdx]+' ';
+    return;
+  }
+
+  // complete filenames / dirnames
+  var allNames = Object.keys(files).concat(
+    Object.keys(vdirs).map(function(p){ return p.replace(cwd+'/',''); }).filter(function(n){ return n && n.indexOf('/')===(-1); })
+  );
+  var matches = allNames.filter(function(n){ return n.indexOf(last)===0; });
+  if (!matches.length) return;
+  if (matches.length === 1) {
+    input.value = (prefix ? prefix+' ' : '') + matches[0];
+    return;
+  }
+  // cycle through matches
+  if (tabCycleBase !== last || !tabCycleMatches.length) {
+    tabCycleMatches = matches; tabCycleIdx = -1; tabCycleBase = last;
+  }
+  tabCycleIdx = (tabCycleIdx+1) % tabCycleMatches.length;
+  input.value = (prefix ? prefix+' ' : '') + tabCycleMatches[tabCycleIdx];
+}
+
+// ── VIRTUAL FILESYSTEM STATE ──
+var cwd = '/workspace';         // current directory (simulated)
+var vdirs = {'/workspace':[]};  // virtual dirs: path -> [child names]
+
+function cwdFiles() {
+  // files in cwd (simulated flat for now — real files are always in /workspace)
+  return cwd === '/workspace' ? Object.keys(files).sort() : [];
+}
+
+function nanoEdit(name) {
+  // open file in editor (like nano)
+  var fullName = name;
+  openFile(fullName);
+  termPrint('// Opened "'+fullName+'" in editor');
+}
+
+function handleCommand(cmd) {
+  var raw   = cmd.trim();
+  var parts = raw.match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+  parts     = parts.map(function(p){return p.replace(/^"|"$/g,'');});
+  var c     = parts[0] ? parts[0].toLowerCase() : '';
+
+  // ── HELP ──
+  if (c==='help') {
+    termPrint(
+      'FILE COMMANDS\n' +
+      '  ls [-l]            List files in current directory\n' +
+      '  touch <file>       Create empty file\n' +
+      '  nano <file>        Open file in editor\n' +
+      '  rm <file>          Delete a file\n' +
+      '  rm -r <dir>        Delete a directory (simulated)\n' +
+      '  cp <src> <dst>     Copy a file\n' +
+      '  mkdir <dir>        Create directory (simulated)\n' +
+      '  cd <dir>           Change directory (simulated)\n' +
+      '  unzip <file>       Extract zip (simulated)\n' +
+      '  cat <file>         Print file contents\n' +
+      '  open <file>        Open file in editor\n' +
+      '  save               Save current file\n' +
+      '  run                Run current file\n' +
+      '\nSYSTEM\n' +
+      '  whoami             Show current user\n' +
+      '  pwd                Print working directory\n' +
+      '  clear              Clear terminal\n' +
+      '  python <file>      Run Python file info\n' +
+      '  python3 <file>     Run Python file info\n' +
+      '  sudo <cmd>         Simulate sudo\n' +
+      '  sudo apt install   Simulate apt install'
+    );
+
+  // ── LS ──
+  } else if (c==='ls') {
+    var names = cwdFiles();
+    if (!names.length) { termPrint('(empty directory)'); return; }
+    var long = parts[1] === '-l';
+    if (long) {
+      termPrint(names.map(function(n){
+        var size = files[n] ? files[n].length : 0;
+        return '-rw-r--r-- 1 '+ME+' '+ME+' '+String(size).padStart(6)+' '+new Date().toDateString()+'  '+n;
+      }).join('\n'));
+    } else {
+      // colour by type
+      termPrint(names.map(function(n){
+        var e=n.split('.').pop().toLowerCase();
+        var col={py:'#39ff14',js:'#ffb300',html:'#ff6b35',css:'#a78bfa',md:'#00cfff',json:'#00cfff'}[e]||'#7a9ab8';
+        return '<span style="color:'+col+'">'+n+'</span>';
+      }).join('  '));
+    }
+
+  // ── TOUCH ──
+  } else if (c==='touch') {
+    var name = parts[1];
+    if (!name) { termPrint('Usage: touch <filename>', 'err'); return; }
+    if (files[name] !== undefined) { termPrint(name+': already exists'); openFile(name); return; }
+    saveFileToServer(name, '').then(function(ok){
+      if (ok) { files[name]=''; renderSidebar(); termPrint('// Created: '+name); openFile(name); }
+      else termPrint('// Failed to create: '+name, 'err');
+    });
+
+  // ── NANO ──
+  } else if (c==='nano') {
+    var name = parts[1];
+    if (!name) { termPrint('Usage: nano <filename>', 'err'); return; }
+    if (files[name] === undefined) {
+      // create it first
+      saveFileToServer(name, '').then(function(ok){
+        if (ok) { files[name]=''; renderSidebar(); nanoEdit(name); }
+        else termPrint('// Failed to create: '+name,'err');
+      });
+    } else { nanoEdit(name); }
+
+  // ── RM ──
+  } else if (c==='rm') {
+    var flag = parts[1], target = parts[2] || parts[1];
+    if (flag==='-r' || flag==='-rf') {
+      // simulate directory removal
+      var dirName = parts[2];
+      if (!dirName) { termPrint('Usage: rm -r <directory>', 'err'); return; }
+      if (vdirs[cwd+'/'+dirName]) {
+        delete vdirs[cwd+'/'+dirName];
+        termPrint('// Removed directory: '+dirName);
+      } else {
+        termPrint('rm: '+dirName+': No such directory', 'err');
+      }
+    } else {
+      var fname = parts[1];
+      if (!fname) { termPrint('Usage: rm <file>', 'err'); return; }
+      if (files[fname] === undefined) { termPrint('rm: '+fname+': No such file', 'err'); return; }
+      if (!confirm('Delete '+fname+'?')) return;
+      deleteFile(fname);
+    }
+
+  // ── CP ──
+  } else if (c==='cp') {
+    var src=parts[1], dst=parts[2];
+    if (!src||!dst) { termPrint('Usage: cp <source> <destination>', 'err'); return; }
+    if (files[src]===undefined) { termPrint('cp: '+src+': No such file', 'err'); return; }
+    var content = files[src]||'';
+    saveFileToServer(dst, content).then(function(ok){
+      if (ok) { files[dst]=content; renderSidebar(); termPrint(src+' -> '+dst); }
+      else termPrint('// Copy failed', 'err');
+    });
+
+  // ── MKDIR ──
+  } else if (c==='mkdir') {
+    var dir = parts[1];
+    if (!dir) { termPrint('Usage: mkdir <directory>', 'err'); return; }
+    var path = cwd+'/'+dir;
+    if (vdirs[path]) { termPrint('mkdir: '+dir+': File exists', 'err'); return; }
+    fetch('/api/folders', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      credentials:'same-origin', body:JSON.stringify({name:dir})
+    }).then(function(r){return r.json();}).then(function(res){
+      if (res.ok || res.error) {
+        vdirs[path] = [];
+        // add a placeholder in sidebar so folder is visible
+        if (!folders[dir]) { folders[dir] = []; folderOpen[dir] = true; }
+        renderSidebar();
+        termPrint('// Created directory: '+dir);
+      }
+    }).catch(function(){
+      vdirs[path] = [];
+      renderSidebar();
+      termPrint('// Created directory: '+dir+' (local)');
+    });
+
+  // ── CD ──
+  } else if (c==='cd') {
+    var dest = parts[1] || '/workspace';
+    if (dest==='..') {
+      var up = cwd.split('/').slice(0,-1).join('/')||'/workspace';
+      cwd = up || '/workspace';
+      document.getElementById('term-prompt').textContent = ME+'@'+cwd.replace('/workspace','~')+'>';
+      termPrint('// '+cwd);
+    } else if (dest==='/workspace'||dest==='~') {
+      cwd='/workspace';
+      document.getElementById('term-prompt').textContent = ME+'@~>';
+      termPrint('// '+cwd);
+    } else {
+      var newPath = cwd+'/'+dest;
+      if (vdirs[newPath]) {
+        cwd=newPath;
+        document.getElementById('term-prompt').textContent = ME+'@'+cwd.replace('/workspace','~')+'>';
+        termPrint('// '+cwd);
+      } else {
+        termPrint('cd: '+dest+': No such directory', 'err');
+      }
+    }
+
+  // ── UNZIP ──
+  } else if (c==='unzip') {
+    var fname = parts[1];
+    var dest  = parts[2] || '';
+    if (!fname) { termPrint('Usage: unzip <file> [destination]', 'err'); return; }
+    termPrint('Archive:  ' + fname + '\nExtracting...');
+    fetch('/api/unzip', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      credentials:'same-origin',
+      body:JSON.stringify({filename:fname, dest:dest})
+    }).then(function(r){return r.json();}).then(function(res){
+      if (res.ok) {
+        termPrint(res.extracted.map(function(f){return '  inflating: '+f;}).join('\n'));
+        termPrint('// Extracted '+res.count+' files → '+res.dest.split('/').pop());
+        loadFilesFromServer();
+      } else {
+        termPrint('unzip: ' + res.error, 'err');
+      }
+    }).catch(function(e){ termPrint('unzip error: '+e.message,'err'); });
+
+  // ── CAT ──
+  } else if (c==='cat') {
+    var fname = parts[1];
+    if (!fname) { termPrint('Usage: cat <file>', 'err'); return; }
+    if (files[fname]===undefined) { termPrint('cat: '+fname+': No such file', 'err'); return; }
+    var content = files[fname]||'(empty)';
+    termPrint(content.substring(0,2000)+(content.length>2000?'\n...(truncated)':''));
+
+  // ── PYTHON ──
+  } else if (c==='python'||c==='python3') {
+    var fname = parts[1];
+    if (!fname) {
+      termPrint('Python '+( c==='python3'?'3':'')+'\nUsage: python3 <filename.py>\n(Interactive mode not available in browser)');
+    } else {
+      if (files[fname]===undefined) { termPrint(c+': '+fname+': No such file', 'err'); return; }
+      runPython(fname);
+    }
+
+  // ── SUDO ──
+  } else if (c==='sudo') {
+    var sub = parts[1]||'';
+    if (sub==='apt'||sub==='apt-get') {
+      var action=parts[2]||'', pkg=parts.slice(3).join(' ')||'';
+      if (action==='update') {
+        termPrint('Hit:1 http://archive.ubuntu.com/ubuntu focal InRelease\nReading package lists... Done');
+      } else if (action==='install') {
+        if (!pkg) { termPrint('apt: package name required', 'err'); return; }
+        termPrint('Reading package lists... Done\nBuilding dependency tree... Done\nThe following NEW packages will be installed:\n  '+pkg+'\n0 upgraded, 1 newly installed.\n(Simulated — packages install server-side only.\n Run this command in your Codespace terminal instead.)');
+      } else if (action==='remove'||action==='purge') {
+        termPrint('(Simulated) Removing '+pkg+'...');
+      } else {
+        termPrint('apt: command not found: '+action, 'err');
+      }
+    } else if (sub==='!!') {
+      termPrint('[sudo] password for '+ME+': \n(Simulated sudo — actual commands run server-side.)');
+    } else {
+      termPrint('[sudo] Running as root (simulated): '+parts.slice(1).join(' ')+'\n(Note: system commands run server-side only.)');
+    }
+
+  // ── WHOAMI / PWD / CLEAR / SAVE / RUN / OPEN ──
+  } else if (c==='whoami') {
+    termPrint(ME);
+  } else if (c==='pwd') {
+    termPrint(cwd);
+  } else if (c==='clear') {
+    clearTerminal();
+  } else if (c==='save') {
+    saveFile();
+  } else if (c==='run') {
+    runFile();
+  } else if (c==='open') {
+    if (parts[1]) openFile(parts[1]);
+    else termPrint('Usage: open <file>', 'err');
+  } else if (c==='new') {
+    if (parts[1]) newFile(parts[1]);
+    else newFile();
+  } else if (c==='delete'||c==='del') {
+    if (parts[1]) deleteFile(parts[1]);
+    else termPrint('Usage: delete <file>', 'err');
+
+  // ── UNKNOWN ──
+  } else if (c) {
+    termPrint(c+': command not found. Type "help" for commands.', 'err');
+  }
+}
+
+// ── CONTEXT MENU ──
+function showCtx(e, name) {
+  e.preventDefault();
+  ctxTarget = name;
+  var m = document.getElementById('ctx-menu');
+  m.style.left = e.clientX+'px'; m.style.top = e.clientY+'px';
+  m.classList.add('show');
+}
+function ctxRename() {
+  hideCtx();
+  if (!ctxTarget) return;
+  var name = (prompt('Rename to:', ctxTarget)||'').trim();
+  if (!name || name===ctxTarget) return;
+  var content = files[ctxTarget]||'';
+  saveFileToServer(name, content).then(function(ok) {
+    if (ok) {
+      deleteFileFromServer(ctxTarget);
+      files[name] = content; delete files[ctxTarget];
+      if (activeFile===ctxTarget) activeFile=name;
+      openTabs = openTabs.map(function(t){return t===ctxTarget?name:t;});
+      renderSidebar(); renderTabs();
+      if (activeFile===name) openFile(name);
+    }
+  });
+}
+function ctxDuplicate() {
+  hideCtx();
+  if (!ctxTarget) return;
+  var parts = ctxTarget.split('.');
+  var ext = parts.length>1 ? '.'+parts.pop() : '';
+  var base = parts.join('.');
+  var name = base+'_copy'+ext;
+  var content = files[ctxTarget]||'';
+  saveFileToServer(name, content).then(function(ok){
+    if (ok) { files[name]=content; renderSidebar(); termPrint('// Duplicated: '+name); }
+  });
+}
+function ctxDelete() { hideCtx(); if (ctxTarget) deleteFile(ctxTarget); }
+function hideCtx() { document.getElementById('ctx-menu').classList.remove('show'); ctxTarget=null; }
+document.addEventListener('click', hideCtx);
+
+// ── UTILS ──
+function ficon(n){var e=(n||'').split('.').pop().toLowerCase();return{py:'🐍',js:'⚡',html:'🌐',css:'🎨',md:'📝',txt:'📄',json:'📋',sh:'🔧',xml:'📋',png:'🖼',jpg:'🖼',gif:'🖼',svg:'🖼'}[e]||'📄';}
+function langName(n){var e=(n||'').split('.').pop().toLowerCase();return{py:'Python',js:'JavaScript',html:'HTML',css:'CSS',md:'Markdown',json:'JSON',sh:'Shell',txt:'Text'}[e]||e.toUpperCase();}
+function esc(s){return(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
+
+init();
+</script>
+</body>
+</html>

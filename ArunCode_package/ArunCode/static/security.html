@@ -1,6 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+// ArunCode Theme Engine v3
+(function(){
+  var T={
+    default:{},
+    amber:  {'--bg':'#0a0700','--bg2':'#110d00','--bg3':'#181100','--green':'#ffaa00','--gdim':'#7a5000','--border':'#2a1f00','--border2':'#3a2a00','--blue':'#ffcc44','--bdim':'#996600','--text':'#9a8060','--textb':'#e8d4a0'},
+    crimson:{'--bg':'#0a0003','--bg2':'#110005','--bg3':'#180008','--green':'#ff2255','--gdim':'#7a0022','--border':'#2a0010','--border2':'#3a0018','--blue':'#ff6688','--bdim':'#881133','--text':'#9a6070','--textb':'#e8a0b0'},
+    aurora: {'--bg':'#000a08','--bg2':'#001110','--bg3':'#001816','--green':'#00ffcc','--gdim':'#007a5e','--border':'#002a24','--border2':'#003a32','--blue':'#00ddff','--bdim':'#006677','--text':'#60a090','--textb':'#a0e8d8'},
+    void:   {'--bg':'#050008','--bg2':'#080010','--bg3':'#0d0018','--green':'#cc44ff','--gdim':'#6600aa','--border':'#1a0030','--border2':'#250040','--blue':'#8844ff','--bdim':'#440088','--text':'#8060a0','--textb':'#c8a0e8'},
+    steel:  {'--bg':'#030609','--bg2':'#050d14','--bg3':'#07121c','--green':'#44aaff','--gdim':'#1155aa','--border':'#0a1828','--border2':'#102233','--blue':'#88ccff','--bdim':'#224466','--text':'#6090b0','--textb':'#a0c8e8'},
+    solar:  {'--bg':'#090500','--bg2':'#110900','--bg3':'#180d00','--green':'#ff8800','--gdim':'#994400','--border':'#2a1500','--border2':'#3a1e00','--blue':'#ffcc00','--bdim':'#886600','--text':'#9a7040','--textb':'#e8c080'},
+    gold:   {'--bg':'#080700','--bg2':'#0f0d00','--bg3':'#161200','--green':'#ffd700','--gdim':'#8a7200','--border':'#2a2400','--border2':'#3a3200','--blue':'#ffee88','--bdim':'#887700','--text':'#9a9060','--textb':'#e8e0a0'},
+  };
+  function apply(theme){
+    var v=T[theme];
+    if(!v||!Object.keys(v).length) return;
+    var css=':root{'+Object.keys(v).map(function(k){return k+':'+v[k]+'!important';}).join(';')+'}';
+    var el=document.getElementById('ac-theme-style');
+    if(!el){el=document.createElement('style');el.id='ac-theme-style';document.head.appendChild(el);}
+    el.textContent=css;
+  }
+  var t=localStorage.getItem('ac_theme')||'default';
+  apply(t);
+  window._applyTheme=apply;
+  fetch('/api/profile',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(p){
+    if(p&&p.ok&&p.theme&&p.theme!==t){
+      localStorage.setItem('ac_theme',p.theme);
+      apply(p.theme);
+    }
+  }).catch(function(){});
+})();
+</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ArunCode — Security</title>
@@ -109,6 +141,7 @@
     .threat-text{font-size:12px;line-height:1.6}
     .threat-title{color:var(--red);letter-spacing:1px;margin-bottom:.2rem;font-size:11px}
   </style>
+
 </head>
 <body>
 
