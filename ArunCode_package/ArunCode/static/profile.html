@@ -213,6 +213,37 @@
     </div>
   </div>
 
+
+  <!-- LINKED ACCOUNTS -->
+  <section class="panel" id="linked-panel">
+    <div class="panel-header">&#128279; Linked Accounts</div>
+    <div class="panel-body">
+      <p style="font-size:11px;color:var(--text);margin-bottom:1rem">Link your GitHub, Google, or Apple account to sign in without a password.</p>
+      <div id="linked-list" style="display:flex;flex-direction:column;gap:.6rem"></div>
+    </div>
+  </section>
+
+  <div class="section" id="oauth-config-section" style="display:none">
+    <div class="section-header"><span>▸ OAuth Settings</span></div>
+    <div class="section-body">
+      <div class="field">
+        <label>OAuth Base URL</label>
+        <input type="text" id="oauth-base-url" placeholder="https://your-preview-domain.app.github.dev">
+        <div class="hint">Enter only the app origin (no /auth/github/callback suffix).</div>
+        <div class="hint" style="margin-top:.4rem">Current GitHub callback URI: <code id="oauth-redirect-uri" style="color:#fff;background:rgba(255,255,255,.05);padding:2px 4px;border-radius:3px;display:inline-block;word-break:break-all;"></code></div>
+      </div>
+      <div class="field">
+        <label>GitHub Client ID</label>
+        <input type="text" id="oauth-github-id" placeholder="GitHub Client ID">
+      </div>
+      <div class="field">
+        <label>GitHub Client Secret</label>
+        <input type="text" id="oauth-github-secret" placeholder="GitHub Client Secret">
+      </div>
+      <div class="msg" id="msg-oauth"></div>
+      <button class="btn-save" onclick="saveOauthConfig()">SAVE OAUTH SETTINGS</button>
+    </div>
+  </div>
 </main>
 
 <!-- AVATAR PICKER MODAL -->
@@ -358,6 +389,50 @@ async function init() {
   if (['admin','security'].includes(myRole)) {
     document.getElementById('section-pin').style.display = '';
   }
+  if (myRole === 'admin') {
+    const section = document.getElementById('oauth-config-section');
+    if (section) {
+      section.style.display = '';
+      loadOauthConfig();
+    }
+  }
+}
+
+async function loadOauthConfig() {
+  const res = await fetch('/api/profile/oauth').then(r => r.json()).catch(() => null);
+  if (res && res.ok && res.oauth) {
+    document.getElementById('oauth-base-url').value = res.oauth.base_url || '';
+    const github = res.oauth.providers && res.oauth.providers.github;
+    if (github) {
+      document.getElementById('oauth-github-id').value = github.client_id || '';
+      document.getElementById('oauth-github-secret').value = github.client_secret || '';
+    }
+    const redirectUri = res.oauth.redirect_uris && res.oauth.redirect_uris.github;
+    if (redirectUri) {
+      document.getElementById('oauth-redirect-uri').textContent = redirectUri;
+    }
+  }
+}
+
+async function saveOauthConfig() {
+  const baseUrl = document.getElementById('oauth-base-url').value.trim();
+  const clientId = document.getElementById('oauth-github-id').value.trim();
+  const clientSecret = document.getElementById('oauth-github-secret').value.trim();
+  const res = await fetch('/api/profile/oauth', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      base_url: baseUrl,
+      providers: {
+        github: {client_id: clientId, client_secret: clientSecret}
+      }
+    })
+  }).then(r => r.json()).catch(() => null);
+  if (res && res.ok) {
+    showMsg('msg-oauth', '✔ OAuth settings saved.', 'ok');
+  } else {
+    showMsg('msg-oauth', res?.error || 'Failed to save OAuth settings.', 'err');
+  }
 }
 
 function showMsg(id, msg, type) {
@@ -449,7 +524,39 @@ async function changePin() {
   }
 }
 
-init();
+async function loadLinkedAccounts(){
+  try{
+    var r=await fetch('/api/auth/linked').then(r=>r.json());
+    var linked=r.linked||{};
+    var el=document.getElementById('linked-list');
+    if(!el)return;
+    var providers=[
+      {id:'github',label:'GitHub',icon:'&#9900;',color:'#a78bfa',border:'#6e40c9'},
+      {id:'google',label:'Google',icon:'G',color:'#7ab3ff',border:'#4285f4'},
+      {id:'apple', label:'Apple', icon:'&#63743;',color:'#eee',border:'#555'},
+    ];
+    el.innerHTML=providers.map(function(p){
+      var isLinked=!!linked[p.id];
+      return'<div style="display:flex;align-items:center;gap:.8rem;padding:.6rem;background:var(--bg3);border:1px solid '+(isLinked?p.border:'var(--border)')+';">'
+        +'<span style="font-size:18px;width:24px;text-align:center">'+p.icon+'</span>'
+        +'<div style="flex:1"><div style="font-size:11px;color:'+(isLinked?p.color:'var(--text)')+'">'+p.label+'</div>'
+          +'<div style="font-size:9px;color:var(--text)">'+(isLinked?'Connected':'Not linked')+'</div></div>'
+        +(isLinked
+          ?'<button onclick="unlinkAccount(\''+p.id+'\')" style="background:none;border:1px solid #2a1010;color:#553333;font-family:var(--mono);font-size:9px;padding:3px 8px;cursor:pointer;letter-spacing:1px">UNLINK</button>'
+          :'<a href="/auth/'+p.id+'?next=/profile" style="background:none;border:1px solid '+p.border+';color:'+p.color+';font-family:var(--mono);font-size:9px;padding:3px 8px;text-decoration:none;letter-spacing:1px">LINK</a>'
+        )
+      +'</div>';
+    }).join('');
+  }catch(e){}
+}
+
+async function unlinkAccount(provider){
+  if(!confirm('Unlink '+provider+' from your account?'))return;
+  await fetch('/api/auth/unlink',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({provider:provider})});
+  loadLinkedAccounts();
+}
+
+init().then(loadLinkedAccounts);
 </script>
 </body>
 </html>

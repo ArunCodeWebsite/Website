@@ -1,3 +1,1 @@
-answer = input()
-
-print(answer)
+answer = input("")hi = answer

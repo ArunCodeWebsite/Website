@@ -1,0 +1,15 @@
+{
+  "base_url": "https://literate-enigma-x5gww6xpxvw6fpvv6-5000.app.github.dev/auth/github/callback",
+  "github": {
+    "client_id": "Ov23liwcb3wAu6SCaUaM",
+    "client_secret": "dd6e96119e2f65c981f325a83518b6fe0ce09172"
+  },
+  "google": {
+    "client_id": "",
+    "client_secret": ""
+  },
+  "apple": {
+    "client_id": "",
+    "client_secret": ""
+  }
+}

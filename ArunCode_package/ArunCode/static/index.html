@@ -33,493 +33,1187 @@
   }).catch(function(){});
 })();
 </script>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ArunCode_Term — Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg:#0a0e0a;--bg2:#0f140f;--green:#39ff14;--green-dim:#1a7a06;
-      --green-mid:#22c40a;--amber:#ffb300;--red:#ff3c3c;--border:#1e3a1e;
-      --text:#c8e6c8;--mono:'Share Tech Mono',monospace;--display:'VT323',monospace;
-    }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:14px;
-      min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;cursor:crosshair}
-    body::before{content:'';position:fixed;inset:0;
-      background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.12) 2px,rgba(0,0,0,0.12) 4px);
-      pointer-events:none;z-index:9999}
-    @keyframes flicker{0%,100%{opacity:1}93%{opacity:.88}94%{opacity:1}96%{opacity:.93}}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-    @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
-    @keyframes scanDown{0%{top:0}100%{top:100%}}
-    body{animation:flicker 8s infinite}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArunCode IDE</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b0f;--bg2:#0c1016;--bg3:#111620;--bg4:#161d28;
+  --green:#39ff14;--gdim:#1a7a06;--blue:#00cfff;--bdim:#005577;
+  --amber:#ffb300;--adim:#7a5500;--red:#ff4444;
+  --border:#1a2535;--text:#7a9ab8;--textb:#c8dff0;
+  --mono:'Share Tech Mono',monospace;--code:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;display:flex;flex-direction:column;visibility:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none;z-index:9999}
 
-    .box{width:100%;max-width:460px;border:1px solid var(--border);background:var(--bg2);animation:fadeIn .8s ease both;position:relative;overflow:hidden}
-    .scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--green),transparent);opacity:.08;animation:scanDown 4s linear infinite;pointer-events:none}
-    .topbar{background:#0d1a0d;border-bottom:1px solid var(--border);padding:.6rem 1rem;display:flex;align-items:center;gap:.5rem;font-size:11px;color:var(--green-dim)}
-    .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
-    .dr{background:#ff3c3c}.da{background:#ffb300}.dg{background:#39ff14;box-shadow:0 0 4px #39ff14}
-    .topbar-title{margin:0 auto;font-size:12px;color:var(--green-mid);letter-spacing:1px}
-    .inner{padding:2rem}
-    .title{font-family:var(--display);font-size:2.6rem;color:var(--green);text-align:center;
-      text-shadow:0 0 10px var(--green),0 0 30px var(--green-dim);letter-spacing:2px;margin-bottom:.2rem}
-    .subtitle{text-align:center;font-size:10px;color:var(--green-dim);letter-spacing:2px;margin-bottom:1.5rem}
-    .cursor{display:inline-block;width:9px;height:15px;background:var(--green);
-      vertical-align:middle;animation:blink 1s step-end infinite;box-shadow:0 0 6px var(--green)}
+/* TOPBAR */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.45rem 1.2rem;display:flex;align-items:center;gap:.8rem;flex-shrink:0}
+.brand{font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:900;letter-spacing:2px;color:var(--green);text-shadow:0 0 8px var(--gdim);white-space:nowrap}
+.brand span{color:var(--blue)}
+.file-label{font-size:10px;color:var(--bdim);letter-spacing:1px}
+#file-name{font-size:11px;color:var(--textb)}
+.dirty{color:var(--amber);display:none}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:.5rem}
+.btn{background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:4px 11px;cursor:pointer;transition:all .2s}
+.btn:hover{border-color:var(--bdim);color:var(--blue)}
+.btn-g{border-color:var(--gdim);color:var(--green)}
+.btn-g:hover{background:rgba(57,255,20,.07)}
+.btn-a{border-color:var(--adim);color:var(--amber)}
+.btn-a:hover{background:rgba(255,179,0,.07)}
+.btn-r{border-color:#2a1010;color:#553333}
+.btn-r:hover{border-color:var(--red);color:var(--red)}
+.av{width:20px;height:20px;border:1px solid var(--gdim);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:10px;overflow:hidden;flex-shrink:0}
+.av img{width:100%;height:100%;object-fit:cover}
 
-    /* tabs */
-    .tabs{display:flex;border:1px solid var(--border);margin-bottom:1.2rem}
-    .tab{flex:1;text-align:center;padding:.55rem;font-size:11px;letter-spacing:1px;
-      color:var(--green-dim);cursor:pointer;transition:all .2s;user-select:none}
-    .tab.active{background:rgba(57,255,20,.07);color:var(--green)}
-    .tab:first-child{border-right:1px solid var(--border)}
+/* LAYOUT */
+.ide-wrap{display:grid;grid-template-columns:200px 1fr;flex:1;overflow:hidden}
 
-    /* steps */
-    .steps{display:flex;border:1px solid var(--border);margin-bottom:1.2rem}
-    .step{flex:1;text-align:center;padding:.4rem .2rem;font-size:10px;letter-spacing:1px;
-      color:var(--green-dim);border-right:1px solid var(--border);transition:all .3s}
-    .step:last-child{border-right:none}
-    .step.active{background:rgba(57,255,20,.07);color:var(--green)}
-    .step.done{color:var(--green-mid)}
+/* SIDEBAR */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sb-hd{padding:.4rem .8rem;background:var(--bg3);border-bottom:1px solid var(--border);font-size:9px;letter-spacing:2px;color:var(--bdim);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.sb-body{overflow-y:auto;flex:1}
+.file-item{display:flex;align-items:center;gap:.5rem;padding:.38rem .8rem;font-size:11px;cursor:pointer;border-left:2px solid transparent;transition:all .15s}
+.file-item:hover{background:rgba(0,207,255,.04);color:var(--textb)}
+.file-item.active{border-left-color:var(--green);color:var(--textb);background:rgba(57,255,20,.03)}
+.file-item-del{margin-left:auto;background:none;border:none;color:#222;cursor:pointer;font-size:11px;line-height:1}
+.file-item-del:hover{color:var(--red)}
+.sb-actions{padding:.5rem;border-top:1px solid var(--border);display:flex;gap:.4rem;flex-shrink:0}
 
-    .form-step{display:none}.form-step.active{display:block}
+/* EDITOR AREA */
+.editor-area{display:flex;flex-direction:column;overflow:hidden}
+.editor-tabs{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 .8rem;display:flex;align-items:center;gap:0;flex-shrink:0;height:32px}
+.tab{padding:0 1rem;height:32px;display:flex;align-items:center;gap:.4rem;font-size:10px;cursor:pointer;border-bottom:2px solid transparent;color:var(--text);border-right:1px solid var(--border);white-space:nowrap}
+.tab.active{color:var(--textb);border-bottom-color:var(--green)}
+.tab-x{background:none;border:none;color:#333;cursor:pointer;font-size:12px;line-height:1}
+.tab-x:hover{color:var(--red)}
+.editor-body{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#editor{flex:1;background:var(--bg);border:none;color:var(--textb);font-family:var(--code);font-size:14px;padding:1rem;outline:none;resize:none;caret-color:var(--green);line-height:1.8;tab-size:2;white-space:pre;overflow:auto}
 
-    /* fields */
-    .field{margin-bottom:1.1rem}
-    .field label{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;
-      color:var(--green-dim);margin-bottom:.4rem}
-    .field input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--green);
-      font-family:var(--mono);font-size:14px;padding:.55rem .8rem;outline:none;
-      transition:border-color .2s,box-shadow .2s;caret-color:var(--green)}
-    .field input:focus{border-color:var(--green-mid);box-shadow:0 0 8px var(--green-dim)}
-    .field input::placeholder{color:var(--green-dim);opacity:.5}
-    .hint{font-size:10px;color:var(--green-dim);margin-top:.3rem}
+/* TERMINAL */
+.terminal{border-top:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:180px}
+.terminal-hd{background:var(--bg3);border-bottom:1px solid var(--border);padding:.35rem .8rem;font-size:9px;letter-spacing:2px;color:var(--gdim);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.terminal-body{flex:1;overflow-y:auto;padding:.5rem 1rem;font-family:var(--code);font-size:12px;color:var(--green);white-space:pre-wrap;line-height:1.7}
+.terminal-input-row{display:flex;align-items:center;gap:.5rem;padding:.3rem .8rem;border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0}
+.prompt{font-size:11px;color:var(--gdim);white-space:nowrap}
+#term-input{flex:1;background:none;border:none;color:var(--green);font-family:var(--code);font-size:12px;outline:none;caret-color:var(--green)}
 
-    /* error/info */
-    .msg-area{min-height:18px;font-size:11px;text-align:center;margin-bottom:.8rem}
+/* STATUS BAR */
+.statusbar{background:var(--bg3);border-top:1px solid var(--border);padding:.2rem 1rem;font-size:10px;color:var(--bdim);display:flex;gap:1.5rem;flex-shrink:0}
+.sb-item{display:flex;align-items:center;gap:.4rem}
+.sb-item.ok{color:var(--gdim)}
+.sb-item.err{color:var(--red)}
 
-    /* button */
-    .btn{width:100%;background:transparent;border:1px solid var(--green-dim);color:var(--green);
-      font-family:var(--mono);font-size:13px;letter-spacing:2px;padding:.65rem;cursor:pointer;
-      text-transform:uppercase;transition:all .2s;margin-top:.3rem}
-    .btn:hover:not(:disabled){background:rgba(57,255,20,.1);border-color:var(--green);box-shadow:0 0 12px var(--green-dim)}
-    .btn:disabled{opacity:.5;cursor:not-allowed}
-
-    /* PIN boxes */
-    .pin-row{display:flex;gap:.5rem;justify-content:center;margin-bottom:1.2rem}
-    .pin-box{width:48px;height:56px;background:var(--bg);border:1px solid var(--border);
-      color:var(--green);font-family:var(--display);font-size:2.2rem;text-align:center;
-      outline:none;transition:border-color .2s;caret-color:transparent}
-    .pin-box:focus{border-color:var(--green-mid);box-shadow:0 0 8px var(--green-dim)}
-    .pin-hint{text-align:center;font-size:11px;color:var(--green-dim);margin-bottom:.8rem}
-
-    /* boot */
-    #screen-boot{display:none;min-height:100vh;width:100%;align-items:flex-start;justify-content:center;padding:3rem 2rem}
-    #screen-boot.on{display:flex}
-    .boot-wrap{width:100%;max-width:700px}
-    .boot-bar-outer{height:4px;background:var(--border);margin-top:.5rem}
-    .boot-bar-fill{height:100%;background:var(--green);box-shadow:0 0 6px var(--green);width:0;transition:width .3s}
-    @keyframes lineIn{from{opacity:0}to{opacity:1}}
-    .bline{font-size:13px;line-height:2;opacity:0;white-space:nowrap}
-    .bline.show{animation:lineIn .2s ease forwards}
-    .bok{color:var(--green)}.binfo{color:var(--text)}.bwarn{color:var(--amber)}.bsys{color:#00cfff}
-  </style>
+/* CONTEXT MENU */
+.ctx{display:none;position:fixed;background:var(--bg2);border:1px solid var(--border);z-index:1000;min-width:140px}
+.ctx.show{display:block}
+.ctx-item{padding:.5rem 1rem;font-size:11px;cursor:pointer;color:var(--text)}
+.ctx-item:hover{background:rgba(0,207,255,.06);color:var(--textb)}
+.ctx-sep{border-top:1px solid var(--border);margin:.2rem 0}
+</style>
 
 </head>
 <body>
 
-<!-- LOGIN/REGISTER SCREEN -->
-<div id="screen-login">
-  <div class="box">
-    <div class="scan-line"></div>
-    <div class="topbar">
-      <span class="dot dr"></span><span class="dot da"></span><span class="dot dg"></span>
-      <span class="topbar-title">ARUNCODE_TERM — SECURE ACCESS</span>
+<div class="topbar">
+  <div class="brand">ArunCode <span>IDE</span></div>
+  <span class="file-label">EDITING:</span>
+  <span id="file-name">No file open</span>
+  <span class="dirty" id="dirty-indicator">● unsaved</span>
+  <div class="tb-right">
+    <button class="btn btn-g" onclick="saveFile()">💾 SAVE</button>
+    <button class="btn btn-a" onclick="runFile()">▶ RUN</button>
+    <button class="btn" onclick="newFile()">+ NEW FILE</button>
+    <div class="av" id="top-av"><span id="top-init">?</span></div>
+    <a class="btn" href="/home">⌂ HOME</a>
+  </div>
+</div>
+
+<div class="ide-wrap">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-hd">
+      <span>FILES</span>
+      <span id="file-count" style="color:var(--bdim);font-size:9px">0 files</span>
     </div>
-    <div class="inner">
-      <div class="title">ArunCode <span class="cursor"></span></div>
-      <div class="subtitle">// TERMINAL v5.0.0</div>
+    <div class="sb-body" id="file-list"></div>
+    <div class="sb-actions">
+      <button class="btn btn-g" style="flex:1;padding:3px 6px;font-size:9px" onclick="newFile()">+ NEW</button>
+      <button class="btn" style="flex:1;padding:3px 6px;font-size:9px" onclick="uploadFile()">↑ UPLOAD</button>
+    </div>
+  </div>
 
-      <!-- LOGIN / REGISTER TABS -->
-      <div class="tabs" style="display:flex">
-        <div class="tab active" id="tab-login"    onclick="switchTab('login')"   style="border-right:1px solid var(--border)">LOGIN</div>
-        <div class="tab"        id="tab-register" onclick="switchTab('register')" style="border-right:1px solid var(--border)">CREATE ACCOUNT</div>
-        <div class="tab"        id="tab-ip"       onclick="switchTab('ip')">IP LOGIN</div>
-      </div>
-
-      <div class="msg-area" id="msg-area"></div>
-
-      <!-- ══ LOGIN ══ -->
-      <div id="flow-login">
-        <div class="steps">
-          <div class="step active" id="ls1">01 IDENTIFY</div>
-          <div class="step"        id="ls2">02 PASSWORD</div>
-          <div class="step"        id="ls3">03 PIN</div>
-        </div>
-
-        <!-- Step 1: email + username -->
-        <div class="form-step active" id="ll1">
-          <div class="field">
-            <label>Email</label>
-            <input type="email" id="l-email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')loginStep1()">
-          </div>
-          <div class="field">
-            <label>Username</label>
-            <input type="text" id="l-user" placeholder="your username" onkeydown="if(event.key==='Enter')loginStep1()">
-          </div>
-          <button class="btn" id="btn-ls1" onclick="loginStep1()">CONTINUE →</button>
-        </div>
-
-        <!-- Step 2: password -->
-        <div class="form-step" id="ll2">
-          <div class="field">
-            <label>Password</label>
-            <input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')loginStep2()">
-            <div class="hint">Logging in as: <span id="l-user-display" style="color:var(--green-mid)"></span></div>
-          </div>
-          <button class="btn" id="btn-ls2" onclick="loginStep2()">AUTHENTICATE →</button>
-        </div>
-
-        <!-- Step 3: PIN (admins only) -->
-        <div class="form-step" id="ll3">
-          <div class="pin-hint">Enter your secret PIN</div>
-          <div class="pin-row" id="pin-row">
-            <input class="pin-box" type="text" maxlength="1" inputmode="numeric" onkeydown="pinKey(this,0,event)" oninput="pinInput(this,0)">
-            <input class="pin-box" type="text" maxlength="1" inputmode="numeric" onkeydown="pinKey(this,1,event)" oninput="pinInput(this,1)">
-            <input class="pin-box" type="text" maxlength="1" inputmode="numeric" onkeydown="pinKey(this,2,event)" oninput="pinInput(this,2)">
-            <input class="pin-box" type="text" maxlength="1" inputmode="numeric" onkeydown="pinKey(this,3,event)" oninput="pinInput(this,3)">
-            <input class="pin-box" type="text" maxlength="1" inputmode="numeric" onkeydown="pinKey(this,4,event)" oninput="pinInput(this,4)">
-            <input class="pin-box" type="text" maxlength="1" inputmode="numeric" onkeydown="pinKey(this,5,event)" oninput="pinInput(this,5)">
-          </div>
-          <button class="btn" id="btn-ls3" onclick="loginStep3()">VERIFY & ENTER →</button>
+  <!-- EDITOR + TERMINAL -->
+  <div class="editor-area">
+    <div class="editor-tabs" id="editor-tabs">
+      <span style="font-size:10px;color:#1a2535;padding:0 .5rem">No files open</span>
+    </div>
+    <div class="editor-body">
+      <textarea id="editor"
+        spellcheck="false"
+        placeholder="// Select or create a file to start editing..."
+        oninput="markDirty()"
+        onkeydown="handleEditorKey(event)"></textarea>
+    </div>
+    <div class="terminal">
+      <div class="terminal-hd">
+        <span>▸ TERMINAL</span>
+        <div style="display:flex;gap:.4rem">
+          <button class="btn" style="padding:1px 7px" onclick="clearTerminal()">CLEAR</button>
         </div>
       </div>
-
-      <!-- ══ IP LOGIN ══ -->
-      <div id="flow-ip" style="display:none">
-        <div style="font-size:10px;color:var(--green-dim);letter-spacing:1px;margin-bottom:.8rem;line-height:1.8">
-          Enter your encoded IP key.<br>
-          Format: <span style="color:var(--green-mid)">username;;email;;password</span><br>
-          Each char encoded as number, separated by <span style="color:var(--green-mid)">;</span> — space = <span style="color:var(--green-mid)">;;</span>
-        </div>
-        <div class="field">
-          <label>IP Key</label>
-          <input type="text" id="ip-input" placeholder="8;9;;8;9;32;7;13;1;9;12;27;3;15;13;;8;5;12;12;15"
-            style="font-size:11px" onkeydown="if(event.key==='Enter')ipLogin()">
-          <div class="hint" id="ip-decoded" style="min-height:14px;color:var(--green-mid)"></div>
-        </div>
-        <button class="btn" id="btn-ip" onclick="ipLogin()">DECODE & LOGIN →</button>
+      <div class="terminal-body" id="terminal-output">
+        <span style="color:var(--gdim)">// ArunCode IDE Terminal — type 'help' for commands</span>
       </div>
-
-      <!-- ══ REGISTER ══ -->
-      <div id="flow-register" style="display:none">
-        <div class="field">
-          <label>Username</label>
-          <input type="text" id="r-user" placeholder="cooluser123">
-          <div class="hint">At least 3 characters. No spaces.</div>
-        </div>
-        <div class="field">
-          <label>Email</label>
-          <input type="email" id="r-email" placeholder="you@example.com">
-        </div>
-        <div class="field">
-          <label>Password</label>
-          <input type="password" id="r-pass" placeholder="••••••••">
-          <div class="hint">At least 6 characters.</div>
-        </div>
-        <button class="btn" id="btn-reg" onclick="register()">CREATE ACCOUNT →</button>
+      <div class="terminal-input-row">
+        <span class="prompt" id="term-prompt">ArunCode&gt;</span>
+        <input id="term-input" placeholder="Enter command..." onkeydown="handleTermKey(event)" autocomplete="off" spellcheck="false">
       </div>
-
     </div>
   </div>
 </div>
 
-<!-- BOOT SCREEN -->
-<div id="screen-boot">
-  <div class="boot-wrap" id="boot-wrap">
-    LOADING ARUNCODE_TERM...<br>
-    <div class="boot-bar-outer"><div class="boot-bar-fill" id="boot-bar"></div></div>
-    <br>
-  </div>
+<div class="statusbar">
+  <span class="sb-item" id="sb-file">No file</span>
+  <span class="sb-item" id="sb-lang">—</span>
+  <span class="sb-item" id="sb-lines">0 lines</span>
+  <span class="sb-item" id="sb-cursor">Ln 1, Col 1</span>
+  <span class="sb-item ok" id="sb-status">Ready</span>
 </div>
+
+<!-- Context menu -->
+<div class="ctx" id="ctx-menu">
+  <div class="ctx-item" onclick="ctxRename()">Rename</div>
+  <div class="ctx-item" onclick="ctxDuplicate()">Duplicate</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" style="color:var(--red)" onclick="ctxDelete()">Delete</div>
+</div>
+
+<!-- Hidden upload input -->
+<input type="file" id="upload-inp" multiple style="display:none" onchange="handleUpload(this.files)">
 
 <script>
-  let pendingUser = '';
-  let pendingRole = '';
+// ── STATE ──
+var ME = '', MY_AV = '';
+var files = {};        // {filename: content}
+var folders = {};      // {dirname: [filenames]}
+var folderOpen = {};   // {dirname: bool}
+var openTabs = [];     // [filename, ...]
+var activeFile = null;
+var dirty = {};        // {filename: bool}
+var ctxTarget = null;
+var termHistory = [], termHistIdx = -1;
 
-  // ── TAB SWITCH ──────────────────────────────
-  // ── CIPHER MAP ──────────────────────────────
-  const ENCODE_MAP = {
-    'a':1,'b':2,'c':3,'d':4,'e':5,'f':6,'g':7,'h':8,'i':9,'j':10,
-    'k':11,'l':12,'m':13,'n':14,'o':15,'p':16,'q':17,'r':18,'s':19,'t':20,
-    'u':21,'v':22,'w':23,'x':24,'y':25,'z':26,
-    '.':27,'!':28,'?':29,',':30,':':31,'@':32,'#':33,'-':34,'_':35,
-    '0':36,'1':37,'2':38,'3':39,'4':40,'5':41,'6':42,'7':43,'8':44,'9':45
-  };
-  const DECODE_MAP = Object.fromEntries(Object.entries(ENCODE_MAP).map(([k,v])=>[v,k]));
+// ── INIT ──
+async function init() {
+  var me;
+  try { me = await fetch('/api/me').then(function(r){return r.json();}); } catch(e){me=null;}
+  if (!me || !me.ok) { window.location.href = '/terminal?next=/ide'; return; }
+  ME = me.username;
+  document.getElementById('top-init').textContent = ME[0].toUpperCase();
+  document.getElementById('term-prompt').textContent = ME + '>';
+  try {
+    var p = await fetch('/api/profile').then(function(r){return r.json();});
+    if (p && p.ok && p.avatar) { MY_AV = p.avatar; setAv(document.getElementById('top-av'), MY_AV); }
+  } catch(e){}
+  // Load files from server
+  await loadFilesFromServer();
+  document.body.style.visibility = 'visible';
+}
 
-  function decodeIP(ip) {
-    // Split by ;; first (spaces), then by ; (char separators)
-    const parts = ip.split(';;');
-    return parts.map(part => {
-      if (!part) return '';
-      return part.split(';').map(n => {
-        const num = parseInt(n.trim());
-        return DECODE_MAP[num] || '';
-      }).join('');
-    });
-  }
+function setAv(el, av) {
+  if (!av) return;
+  if (av.startsWith('data:')) el.innerHTML = '<img src="'+av+'">';
+  else el.innerHTML = '<span>'+av+'</span>';
+}
 
-  function encodeText(text) {
-    return text.toLowerCase().split('').map(c => ENCODE_MAP[c] || '?').join(';');
-  }
-
-  // Live decode preview
-  document.addEventListener('DOMContentLoaded', () => {
-    const inp = document.getElementById('ip-input');
-    if (inp) inp.addEventListener('input', () => {
-      const parts = decodeIP(inp.value.trim());
-      const hint  = document.getElementById('ip-decoded');
-      if (parts.length >= 3) {
-        hint.textContent = `user: ${parts[0]}  email: ${parts[1]}  pass: ${'•'.repeat(parts[2].length)}`;
-      } else if (parts.length === 2) {
-        hint.textContent = `user: ${parts[0]}  email: ${parts[1]}`;
-      } else if (parts.length === 1 && parts[0]) {
-        hint.textContent = `user: ${parts[0]}`;
-      } else {
-        hint.textContent = '';
+// ── SERVER FILE API ──
+async function loadFilesFromServer() {
+  try {
+    var r = await fetch('/api/files').then(function(r){return r.json();});
+    if (r && r.ok) {
+      files = {}; folders = {};
+      for (var i=0;i<r.files.length;i++) {
+        var f = r.files[i];
+        if (f.type === 'file')   { files[f.name] = null; }
+        if (f.type === 'folder') { if (!folders[f.name]) folders[f.name] = []; }
       }
-    });
-  });
-
-  function switchTab(t) {
-    document.getElementById('flow-login').style.display    = t==='login'    ? '' : 'none';
-    document.getElementById('flow-register').style.display = t==='register' ? '' : 'none';
-    document.getElementById('flow-ip').style.display       = t==='ip'       ? '' : 'none';
-    document.getElementById('tab-login').classList.toggle('active',    t==='login');
-    document.getElementById('tab-register').classList.toggle('active', t==='register');
-    document.getElementById('tab-ip').classList.toggle('active',       t==='ip');
-    clearMsg();
-  }
-
-  // ── MESSAGES ────────────────────────────────
-  function showErr(msg) {
-    const el = document.getElementById('msg-area');
-    el.style.color = 'var(--red)'; el.textContent = msg;
-    el.style.animation='none'; void el.offsetWidth; el.style.animation='shake .4s ease';
-  }
-  function showOk(msg) {
-    const el = document.getElementById('msg-area');
-    el.style.color = 'var(--green-mid)'; el.textContent = msg;
-  }
-  function clearMsg() { document.getElementById('msg-area').textContent = ''; }
-
-  function setBusy(btnId, busy, label) {
-    const b = document.getElementById(btnId);
-    b.disabled = busy;
-    b.textContent = busy ? 'PLEASE WAIT...' : label;
-  }
-
-  // ── LOGIN STEP DISPLAY ───────────────────────
-  function setLoginStep(n) {
-    [1,2,3].forEach(i => {
-      document.getElementById('ll'+i).classList.toggle('active', i===n);
-      const s = document.getElementById('ls'+i);
-      s.className = 'step' + (i===n?' active':i<n?' done':'');
-    });
-    clearMsg();
-  }
-
-  // ── STEP 1: email + username ─────────────────
-  function loginStep1() {
-    const email = document.getElementById('l-email').value.trim();
-    const user  = document.getElementById('l-user').value.trim();
-    if (!email || !email.includes('@')) { showErr('Enter a valid email.'); return; }
-    if (!user) { showErr('Enter your username.'); return; }
-    pendingUser = user;
-    document.getElementById('l-user-display').textContent = user;
-    setLoginStep(2);
-    document.getElementById('l-pass').focus();
-  }
-
-  // ── STEP 2: password ─────────────────────────
-  async function loginStep2() {
-    const pass = document.getElementById('l-pass').value;
-    if (pass.length < 1) { showErr('Enter your password.'); return; }
-    setBusy('btn-ls2', true, 'AUTHENTICATE →');
-    try {
-      const res  = await fetch('/api/login', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-          email:    document.getElementById('l-email').value.trim(),
-          username: pendingUser,
-          password: pass
-        })
-      });
-      const data = await res.json();
-      if (data.ok) {
-        if (data.needs_pin) {
-          // Admin — needs PIN
-          setLoginStep(3);
-          document.querySelector('#pin-row input').focus();
-        } else {
-          // Regular user — complete login immediately
-          const r2 = await fetch('/api/complete_login', {method:'POST'});
-          const d2 = await r2.json();
-          if (d2.ok) { pendingRole = d2.role; boot(); }
-          else showErr(d2.error || 'Login failed.');
-        }
-      } else {
-        showErr(data.error || 'Invalid credentials.');
-      }
-    } catch { showErr('Cannot reach server — is app.py running?'); }
-    finally { setBusy('btn-ls2', false, 'AUTHENTICATE →'); }
-  }
-
-  // ── PIN INPUT HELPERS ────────────────────────
-  function pinInput(el, idx) {
-    const boxes = document.querySelectorAll('.pin-box');
-    if (el.value && idx < 5) boxes[idx+1].focus();
-  }
-  function pinKey(el, idx, e) {
-    if (e.key === 'Backspace' && !el.value && idx > 0)
-      document.querySelectorAll('.pin-box')[idx-1].focus();
-    if (e.key === 'Enter') loginStep3();
-  }
-
-  // ── STEP 3: PIN ──────────────────────────────
-  async function loginStep3() {
-    const boxes = document.querySelectorAll('.pin-box');
-    const code  = Array.from(boxes).map(b => b.value).join('');
-    if (code.length < 6) { showErr('Enter all 6 digits.'); return; }
-    setBusy('btn-ls3', true, 'VERIFY & ENTER →');
-    try {
-      const res  = await fetch('/api/verify', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({code})
-      });
-      const data = await res.json();
-      if (data.ok) { pendingRole = data.role; boot(); }
-      else {
-        showErr(data.error || 'Incorrect PIN.');
-        boxes.forEach(b => b.value = '');
-        boxes[0].focus();
-      }
-    } catch { showErr('Cannot reach server.'); }
-    finally { setBusy('btn-ls3', false, 'VERIFY & ENTER →'); }
-  }
-
-  // ── IP LOGIN ─────────────────────────────────
-  async function ipLogin() {
-    const raw   = document.getElementById('ip-input').value.trim();
-    if (!raw) { showErr('Enter your IP key.'); return; }
-    const parts = decodeIP(raw);
-    if (parts.length < 3 || !parts[0] || !parts[1] || !parts[2]) {
-      showErr('IP key must encode: username;;email;;password'); return;
+      renderSidebar();
     }
-    const [username, email, password] = parts;
-    setBusy('btn-ip', true, 'DECODE & LOGIN →');
-    try {
-      const res  = await fetch('/api/login', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({username, email, password})
-      });
-      const data = await res.json();
-      if (data.ok) {
-        pendingUser = username;
-        if (data.needs_pin) {
-          switchTab('login');
-          setLoginStep(3);
-          document.getElementById('l-user-display').textContent = username;
-          document.querySelector('#pin-row input').focus();
-          showErr('PIN required — enter it below.');
-        } else {
-          const r2 = await fetch('/api/complete_login', {method:'POST'});
-          const d2 = await r2.json();
-          if (d2.ok) { pendingRole = d2.role; boot(); }
-          else showErr(d2.error || 'Login failed.');
-        }
-      } else { showErr(data.error || 'Invalid IP key.'); }
-    } catch { showErr('Cannot reach server.'); }
-    finally { setBusy('btn-ip', false, 'DECODE & LOGIN →'); }
-  }
+  } catch(e) { termPrint('// Could not load files: ' + e.message, 'err'); }
+}
 
-  // ── REGISTER ─────────────────────────────────
-  async function register() {
-    const user  = document.getElementById('r-user').value.trim();
-    const email = document.getElementById('r-email').value.trim();
-    const pass  = document.getElementById('r-pass').value;
-    if (!user || !email || !pass) { showErr('All fields are required.'); return; }
-    if (user.length < 3)  { showErr('Username must be at least 3 characters.'); return; }
-    if (pass.length < 6)  { showErr('Password must be at least 6 characters.'); return; }
-    if (!email.includes('@')) { showErr('Enter a valid email.'); return; }
-    setBusy('btn-reg', true, 'CREATE ACCOUNT →');
-    try {
-      const res  = await fetch('/api/register', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({username: user, email, password: pass})
+async function loadFileContent(name) {
+  if (files[name] !== null && files[name] !== undefined) return files[name];
+  try {
+    var r = await fetch('/api/files/'+encodeURIComponent(name)).then(function(r){return r.json();});
+    if (r && r.ok) { files[name] = r.content; return r.content; }
+  } catch(e) {}
+  files[name] = '';
+  return '';
+}
+
+async function saveFileToServer(name, content) {
+  try {
+    var r = await fetch('/api/files/'+encodeURIComponent(name), {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      credentials:'same-origin', body:JSON.stringify({content:content})
+    }).then(function(r){return r.json();});
+    return r && r.ok;
+  } catch(e) { return false; }
+}
+
+async function deleteFileFromServer(name) {
+  try {
+    var r = await fetch('/api/files/'+encodeURIComponent(name), {
+      method:'DELETE', credentials:'same-origin'
+    }).then(function(r){return r.json();});
+    return r && r.ok;
+  } catch(e) { return false; }
+}
+
+// ── SIDEBAR ──
+function renderSidebar() {
+  var fileNames   = Object.keys(files).sort();
+  var folderNames = Object.keys(folders).sort();
+  document.getElementById('file-count').textContent = fileNames.length + ' files';
+  if (!fileNames.length && !folderNames.length) {
+    document.getElementById('file-list').innerHTML = '<div style="padding:.8rem;font-size:10px;color:#1a2535">No files yet. Click + NEW to start.</div>';
+    return;
+  }
+  var html = '';
+  // Folders first
+  folderNames.forEach(function(dir) {
+    var open = !!folderOpen[dir];
+    html += '<div class="file-item" onclick="toggleFolder(\''+esc(dir)+'\')" style="color:var(--amber)">'
+      + '<span style="font-size:11px">'+(open?'📂':'📁')+'</span>'
+      + '<span style="flex:1">'+dir+'</span>'
+      + '<button class="file-item-del" onclick="event.stopPropagation();deleteFolder(\''+esc(dir)+'\')" style="color:#333">✕</button>'
+      + '</div>';
+    if (open) {
+      (folders[dir]||[]).forEach(function(n) {
+        html += '<div class="file-item'+(activeFile===n?' active':'')+'" onclick="openFile(\''+esc(n)+'\')" style="padding-left:1.6rem">'
+          +'<span>'+ficon(n)+'</span><span style="flex:1">'+n+(dirty[n]?'<span style="color:var(--amber)"> ●</span>':'')+'</span>'
+          +'<button class="file-item-del" onclick="event.stopPropagation();deleteFile(\''+esc(n)+'\')">✕</button>'
+          +'</div>';
       });
-      const data = await res.json();
-      if (data.ok) {
-        showOk('✔ Account created! Switching to login...');
-        document.getElementById('r-user').value  = '';
-        document.getElementById('r-email').value = '';
-        document.getElementById('r-pass').value  = '';
-        // Pre-fill login
-        document.getElementById('l-email').value = email;
-        document.getElementById('l-user').value  = user;
-        setTimeout(() => { switchTab('login'); clearMsg(); }, 1600);
-      } else {
-        showErr(data.error || 'Registration failed.');
+    }
+  });
+  // Root files
+  fileNames.forEach(function(n) {
+    html += '<div class="file-item'+(activeFile===n?' active':'')+'" onclick="openFile(\''+esc(n)+'\')" oncontextmenu="showCtx(event,\''+esc(n)+'\')">'+
+      '<span>'+ficon(n)+'</span><span style="flex:1">'+n+(dirty[n]?'<span style="color:var(--amber)"> ●</span>':'')+'</span>'+
+      '<button class="file-item-del" onclick="event.stopPropagation();deleteFile(\''+esc(n)+'\')">✕</button>'+
+      '</div>';
+  });
+  document.getElementById('file-list').innerHTML = html;
+}
+
+function toggleFolder(dir) {
+  folderOpen[dir] = !folderOpen[dir];
+  renderSidebar();
+}
+
+async function deleteFolder(dir) {
+  if (!confirm('Delete folder "'+dir+'" and all its contents?')) return;
+  try { await fetch('/api/files/'+encodeURIComponent(dir),{method:'DELETE',credentials:'same-origin'}); } catch(e){}
+  delete folders[dir]; delete folderOpen[dir];
+  renderSidebar(); termPrint('// Deleted folder: '+dir);
+}
+
+// ── TABS ──
+function renderTabs() {
+  var el = document.getElementById('editor-tabs');
+  if (!openTabs.length) { el.innerHTML = '<span style="font-size:10px;color:#1a2535;padding:0 .5rem">No files open</span>'; return; }
+  el.innerHTML = openTabs.map(function(n) {
+    return '<div class="tab'+(activeFile===n?' active':'')+'" onclick="switchTab(\''+esc(n)+'\')">'
+      +ficon(n)+' '+n+(dirty[n]?'<span style="color:var(--amber)">●</span>':'')
+      +'<button class="tab-x" onclick="event.stopPropagation();closeTab(\''+esc(n)+'\')">×</button>'
+    +'</div>';
+  }).join('');
+}
+
+async function openFile(name) {
+  var content = await loadFileContent(name);
+  files[name] = content;
+  if (openTabs.indexOf(name) < 0) openTabs.push(name);
+  activeFile = name;
+  document.getElementById('editor').value = content;
+  document.getElementById('editor').disabled = false;
+  updateStatus();
+  renderTabs();
+  renderSidebar();
+}
+
+function switchTab(name) {
+  if (dirty[activeFile]) { files[activeFile] = document.getElementById('editor').value; }
+  openFile(name);
+}
+
+function closeTab(name) {
+  if (dirty[name] && !confirm('Close '+name+' without saving?')) return;
+  openTabs = openTabs.filter(function(t){return t!==name;});
+  delete dirty[name];
+  if (activeFile === name) {
+    activeFile = openTabs.length ? openTabs[openTabs.length-1] : null;
+    if (activeFile) openFile(activeFile);
+    else { document.getElementById('editor').value=''; document.getElementById('editor').disabled=true; document.getElementById('file-name').textContent='No file open'; }
+  }
+  renderTabs(); renderSidebar();
+}
+
+// ── EDITOR ──
+function markDirty() {
+  if (!activeFile) return;
+  dirty[activeFile] = true;
+  document.getElementById('dirty-indicator').style.display = '';
+  updateStatus();
+  renderTabs(); renderSidebar();
+}
+
+function handleEditorKey(e) {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    var t=e.target, s=t.selectionStart, en=t.selectionEnd;
+    t.value=t.value.slice(0,s)+'  '+t.value.slice(en);
+    t.selectionStart=t.selectionEnd=s+2;
+    markDirty();
+  }
+  if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); saveFile(); }
+  updateCursor();
+}
+
+function updateCursor() {
+  var ed=document.getElementById('editor');
+  var txt=ed.value.substring(0,ed.selectionStart);
+  var lines=txt.split('\n');
+  document.getElementById('sb-cursor').textContent='Ln '+lines.length+', Col '+lines[lines.length-1].length;
+}
+
+function updateStatus() {
+  if (!activeFile) return;
+  var content=document.getElementById('editor').value;
+  var lines=content.split('\n').length;
+  document.getElementById('file-name').textContent = activeFile + (dirty[activeFile]?' ●':'');
+  document.getElementById('sb-file').textContent = activeFile;
+  document.getElementById('sb-lang').textContent = langName(activeFile);
+  document.getElementById('sb-lines').textContent = lines + ' lines';
+  document.getElementById('dirty-indicator').style.display = dirty[activeFile] ? '' : 'none';
+}
+
+// ── SAVE ──
+async function saveFile() {
+  if (!activeFile) return;
+  var content = document.getElementById('editor').value;
+  files[activeFile] = content;
+  var ok = await saveFileToServer(activeFile, content);
+  if (ok) {
+    dirty[activeFile] = false;
+    document.getElementById('sb-status').textContent = '✔ Saved';
+    document.getElementById('sb-status').className = 'sb-item ok';
+    setTimeout(function(){ document.getElementById('sb-status').textContent='Ready'; }, 2000);
+    termPrint('// ✔ Saved: ' + activeFile);
+  } else {
+    document.getElementById('sb-status').textContent = '✖ Save failed';
+    document.getElementById('sb-status').className = 'sb-item err';
+    termPrint('// ✖ Save failed', 'err');
+  }
+  updateStatus(); renderTabs(); renderSidebar();
+}
+
+// ── RUN ──
+function runFile() {
+  if (!activeFile) { termPrint('// No file open', 'err'); return; }
+  var code = document.getElementById('editor').value;
+  var ext  = activeFile.split('.').pop().toLowerCase();
+  termPrint('\n$ run ' + activeFile);
+  if (ext === 'js') {
+    try {
+      var logs=[];
+      var con={log:function(){logs.push(Array.from(arguments).join(' '));},error:function(){logs.push('ERR: '+Array.from(arguments).join(' '));},warn:function(){logs.push('WARN: '+Array.from(arguments).join(' '));}};
+      new Function('console',code)(con);
+      termPrint(logs.join('\n')||'// (no output)');
+    } catch(e){termPrint('ERROR: '+e.message,'err');}
+  } else if (ext==='html') {
+    var w=window.open('','_blank'); w.document.write(code); w.document.close();
+    termPrint('// Opened in new tab');
+  } else if (ext==='py') {
+    runPython(activeFile);
+  } else {
+    termPrint('// Cannot run .'+ext+' files in browser');
+  }
+}
+
+function runPython(fname) {
+  termPrint('$ python3 ' + fname);
+  fetch('/api/run', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    credentials:'same-origin', body:JSON.stringify({filename:fname})
+  }).then(function(r){return r.json();}).then(function(res){
+    if (res.ok) {
+      if (res.stdout) termPrint(res.stdout.trimEnd());
+      if (res.stderr) termPrint(res.stderr.trimEnd(), 'err');
+      if (!res.stdout && !res.stderr) termPrint('// (no output)');
+      if (res.code !== 0) termPrint('// Exit code: '+res.code, 'err');
+    } else {
+      termPrint('Error: '+res.error, 'err');
+    }
+  }).catch(function(e){ termPrint('Run error: '+e.message,'err'); });
+}
+
+// ── PYTHON RUNNER ──
+function runPython(fname) {
+  // scan for input() calls in the file
+  var code = files[fname] || '';
+  var inputMatches = code.match(/input\s*\([^)]*\)/g) || [];
+  if (inputMatches.length > 0) {
+    // collect prompts
+    var prompts = inputMatches.map(function(m) {
+      var inner = m.match(/input\s*\(\s*["'](.*)["']\s*\)/);
+      return inner ? inner[1] : 'Enter value';
+    });
+    collectInputs(fname, prompts, 0, []);
+  } else {
+    sendRunRequest(fname, '');
+  }
+}
+
+function collectInputs(fname, prompts, idx, collected) {
+  if (idx >= prompts.length) {
+    sendRunRequest(fname, collected.join('\\n') + (collected.length ? '\\n' : ''));
+    return;
+  }
+  termPrint(prompts[idx], 'info');
+  // temporarily hijack enter key on terminal input
+  var inp = document.getElementById('term-input');
+  inp.placeholder = 'Type input and press Enter...';
+  inp.style.color = 'var(--amber)';
+  function onEnter(e) {
+    if (e.key !== 'Enter') return;
+    e.stopImmediatePropagation();
+    var val = inp.value;
+    inp.value = '';
+    inp.placeholder = 'Enter command...';
+    inp.style.color = '';
+    inp.removeEventListener('keydown', onEnter, true);
+    termPrint('< ' + val, 'info');
+    collected.push(val);
+    collectInputs(fname, prompts, idx + 1, collected);
+  }
+  inp.addEventListener('keydown', onEnter, true);
+}
+
+function sendRunRequest(fname, stdin) {
+  termPrint('$ python3 ' + fname);
+  fetch('/api/run', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    credentials: 'same-origin',
+    body: JSON.stringify({filename: fname, stdin: stdin})
+  }).then(function(r){ return r.json(); }).then(function(res) {
+    if (res.ok) {
+      if (res.stdout) termPrint(res.stdout.trimEnd());
+      if (res.stderr) termPrint(res.stderr.trimEnd(), 'err');
+      if (!res.stdout && !res.stderr) termPrint('// (no output)');
+      if (res.code !== 0) termPrint('// Exit code: ' + res.code, 'err');
+    } else {
+      termPrint('Error: ' + res.error, 'err');
+    }
+  }).catch(function(e){ termPrint('Run error: ' + e.message, 'err'); });
+}
+
+// ── NEW / DELETE / UPLOAD ──
+async function newFile() {
+  var name = (prompt('File name (e.g. main.py, index.html):')||'').trim();
+  if (!name) return;
+  if (files[name] !== undefined) { alert('File already exists.'); return; }
+  var ok = await saveFileToServer(name, '');
+  if (ok) {
+    files[name] = '';
+    await openFile(name);
+    termPrint('// Created: ' + name);
+    renderSidebar();
+  } else termPrint('// Failed to create file', 'err');
+}
+
+async function deleteFile(name) {
+  if (!confirm('Delete ' + name + '?')) return;
+  var ok = await deleteFileFromServer(name);
+  if (ok) {
+    delete files[name]; delete dirty[name];
+    openTabs = openTabs.filter(function(t){return t!==name;});
+    if (activeFile===name) {
+      activeFile = openTabs.length ? openTabs[openTabs.length-1] : null;
+      if (activeFile) openFile(activeFile);
+      else { document.getElementById('editor').value=''; document.getElementById('file-name').textContent='No file open'; }
+    }
+    termPrint('// Deleted: '+name);
+    renderSidebar(); renderTabs();
+  } else termPrint('// Failed to delete file', 'err');
+}
+
+function uploadFile() { document.getElementById('upload-inp').click(); }
+function handleUpload(fileList) {
+  Array.prototype.forEach.call(fileList, function(file) {
+    var reader = new FileReader();
+    reader.onload = async function(e) {
+      var content = e.target.result;
+      var ok = await saveFileToServer(file.name, content);
+      if (ok) {
+        files[file.name] = content;
+        termPrint('// Uploaded: '+file.name);
+        renderSidebar();
       }
-    } catch { showErr('Cannot reach server.'); }
-    finally { setBusy('btn-reg', false, 'CREATE ACCOUNT →'); }
+    };
+    var ext=file.name.split('.').pop().toLowerCase();
+    if(['png','jpg','jpeg','gif','svg','webp'].indexOf(ext)>=0) reader.readAsDataURL(file);
+    else reader.readAsText(file);
+  });
+}
+
+// ── TERMINAL ──
+function termPrint(text, type) {
+  var out = document.getElementById('terminal-output');
+  var color = type==='err' ? 'var(--red)' : type==='info' ? 'var(--blue)' : 'var(--green)';
+  out.innerHTML += '<span style="color:'+color+'">' + text + '</span>\n';
+  out.scrollTop = out.scrollHeight;
+}
+
+function clearTerminal() {
+  document.getElementById('terminal-output').innerHTML = '<span style="color:var(--gdim)">// Terminal cleared</span>\n';
+}
+
+function handleTermKey(e) {
+  if (e.key === 'Enter') {
+    var cmd = e.target.value.trim();
+    e.target.value = '';
+    tabCycleMatches = []; tabCycleIdx = -1;
+    if (!cmd) return;
+    termHistory.unshift(cmd); termHistIdx = -1;
+    termPrint(ME + '> ' + cmd, 'info');
+    handleCommand(cmd);
+  }
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    termHistIdx = Math.min(termHistIdx+1, termHistory.length-1);
+    if (termHistory[termHistIdx]) e.target.value = termHistory[termHistIdx];
+  }
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    termHistIdx = Math.max(termHistIdx-1, -1);
+    e.target.value = termHistIdx>=0 ? termHistory[termHistIdx] : '';
+  }
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    tabComplete(e.target);
+  }
+}
+
+// ── TAB COMPLETION ──
+var tabCycleMatches = [];
+var tabCycleIdx = -1;
+var tabCycleBase = '';
+
+function tabComplete(input) {
+  var val   = input.value;
+  var parts = val.split(' ');
+  var last  = parts[parts.length-1];
+  var prefix= parts.slice(0,-1).join(' ');
+
+  // if first word (command), complete commands
+  if (parts.length === 1) {
+    var cmds = ['ls','touch','nano','rm','cp','mkdir','cd','cat','unzip','python','python3','sudo','save','run','open','clear','whoami','pwd','help'];
+    var matches = cmds.filter(function(c){ return c.indexOf(last)===0; });
+    if (!matches.length) return;
+    if (matches.length === 1) { input.value = matches[0]+' '; return; }
+    // cycle
+    if (tabCycleBase !== last || !tabCycleMatches.length) {
+      tabCycleMatches = matches; tabCycleIdx = -1; tabCycleBase = last;
+    }
+    tabCycleIdx = (tabCycleIdx+1) % tabCycleMatches.length;
+    input.value = tabCycleMatches[tabCycleIdx]+' ';
+    return;
   }
 
-  // ── BOOT SEQUENCE ────────────────────────────
-  function boot() {
-    document.getElementById('screen-login').style.display = 'none';
-    document.getElementById('screen-boot').classList.add('on');
+  // complete filenames / dirnames
+  var allNames = Object.keys(files).concat(
+    Object.keys(vdirs).map(function(p){ return p.replace(cwd+'/',''); }).filter(function(n){ return n && n.indexOf('/')===(-1); })
+  );
+  var matches = allNames.filter(function(n){ return n.indexOf(last)===0; });
+  if (!matches.length) return;
+  if (matches.length === 1) {
+    input.value = (prefix ? prefix+' ' : '') + matches[0];
+    return;
+  }
+  // cycle through matches
+  if (tabCycleBase !== last || !tabCycleMatches.length) {
+    tabCycleMatches = matches; tabCycleIdx = -1; tabCycleBase = last;
+  }
+  tabCycleIdx = (tabCycleIdx+1) % tabCycleMatches.length;
+  input.value = (prefix ? prefix+' ' : '') + tabCycleMatches[tabCycleIdx];
+}
 
-    const lines = [
-      {t:'[  OK  ] Kernel initialised.',             c:'bok',   d:200},
-      {t:'[  OK  ] Loading ArunCode_Term v5.0.0...',  c:'bok',   d:500},
-      {t:'[  OK  ] Python 3.1+ runtime detected.',   c:'bok',   d:800},
-      {t:'[  OK  ] Session authenticated.',          c:'bok',   d:1100},
-      {t:'[ SYS  ] Role: '+(pendingRole||'user').toUpperCase(), c:'bsys', d:1400},
-      {t:'[ SYS  ] Welcome, '+pendingUser+'.',       c:'bsys',  d:1700},
-      {t:'[ SYS  ] All systems nominal.',            c:'bsys',  d:2000},
-      {t:'[ INFO ] Loading dashboard...',            c:'binfo', d:2300},
-    ];
+// ── VIRTUAL FILESYSTEM STATE ──
+var cwd = '/workspace';         // current directory (simulated)
+var vdirs = {'/workspace':[]};  // virtual dirs: path -> [child names]
 
-    const wrap = document.getElementById('boot-wrap');
-    const bar  = document.getElementById('boot-bar');
+function cwdFiles() {
+  // files in cwd (simulated flat for now — real files are always in /workspace)
+  return cwd === '/workspace' ? Object.keys(files).sort() : [];
+}
 
-    lines.forEach((l, i) => {
-      setTimeout(() => {
-        const div = document.createElement('div');
-        div.className = 'bline ' + l.c;
-        div.textContent = l.t;
-        wrap.appendChild(div);
-        void div.offsetWidth; div.classList.add('show');
-        bar.style.width = ((i+1)/lines.length*100) + '%';
-      }, l.d);
+function nanoEdit(name) {
+  // open file in editor (like nano)
+  var fullName = name;
+  openFile(fullName);
+  termPrint('// Opened "'+fullName+'" in editor');
+}
+
+function handleCommand(cmd) {
+  var raw   = cmd.trim();
+  var parts = raw.match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+  parts     = parts.map(function(p){return p.replace(/^"|"$/g,'');});
+  var c     = parts[0] ? parts[0].toLowerCase() : '';
+
+  // ── HELP ──
+  if (c==='help') {
+    termPrint(
+      'FILE COMMANDS\n' +
+      '  ls [-l]            List files          mv <s> <d>      Move/rename file\n' +
+      '  touch <file>       Create file         cp <s> <d>      Copy file\n' +
+      '  nano <file>        Open in editor      cat <file>      Print contents\n' +
+      '  rm <file>          Delete file         head [-n] <f>   First N lines\n' +
+      '  rm -r <dir>        Delete directory    tail [-n] <f>   Last N lines\n' +
+      '  mkdir <dir>        Create directory    wc <file>       Word count\n' +
+      '  cd <dir>           Change directory    grep <p> <f>    Search in file\n' +
+      '  find <name>        Find files          echo <text>     Print / write\n' +
+      '  unzip <file>       Extract zip         du [file]       Disk usage\n' +
+      '  open <file>        Open in editor      chmod <m> <f>   Change perms\n' +
+      '  save               Save current file   run             Run current file\n' +
+      '\nSYSTEM\n' +
+      '  whoami             Current user        hostname        Hostname\n' +
+      '  pwd                Working dir         uname [-a]      System info\n' +
+      '  date               Current date        uptime          Uptime\n' +
+      '  env                Environment         export          Set variable\n' +
+      '  ps                 Process list        kill <pid>      Kill process\n' +
+      '  df                 Disk free           history         Command history\n' +
+      '  sleep <n>          Wait N seconds      which <cmd>     Find command\n' +
+      '  clear / cls        Clear terminal      exit            End session\n' +
+      '  version            IDE version         reload          Reload files\n' +
+      '\nDEV TOOLS\n' +
+      '  python3 <file>     Run Python          node <file>     Run JS\n' +
+      '  pip install <pkg>  Python package      npm install     Node package\n' +
+      '  git <cmd>          Git (simulated)     sudo apt        Apt (simulated)\n' +
+      '\nFUN\n' +
+      '  cowsay <msg>       ASCII cow           fortune         Random quote\n' +
+      '  banner <msg>       Big text            cal             Calendar\n' +
+      '  man <cmd>          Manual page         yes [msg]       Repeat output\n' +
+      '  alias              Show aliases        ll              Long file list'
+    );
+
+  // ── LS ──
+  } else if (c==='ls') {
+    var names = cwdFiles();
+    if (!names.length) { termPrint('(empty directory)'); return; }
+    var long = parts[1] === '-l';
+    if (long) {
+      termPrint(names.map(function(n){
+        var size = files[n] ? files[n].length : 0;
+        return '-rw-r--r-- 1 '+ME+' '+ME+' '+String(size).padStart(6)+' '+new Date().toDateString()+'  '+n;
+      }).join('\n'));
+    } else {
+      // colour by type
+      termPrint(names.map(function(n){
+        var e=n.split('.').pop().toLowerCase();
+        var col={py:'#39ff14',js:'#ffb300',html:'#ff6b35',css:'#a78bfa',md:'#00cfff',json:'#00cfff'}[e]||'#7a9ab8';
+        return '<span style="color:'+col+'">'+n+'</span>';
+      }).join('  '));
+    }
+
+  // ── TOUCH ──
+  } else if (c==='touch') {
+    var name = parts[1];
+    if (!name) { termPrint('Usage: touch <filename>', 'err'); return; }
+    if (files[name] !== undefined) { termPrint(name+': already exists'); openFile(name); return; }
+    saveFileToServer(name, '').then(function(ok){
+      if (ok) { files[name]=''; renderSidebar(); termPrint('// Created: '+name); openFile(name); }
+      else termPrint('// Failed to create: '+name, 'err');
     });
 
-    setTimeout(() => {
-      sessionStorage.setItem('aruncode_user', pendingUser);
-      sessionStorage.setItem('aruncode_role', pendingRole || 'user');
-      const params = new URLSearchParams(window.location.search);
-      const next   = params.get('next');
-      window.location.href = (next && next.startsWith('/')) ? next : '/home';
-    }, 2900);
+  // ── NANO ──
+  } else if (c==='nano') {
+    var name = parts[1];
+    if (!name) { termPrint('Usage: nano <filename>', 'err'); return; }
+    if (files[name] === undefined) {
+      // create it first
+      saveFileToServer(name, '').then(function(ok){
+        if (ok) { files[name]=''; renderSidebar(); nanoEdit(name); }
+        else termPrint('// Failed to create: '+name,'err');
+      });
+    } else { nanoEdit(name); }
+
+  // ── RM ──
+  } else if (c==='rm') {
+    var flag = parts[1], target = parts[2] || parts[1];
+    if (flag==='-r' || flag==='-rf') {
+      // simulate directory removal
+      var dirName = parts[2];
+      if (!dirName) { termPrint('Usage: rm -r <directory>', 'err'); return; }
+      if (vdirs[cwd+'/'+dirName]) {
+        delete vdirs[cwd+'/'+dirName];
+        termPrint('// Removed directory: '+dirName);
+      } else {
+        termPrint('rm: '+dirName+': No such directory', 'err');
+      }
+    } else {
+      var fname = parts[1];
+      if (!fname) { termPrint('Usage: rm <file>', 'err'); return; }
+      if (files[fname] === undefined) { termPrint('rm: '+fname+': No such file', 'err'); return; }
+      if (!confirm('Delete '+fname+'?')) return;
+      deleteFile(fname);
+    }
+
+  // ── CP ──
+  } else if (c==='cp') {
+    var src=parts[1], dst=parts[2];
+    if (!src||!dst) { termPrint('Usage: cp <source> <destination>', 'err'); return; }
+    if (files[src]===undefined) { termPrint('cp: '+src+': No such file', 'err'); return; }
+    var content = files[src]||'';
+    saveFileToServer(dst, content).then(function(ok){
+      if (ok) { files[dst]=content; renderSidebar(); termPrint(src+' -> '+dst); }
+      else termPrint('// Copy failed', 'err');
+    });
+
+  // ── MKDIR ──
+  } else if (c==='mkdir') {
+    var dir = parts[1];
+    if (!dir) { termPrint('Usage: mkdir <directory>', 'err'); return; }
+    var path = cwd+'/'+dir;
+    if (vdirs[path]) { termPrint('mkdir: '+dir+': File exists', 'err'); return; }
+    fetch('/api/folders', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      credentials:'same-origin', body:JSON.stringify({name:dir})
+    }).then(function(r){return r.json();}).then(function(res){
+      if (res.ok || res.error) {
+        vdirs[path] = [];
+        // add a placeholder in sidebar so folder is visible
+        if (!folders[dir]) { folders[dir] = []; folderOpen[dir] = true; }
+        renderSidebar();
+        termPrint('// Created directory: '+dir);
+      }
+    }).catch(function(){
+      vdirs[path] = [];
+      renderSidebar();
+      termPrint('// Created directory: '+dir+' (local)');
+    });
+
+  // ── CD ──
+  } else if (c==='cd') {
+    var dest = parts[1] || '/workspace';
+    if (dest==='..') {
+      var up = cwd.split('/').slice(0,-1).join('/')||'/workspace';
+      cwd = up || '/workspace';
+      document.getElementById('term-prompt').textContent = ME+'@'+cwd.replace('/workspace','~')+'>';
+      termPrint('// '+cwd);
+    } else if (dest==='/workspace'||dest==='~') {
+      cwd='/workspace';
+      document.getElementById('term-prompt').textContent = ME+'@~>';
+      termPrint('// '+cwd);
+    } else {
+      var newPath = cwd+'/'+dest;
+      if (vdirs[newPath]) {
+        cwd=newPath;
+        document.getElementById('term-prompt').textContent = ME+'@'+cwd.replace('/workspace','~')+'>';
+        termPrint('// '+cwd);
+      } else {
+        termPrint('cd: '+dest+': No such directory', 'err');
+      }
+    }
+
+  // ── UNZIP ──
+  } else if (c==='unzip') {
+    var fname = parts[1];
+    var dest  = parts[2] || '';
+    if (!fname) { termPrint('Usage: unzip <file> [destination]', 'err'); return; }
+    termPrint('Archive:  ' + fname + '\nExtracting...');
+    fetch('/api/unzip', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      credentials:'same-origin',
+      body:JSON.stringify({filename:fname, dest:dest})
+    }).then(function(r){return r.json();}).then(function(res){
+      if (res.ok) {
+        termPrint(res.extracted.map(function(f){return '  inflating: '+f;}).join('\n'));
+        termPrint('// Extracted '+res.count+' files → '+res.dest.split('/').pop());
+        loadFilesFromServer();
+      } else {
+        termPrint('unzip: ' + res.error, 'err');
+      }
+    }).catch(function(e){ termPrint('unzip error: '+e.message,'err'); });
+
+  // ── CAT ──
+  } else if (c==='cat') {
+    var fname = parts[1];
+    if (!fname) { termPrint('Usage: cat <file>', 'err'); return; }
+    if (files[fname]===undefined) { termPrint('cat: '+fname+': No such file', 'err'); return; }
+    var content = files[fname]||'(empty)';
+    termPrint(content.substring(0,2000)+(content.length>2000?'\n...(truncated)':''));
+
+  // ── PYTHON ──
+  } else if (c==='python'||c==='python3') {
+    var fname = parts[1];
+    if (!fname) {
+      termPrint('Usage: python3 <filename.py>');
+    } else {
+      if (files[fname]===undefined) { termPrint(c+': '+fname+': No such file', 'err'); return; }
+      runPython(fname);
+    }
+  // ── SUDO ──
+  } else if (c==='sudo') {
+    var sub = parts[1]||'';
+    if (sub==='apt'||sub==='apt-get') {
+      var action=parts[2]||'', pkg=parts.slice(3).join(' ')||'';
+      if (action==='update') {
+        termPrint('Hit:1 http://archive.ubuntu.com/ubuntu focal InRelease\nReading package lists... Done');
+      } else if (action==='install') {
+        if (!pkg) { termPrint('apt: package name required', 'err'); return; }
+        termPrint('Reading package lists... Done\nBuilding dependency tree... Done\nThe following NEW packages will be installed:\n  '+pkg+'\n0 upgraded, 1 newly installed.\n(Simulated — packages install server-side only.\n Run this command in your Codespace terminal instead.)');
+      } else if (action==='remove'||action==='purge') {
+        termPrint('(Simulated) Removing '+pkg+'...');
+      } else {
+        termPrint('apt: command not found: '+action, 'err');
+      }
+    } else if (sub==='!!') {
+      termPrint('[sudo] password for '+ME+': \n(Simulated sudo — actual commands run server-side.)');
+    } else {
+      termPrint('[sudo] Running as root (simulated): '+parts.slice(1).join(' ')+'\n(Note: system commands run server-side only.)');
+    }
+
+  // ── WHOAMI / PWD / CLEAR / SAVE / RUN / OPEN ──
+  } else if (c==='whoami') {
+    termPrint(ME);
+  } else if (c==='pwd') {
+    termPrint(cwd);
+  } else if (c==='clear') {
+    clearTerminal();
+  } else if (c==='save') {
+    saveFile();
+  } else if (c==='run') {
+    runFile();
+  } else if (c==='open') {
+    if (parts[1]) openFile(parts[1]);
+    else termPrint('Usage: open <file>', 'err');
+  } else if (c==='new') {
+    if (parts[1]) newFile(parts[1]);
+    else newFile();
+  } else if (c==='delete'||c==='del') {
+    if (parts[1]) deleteFile(parts[1]);
+    else termPrint('Usage: delete <file>', 'err');
+
+  // ── MV ──
+  } else if (c==='mv') {
+    var src=parts[1],dst=parts[2];
+    if(!src||!dst){termPrint('Usage: mv <source> <destination>','err');return;}
+    if(files[src]===undefined){termPrint('mv: '+src+': No such file','err');return;}
+    var cnt=files[src]||'';
+    saveFileToServer(dst,cnt).then(function(ok){
+      if(ok){deleteFileFromServer(src);files[dst]=cnt;delete files[src];
+        openTabs=openTabs.map(function(t){return t===src?dst:t;});
+        if(activeFile===src){activeFile=dst;document.getElementById('editor').value=cnt;}
+        renderSidebar();renderTabs();termPrint(src+' -> '+dst);}
+      else termPrint('// mv failed','err');
+    });
+
+  // ── HEAD ──
+  } else if (c==='head') {
+    var n=10,fname=parts[1];
+    if(parts[1]==='-n'){n=parseInt(parts[2])||10;fname=parts[3];}
+    if(!fname){termPrint('Usage: head [-n N] <file>','err');return;}
+    if(files[fname]===undefined){termPrint('head: '+fname+': No such file','err');return;}
+    termPrint((files[fname]||'').split('\n').slice(0,n).join('\n'));
+
+  // ── TAIL ──
+  } else if (c==='tail') {
+    var n=10,fname=parts[1];
+    if(parts[1]==='-n'){n=parseInt(parts[2])||10;fname=parts[3];}
+    if(!fname){termPrint('Usage: tail [-n N] <file>','err');return;}
+    if(files[fname]===undefined){termPrint('tail: '+fname+': No such file','err');return;}
+    termPrint((files[fname]||'').split('\n').slice(-n).join('\n'));
+
+  // ── WC ──
+  } else if (c==='wc') {
+    var fname=parts[1];
+    if(!fname){termPrint('Usage: wc <file>','err');return;}
+    if(files[fname]===undefined){termPrint('wc: '+fname+': No such file','err');return;}
+    var txt=files[fname]||'';
+    var wlines=txt.split('\n').length,words=txt.split(/\s+/).filter(Boolean).length,chars=txt.length;
+    termPrint('  '+wlines+'\t'+words+'\t'+chars+'\t'+fname);
+
+  // ── GREP ──
+  } else if (c==='grep') {
+    var pattern=parts[1],gfname=parts[2];
+    if(!pattern||!gfname){termPrint('Usage: grep <pattern> <file>','err');return;}
+    if(files[gfname]===undefined){termPrint('grep: '+gfname+': No such file','err');return;}
+    var rx;try{rx=new RegExp(pattern,'i');}catch(e){termPrint('grep: invalid pattern','err');return;}
+    var gmatches=(files[gfname]||'').split('\n').filter(function(l){return rx.test(l);});
+    termPrint(gmatches.length?gmatches.join('\n'):'(no matches)');
+
+  // ── FIND ──
+  } else if (c==='find') {
+    var pat=parts[1]||'';
+    var all=Object.keys(files).concat(Object.keys(folders));
+    var fresults=pat?all.filter(function(n){return n.toLowerCase().indexOf(pat.toLowerCase())>=0;}):all;
+    termPrint(fresults.length?fresults.map(function(n){return './'+n;}).join('\n'):'(no results)');
+
+  // ── ECHO ──
+  } else if (c==='echo') {
+    var ri=parts.indexOf('>');
+    if(ri>0){
+      var etxt=parts.slice(1,ri).join(' ').replace(/^"|"$/g,'');
+      var efname=parts[ri+1];
+      if(efname){saveFileToServer(efname,etxt).then(function(ok){if(ok){files[efname]=etxt;renderSidebar();termPrint('// Written to '+efname);}});}
+    }else{termPrint(parts.slice(1).join(' ').replace(/^"|"$/g,''));}
+
+  // ── HISTORY ──
+  } else if (c==='history') {
+    if(!termHistory.length){termPrint('(no history)');return;}
+    termPrint(termHistory.slice().reverse().map(function(h,i){return '  '+(i+1)+'\t'+h;}).join('\n'));
+
+  // ── DATE ──
+  } else if (c==='date') {
+    termPrint(new Date().toString());
+
+  // ── UNAME ──
+  } else if (c==='uname') {
+    termPrint(parts[1]==='-a'?'ArunCode 5.0.0 Browser-Terminal x86_64 GNU/Linux':'ArunCode');
+
+  // ── HOSTNAME ──
+  } else if (c==='hostname') {
+    termPrint('aruncode-codespace');
+
+  // ── DF ──
+  } else if (c==='df') {
+    termPrint('Filesystem      Size  Used Avail Use% Mounted on\naruncode-fs     10G   2.1G  7.9G  21% /workspace');
+
+  // ── DU ──
+  } else if (c==='du') {
+    var dufname=parts[1];
+    if(dufname){
+      if(files[dufname]===undefined){termPrint('du: '+dufname+': No such file','err');return;}
+      termPrint(Math.ceil((files[dufname]||'').length/1024)+'K\t'+dufname);
+    }else{
+      var total=Object.keys(files).reduce(function(s,n){return s+(files[n]||'').length;},0);
+      var dulines=Object.keys(files).map(function(n){return Math.ceil((files[n]||'').length/1024)+'K\t'+n;}).join('\n');
+      termPrint(dulines+'\n'+Math.ceil(total/1024)+'K\ttotal');
+    }
+
+  // ── CHMOD ──
+  } else if (c==='chmod') {
+    termPrint('chmod: '+(parts[2]||'file')+': permissions updated (simulated)');
+
+  // ── PS ──
+  } else if (c==='ps') {
+    termPrint('  PID TTY          TIME CMD\n 1001 pts/0    00:00:00 bash\n 1002 pts/0    00:00:01 python3\n 1003 pts/0    00:00:00 flask\n 1004 pts/0    00:00:00 ps');
+
+  // ── KILL ──
+  } else if (c==='kill') {
+    var pid=parts[1];
+    if(!pid){termPrint('Usage: kill <pid>','err');return;}
+    termPrint('kill: ('+pid+') process terminated (simulated)');
+
+  // ── ENV ──
+  } else if (c==='env') {
+    termPrint('USER='+ME+'\nHOME=/workspace\nSHELL=/bin/bash\nPATH=/usr/local/bin:/usr/bin:/bin\nACVERSION=5.0.0\nTERM=xterm-256color');
+
+  // ── EXPORT ──
+  } else if (c==='export') {
+    termPrint('// export: variable set (simulated)\n// Variables do not persist between sessions.');
+
+  // ── EXIT ──
+  } else if (c==='exit') {
+    termPrint('// Closing terminal session...');
+    setTimeout(function(){clearTerminal();termPrint('// Session ended. Type any command to start.');},800);
+
+  // ── WHICH ──
+  } else if (c==='which') {
+    var wcmd=parts[1];
+    if(!wcmd){termPrint('Usage: which <command>','err');return;}
+    var wmap={python:'/usr/bin/python',python3:'/usr/bin/python3',node:'/usr/bin/node',npm:'/usr/bin/npm',git:'/usr/bin/git',bash:'/bin/bash'};
+    termPrint(wmap[wcmd]||(wcmd+': not found'));
+
+  // ── GIT ──
+  } else if (c==='git') {
+    var gsub=parts[1]||'';
+    if(gsub==='init') termPrint('Initialized empty Git repository in /workspace/.git/ (simulated)');
+    else if(gsub==='status') termPrint('On branch main\nChanges not staged for commit:\n  modified: '+(activeFile||'(none)')+'\n(Simulated)');
+    else if(gsub==='log') termPrint('commit a1b2c3d (HEAD -> main)\nAuthor: '+ME+'\nDate: '+new Date().toDateString()+'\n\n    Initial commit\n(Simulated)');
+    else if(gsub==='add') termPrint('// git add: staged (simulated)');
+    else if(gsub==='commit') termPrint('// git commit: committed (simulated)');
+    else if(gsub==='push') termPrint('// git push (simulated) — use ArunCode_Github for real version control');
+    else termPrint('git: \''+gsub+'\' — see ArunCode_Github for real git');
+
+  // ── NODE ──
+  } else if (c==='node') {
+    var nfname=parts[1];
+    if(!nfname){termPrint('Node.js v20.0.0\n> (use run command for .js files)');return;}
+    if(files[nfname]===undefined){termPrint('node: '+nfname+': No such file','err');return;}
+    try{
+      var nlogs=[];
+      var ncon={log:function(){nlogs.push(Array.from(arguments).join(' '));},error:function(){nlogs.push('ERR: '+Array.from(arguments).join(' '));},warn:function(){nlogs.push('WARN: '+Array.from(arguments).join(' '));}};
+      new Function('console',files[nfname])(ncon);
+      termPrint(nlogs.join('\n')||'// (no output)');
+    }catch(e){termPrint('ERROR: '+e.message,'err');}
+
+  // ── NPM ──
+  } else if (c==='npm') {
+    var nsub=parts[1]||'';
+    if(nsub==='install'||nsub==='i') termPrint('npm: run in your Codespace terminal:\n  npm '+parts.slice(1).join(' '));
+    else if(nsub==='init') termPrint('Wrote to /workspace/package.json (simulated)');
+    else termPrint('npm '+nsub+' (simulated)');
+
+  // ── PIP ──
+  } else if (c==='pip'||c==='pip3') {
+    var psub=parts[1]||'';
+    if(psub==='install') termPrint('pip: run in your Codespace terminal:\n  pip install '+parts.slice(2).join(' ')+' --break-system-packages');
+    else if(psub==='list') termPrint('Package    Version\n---------- -------\nflask      3.0.0\nrequests   2.31.0\nnumpy      1.26.0\n(Simulated)');
+    else termPrint('pip '+psub+' (simulated)');
+
+  // ── CAL ──
+  } else if (c==='cal') {
+    var cd=new Date(),cm=cd.getMonth(),cy=cd.getFullYear();
+    var cmonths=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var cfirst=new Date(cy,cm,1).getDay(),cdays=new Date(cy,cm+1,0).getDate();
+    var cout=cmonths[cm]+' '+cy+'\nSu Mo Tu We Th Fr Sa\n',crow='';
+    for(var ci=0;ci<cfirst;ci++)crow+='   ';
+    for(var cd2=1;cd2<=cdays;cd2++){crow+=(cd2<10?' ':'')+cd2+' ';if((cfirst+cd2)%7===0){cout+=crow.trimEnd()+'\n';crow='';}}
+    if(crow.trim())cout+=crow;
+    termPrint(cout);
+
+  // ── UPTIME ──
+  } else if (c==='uptime') {
+    var umins=Math.floor(performance.now()/60000);
+    termPrint(' '+new Date().toTimeString().split(' ')[0]+' up '+umins+' min,  1 user,  load average: 0.12, 0.08, 0.05');
+
+  // ── SLEEP ──
+  } else if (c==='sleep') {
+    var ssecs=parseFloat(parts[1])||1;
+    if(ssecs>10){termPrint('sleep: max 10 seconds','err');return;}
+    termPrint('// Sleeping '+ssecs+'s...');
+    setTimeout(function(){termPrint('// Done');},ssecs*1000);
+
+  // ── COWSAY ──
+  } else if (c==='cowsay') {
+    var cmsg=parts.slice(1).join(' ')||'Moo!';
+    var ctop='+'+'-'.repeat(cmsg.length+2)+'+';
+    termPrint(ctop+'\n| '+cmsg+' |\n'+ctop+'\n        \\   ^__^\n         \\  (oo)\\_______\n            (__)\\       )\\/\\\n                ||----w |\n                ||     ||');
+
+  // ── FORTUNE ──
+  } else if (c==='fortune') {
+    var forts=['Code is like humor. When you have to explain it, it\'s bad.','The best code is no code at all.','It works on my machine.','Have you tried turning it off and on again?','There are only 10 types of people: those who understand binary and those who don\'t.','// TODO: fix this later','"It\'s not a bug, it\'s a feature."','sudo make me a sandwich'];
+    termPrint(forts[Math.floor(Math.random()*forts.length)]);
+
+  // ── BANNER ──
+  } else if (c==='banner') {
+    var bmsg=(parts.slice(1).join(' ')||'ArunCode').toUpperCase().substring(0,12);
+    termPrint('##  '+bmsg.split('').join('  ')+'  ##');
+
+  // ── YES ──
+  } else if (c==='yes') {
+    var ymsg=parts.slice(1).join(' ')||'y';
+    termPrint(Array(20).fill(ymsg).join('\n')+'\n// (output truncated)');
+
+  // ── MAN ──
+  } else if (c==='man') {
+    var mcmd=parts[1];
+    if(!mcmd){termPrint('What manual page do you want?','err');return;}
+    termPrint('MAN: '+mcmd.toUpperCase()+'\n\nSYNOPSIS\n  '+mcmd+' [OPTIONS] [ARGUMENTS]\n\nDESCRIPTION\n  ArunCode IDE built-in. Type "help" for full list.');
+
+  // ── ALIAS ──
+  } else if (c==='alias') {
+    if(parts.length===1) termPrint('alias ll=\'ls -l\'\nalias py=\'python3\'\nalias cls=\'clear\'');
+    else termPrint('// alias set (session only)');
+
+  // ── LL ──
+  } else if (c==='ll') {
+    var llnames=cwdFiles();
+    if(!llnames.length){termPrint('(empty directory)');return;}
+    termPrint(llnames.map(function(n){var sz=files[n]?(files[n].length):0;return'-rw-r--r-- 1 '+ME+' '+ME+' '+String(sz).padStart(6)+' '+new Date().toDateString()+'  '+n;}).join('\n'));
+
+  // ── CLS ──
+  } else if (c==='cls') {
+    clearTerminal();
+
+  // ── RELOAD ──
+  } else if (c==='reload') {
+    termPrint('// Reloading file list...');
+    loadFilesFromServer().then(function(){termPrint('// Reloaded');});
+
+  // ── VERSION ──
+  } else if (c==='version'||c==='--version') {
+    termPrint('ArunCode IDE v5.0.0\nTerminal Engine v3.0\nby Arun Chandrasekaran');
+
+  // ── TYPE ──
+  } else if (c==='type') {
+    termPrint((parts[1]||'')+' is a shell builtin');
+
+  // ── UNKNOWN ──
+  // ── UNKNOWN ──
+  } else if (c) {
+    termPrint(c+': command not found. Type "help" for commands.', 'err');
   }
+}
+
+// ── CONTEXT MENU ──
+function showCtx(e, name) {
+  e.preventDefault();
+  ctxTarget = name;
+  var m = document.getElementById('ctx-menu');
+  m.style.left = e.clientX+'px'; m.style.top = e.clientY+'px';
+  m.classList.add('show');
+}
+function ctxRename() {
+  hideCtx();
+  if (!ctxTarget) return;
+  var name = (prompt('Rename to:', ctxTarget)||'').trim();
+  if (!name || name===ctxTarget) return;
+  var content = files[ctxTarget]||'';
+  saveFileToServer(name, content).then(function(ok) {
+    if (ok) {
+      deleteFileFromServer(ctxTarget);
+      files[name] = content; delete files[ctxTarget];
+      if (activeFile===ctxTarget) activeFile=name;
+      openTabs = openTabs.map(function(t){return t===ctxTarget?name:t;});
+      renderSidebar(); renderTabs();
+      if (activeFile===name) openFile(name);
+    }
+  });
+}
+function ctxDuplicate() {
+  hideCtx();
+  if (!ctxTarget) return;
+  var parts = ctxTarget.split('.');
+  var ext = parts.length>1 ? '.'+parts.pop() : '';
+  var base = parts.join('.');
+  var name = base+'_copy'+ext;
+  var content = files[ctxTarget]||'';
+  saveFileToServer(name, content).then(function(ok){
+    if (ok) { files[name]=content; renderSidebar(); termPrint('// Duplicated: '+name); }
+  });
+}
+function ctxDelete() { hideCtx(); if (ctxTarget) deleteFile(ctxTarget); }
+function hideCtx() { document.getElementById('ctx-menu').classList.remove('show'); ctxTarget=null; }
+document.addEventListener('click', hideCtx);
+
+// ── UTILS ──
+function ficon(n){var e=(n||'').split('.').pop().toLowerCase();return{py:'🐍',js:'⚡',html:'🌐',css:'🎨',md:'📝',txt:'📄',json:'📋',sh:'🔧',xml:'📋',png:'🖼',jpg:'🖼',gif:'🖼',svg:'🖼'}[e]||'📄';}
+function langName(n){var e=(n||'').split('.').pop().toLowerCase();return{py:'Python',js:'JavaScript',html:'HTML',css:'CSS',md:'Markdown',json:'JSON',sh:'Shell',txt:'Text'}[e]||e.toUpperCase();}
+function esc(s){return(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
+
+init();
 </script>
 </body>
 </html>

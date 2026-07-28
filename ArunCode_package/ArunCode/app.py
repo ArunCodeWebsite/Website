@@ -1,18 +1,25 @@
 """
 ArunCode — Flask Backend v4
-Run: python app.py  ->  http://127.0.0.1:5000
+Run: python app.py  ->  http://127.0.0.1:5500
 """
-import os, json
+import os, json, secrets
+import urllib.parse
 from datetime import datetime
 from functools import wraps
-from flask import Flask, jsonify, request, session, send_from_directory
+from flask import Flask, jsonify, request, session, send_from_directory, redirect
+from flask_socketio import SocketIO
+from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__, static_folder="static", static_url_path="")
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
+
 app.secret_key = "aruncode-secret-key-v5-do-not-share"
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
+BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
 USERS_FILE  = "users.json"
 EMAILS_FILE = "emails.json"
 WORKSPACE   = "workspace"
@@ -143,7 +150,14 @@ def news_required(f):
 def launcher():       return send_from_directory(app.static_folder, "launcher.html")
 @app.route("/terminal")
 @app.route("/terminal/")
-def terminal():       return send_from_directory(app.static_folder, "index.html")
+@app.route("/terminal/index")
+@app.route("/terminal/index/")
+def terminal():
+    theme_login_dir = os.path.abspath(os.path.join(BASE_DIR, "..", "..", "ArunCode_theme", "static"))
+    if os.path.exists(os.path.join(theme_login_dir, "index.html")):
+        return send_from_directory(theme_login_dir, "index.html")
+    return send_from_directory(app.static_folder, "index.html")
+
 @app.route("/home")
 def home():           return send_from_directory(app.static_folder, "home.html")
 @app.route("/ide")
@@ -152,9 +166,6 @@ def ide():            return send_from_directory("ide", "index.html")
 @app.route("/emails")
 @app.route("/emails/")
 def emails():         return send_from_directory(app.static_folder, "emails.html")
-@app.route("/ptc")
-@app.route("/ptc/")
-def ptc():            return send_from_directory(app.static_folder, "ptc.html")
 @app.route("/admin")
 @app.route("/admin/")
 def admin_panel():    return send_from_directory(app.static_folder, "admin.html")
@@ -173,12 +184,12 @@ def github():         return send_from_directory(app.static_folder, "github.html
 @app.route("/profile")
 @app.route("/profile/")
 def profile():        return send_from_directory(app.static_folder, "profile.html")
-
-@app.route("/about/about.html")
+@app.route("/about/about")
+@app.route("/about/about/")
 def about():          return send_from_directory(app.static_folder, "about/about.html")
-@app.route("/about/versions/version.html")
+@app.route("/about/versions/version")
 def version():        return send_from_directory(app.static_folder, "about/versions/version.html")
-@app.route("/about/versions/versionhistory.html")
+@app.route("/about/versions/versionhistory")
 def versionhistory(): return send_from_directory(app.static_folder, "about/versions/versionhistory.html")
 
 # ── Auth routes ────────────────────────────────
@@ -239,6 +250,7 @@ def api_verify():
         return jsonify({"ok": False, "error": "Incorrect PIN."}), 401
     session["logged_in"] = True
     session["username"]  = username
+    session["user"]      = username
     session["role"]      = user["role"]
     session.pop("pending_username", None)
     log_event("LOGIN_OK", username, f"Logged in as {user['role']}", ip)
@@ -254,6 +266,7 @@ def api_complete_login():
         return jsonify({"ok": False, "error": "Unauthorized."}), 403
     session["logged_in"] = True
     session["username"]  = username
+    session["user"]      = username
     session["role"]      = user["role"]  # preserves "news", "user" etc
     session.pop("pending_username", None)
     log_event("LOGIN_OK", username, "Logged in as user", ip)
@@ -481,6 +494,56 @@ def api_profile_get():
     me   = session["username"]
     user = USERS.get(me, {})
     return jsonify({"ok": True, "username": me, "email": user.get("email",""), "role": user.get("role","user"), "avatar": user.get("avatar",""), "premium": user.get("premium", False), "theme": user.get("theme", "default")})
+
+@app.route("/api/profile/oauth")
+@login_required
+def api_profile_oauth_get():
+    if session.get("role") != "admin":
+        return jsonify({"ok": False, "error": "Not authorized"}), 403
+    return jsonify({
+        "ok": True,
+        "oauth": {
+            "base_url": OAUTH_SETTINGS.get("base_url", ""),
+            "providers": {
+                provider: {
+                    "client_id": OAUTH_CONFIG[provider].get("client_id", ""),
+                    "client_secret": OAUTH_CONFIG[provider].get("client_secret", "")
+                }
+                for provider in OAUTH_CONFIG
+            },
+            "redirect_uris": {
+                provider: get_redirect_uri(provider)
+                for provider in OAUTH_CONFIG
+            }
+        }
+    })
+
+@app.route("/api/profile/oauth", methods=["POST"])
+@login_required
+def api_profile_oauth_save():
+    if session.get("role") != "admin":
+        return jsonify({"ok": False, "error": "Not authorized"}), 403
+    d = request.get_json(silent=True) or {}
+    if "base_url" in d:
+        OAUTH_SETTINGS["base_url"] = (d.get("base_url") or "").strip()
+    providers = d.get("providers", {})
+    for provider, opts in providers.items():
+        if provider in OAUTH_CONFIG and isinstance(opts, dict):
+            if "client_id" in opts:
+                OAUTH_CONFIG[provider]["client_id"] = (opts.get("client_id") or "").strip()
+            if "client_secret" in opts:
+                OAUTH_CONFIG[provider]["client_secret"] = (opts.get("client_secret") or "").strip()
+    save_oauth_config({
+        "base_url": OAUTH_SETTINGS.get("base_url", ""),
+        **{
+            provider: {
+                "client_id": OAUTH_CONFIG[provider].get("client_id", ""),
+                "client_secret": OAUTH_CONFIG[provider].get("client_secret", "")
+            }
+            for provider in OAUTH_CONFIG
+        }
+    })
+    return jsonify({"ok": True})
 
 @app.route("/api/profile/avatar", methods=["POST"])
 @login_required
@@ -818,43 +881,43 @@ def api_unzip():
 
 # ── Premium ────────────────────────────────────
 PREMIUM_CODES = {
-    "ARUNPREM-2025":  {"used": False, "desc": "Launch code"},
+    "ARUNPREM-2025":  {"used": False, "desc": "VIP code"},
     "ARUNCODE-GOLD":  {"used": False, "desc": "Gold tier"},
     "PREMIUM-LAUNCH": {"used": False, "desc": "Early access"},
     "VIP-ARUNCODE":   {"used": False, "desc": "VIP code"},
     "ACPREM-SPECIAL": {"used": False, "desc": "Special access"},
-    "KYKQLLVHPX1W":   {"used": False, "desc": "Launch code"},
-    "WOYONOXTSXZY":   {"used": False, "desc": "Launch code"},
-    "85UURINTKRKR":   {"used": False, "desc": "Launch code"},
-    "BNJYQZBA3TBH":   {"used": False, "desc": "Launch code"},
-    "SJLHYFN2IBHE":   {"used": False, "desc": "Launch code"},
-    "MBHMB8GCNQUN":   {"used": False, "desc": "Launch code"},
-    "KN17H14MNQZF":   {"used": False, "desc": "Launch code"},
-    "PIIXLEGZE9QQ":   {"used": False, "desc": "Launch code"},
-    "CGFQGVNBCPET":   {"used": False, "desc": "Launch code"},
-    "QQISPD277HVM":   {"used": False, "desc": "Launch code"},
-    "UCYAXCVFYECT":   {"used": False, "desc": "Launch code"},
-    "9M5D621ABQ6X":   {"used": False, "desc": "Launch code"},
-    "EJGYCCOLXBNY":   {"used": False, "desc": "Launch code"},
-    "EANL9HO1Z98J":   {"used": False, "desc": "Launch code"},
-    "QQX7U2BNXITR":   {"used": False, "desc": "Launch code"},
-    "WRPW2CWLT1Q4":   {"used": False, "desc": "Launch code"},
-    "OMKGRROFLOIE":   {"used": False, "desc": "Launch code"},
-    "XWPOYO6I6UGX":   {"used": False, "desc": "Launch code"},
-    "OSRJM5FAKZAA":   {"used": False, "desc": "Launch code"},
-    "FPMVBRWIMQZA":   {"used": False, "desc": "Launch code"},
-    "VXOSRXYMJHNM":   {"used": False, "desc": "Launch code"},
-    "16P5E3MUJLFA":   {"used": False, "desc": "Launch code"},
-    "DQVEY6BNNG2X":   {"used": False, "desc": "Launch code"},
-    "FK83GFLJ3VEH":   {"used": False, "desc": "Launch code"},
-    "KLEUEY1JVHRU":   {"used": False, "desc": "Launch code"},
-    "URB21FAJBMJ3":   {"used": False, "desc": "Launch code"},
-    "HSX0Q2JXCDR5":   {"used": False, "desc": "Launch code"},
-    "CT0KLTXWXHX4":   {"used": False, "desc": "Launch code"},
-    "UEVYVAH4KOFY":   {"used": False, "desc": "Launch code"},
-    "AFALPGIJBTHR":   {"used": False, "desc": "Launch code"},
-    "AIGFYYGNE E07":  {"used": False, "desc": "Launch code"},
-    "PTLYDEGA7GTU":   {"used": False, "desc": "Launch code"},
+    "KYKQLLVHPX1W":   {"used": False, "desc": "VIP code"},
+    "WOYONOXTSXZY":   {"used": False, "desc": "VIP code"},
+    "85UURINTKRKR":   {"used": False, "desc": "VIP code"},
+    "BNJYQZBA3TBH":   {"used": False, "desc": "VIP code"},
+    "SJLHYFN2IBHE":   {"used": False, "desc": "VIP code"},
+    "MBHMB8GCNQUN":   {"used": False, "desc": "VIP code"},
+    "KN17H14MNQZF":   {"used": False, "desc": "VIP code"},
+    "PIIXLEGZE9QQ":   {"used": False, "desc": "VIP code"},
+    "CGFQGVNBCPET":   {"used": False, "desc": "VIP code"},
+    "QQISPD277HVM":   {"used": False, "desc": "VIP code"},
+    "UCYAXCVFYECT":   {"used": False, "desc": "VIP code"},
+    "9M5D621ABQ6X":   {"used": False, "desc": "VIP code"},
+    "EJGYCCOLXBNY":   {"used": False, "desc": "VIP code"},
+    "EANL9HO1Z98J":   {"used": False, "desc": "VIP code"},
+    "QQX7U2BNXITR":   {"used": False, "desc": "VIP code"},
+    "WRPW2CWLT1Q4":   {"used": False, "desc": "VIP code"},
+    "OMKGRROFLOIE":   {"used": False, "desc": "VIP code"},
+    "XWPOYO6I6UGX":   {"used": False, "desc": "VIP code"},
+    "OSRJM5FAKZAA":   {"used": False, "desc": "VIP code"},
+    "FPMVBRWIMQZA":   {"used": False, "desc": "VIP code"},
+    "VXOSRXYMJHNM":   {"used": False, "desc": "VIP code"},
+    "16P5E3MUJLFA":   {"used": False, "desc": "VIP code"},
+    "DQVEY6BNNG2X":   {"used": False, "desc": "VIP code"},
+    "FK83GFLJ3VEH":   {"used": False, "desc": "VIP code"},
+    "KLEUEY1JVHRU":   {"used": False, "desc": "VIP code"},
+    "URB21FAJBMJ3":   {"used": False, "desc": "VIP code"},
+    "HSX0Q2JXCDR5":   {"used": False, "desc": "VIP code"},
+    "CT0KLTXWXHX4":   {"used": False, "desc": "VIP code"},
+    "UEVYVAH4KOFY":   {"used": False, "desc": "VIP code"},
+    "AFALPGIJBTHR":   {"used": False, "desc": "VIP code"},
+    "AIGFYYGNE E07":  {"used": False, "desc": "VIP code"},
+    "PTLYDEGA7GTU":   {"used": False, "desc": "VIP code"},
 }
 
 @app.route("/playstation")
@@ -964,7 +1027,395 @@ def api_exec():
 def mc_redirect():
     return send_from_directory(app.static_folder, "mc.html")
 
+# ── MESSENGER ────────────────────────────────────────────
+MSGS_FILE = os.path.join(BASE_DIR, "messages.json")
+ROOMS_FILE = os.path.join(BASE_DIR, "rooms.json")
+
+def load_msgs():
+    try:
+        if os.path.exists(MSGS_FILE):
+            with open(MSGS_FILE) as f: return json.load(f)
+    except: pass
+    return {}
+
+def save_msgs(m):
+    with open(MSGS_FILE, "w") as f: json.dump(m, f)
+
+def load_rooms():
+    try:
+        if os.path.exists(ROOMS_FILE):
+            with open(ROOMS_FILE) as f: return json.load(f)
+    except: pass
+    return {}
+
+def save_rooms(r):
+    with open(ROOMS_FILE, "w") as f: json.dump(r, f)
+
+@app.route("/messenger")
+@app.route("/messenger/")
+def messenger(): return send_from_directory(app.static_folder, "messenger.html")
+
+@app.route("/api/messenger/rooms")
+@login_required
+def api_get_rooms():
+    me = session.get("username") or session.get("user")
+    rooms = load_rooms()
+    my_rooms = {rid: r for rid, r in rooms.items() if me in r.get("members", [])}
+    return jsonify({"ok": True, "rooms": my_rooms})
+
+@app.route("/api/messenger/rooms", methods=["POST"])
+@login_required
+def api_create_room():
+    me = session.get("username") or session.get("user")
+    d = request.get_json(silent=True) or {}
+    name = (d.get("name") or "").strip()
+    members = d.get("members", [])
+    is_dm = d.get("dm", False)
+    if not name: return jsonify({"ok": False, "error": "Name required"}), 400
+    if me not in members: members.append(me)
+    rooms = load_rooms()
+    # For DMs check if already exists
+    if is_dm and len(members) == 2:
+        for rid, r in rooms.items():
+            if r.get("dm") and set(r.get("members", [])) == set(members):
+                return jsonify({"ok": True, "room": r, "id": rid})
+    rid = "room_" + str(int(__import__("time").time() * 1000))
+    room = {"id": rid, "name": name, "members": members, "dm": is_dm,
+            "created": __import__("time").time(), "creator": me, "avatar": d.get("avatar", "")}
+    rooms[rid] = room
+    save_rooms(rooms)
+    return jsonify({"ok": True, "room": room, "id": rid})
+
+@app.route("/api/messenger/rooms/<rid>/messages")
+@login_required
+def api_get_messages(rid):
+    me = session.get("username") or session.get("user")
+    rooms = load_rooms()
+    if rid not in rooms or me not in rooms[rid].get("members", []):
+        return jsonify({"ok": False, "error": "Not a member"}), 403
+    msgs = load_msgs()
+    return jsonify({"ok": True, "messages": msgs.get(rid, [])})
+
+@app.route("/api/messenger/users")
+@login_required
+def api_msg_users():
+    me = session.get("username") or session.get("user")
+    result = {}
+    for uname, udata in USERS.items():
+        if uname != me:
+            result[uname] = {"avatar": udata.get("avatar", ""), "role": udata.get("role", "user")}
+    return jsonify({"ok": True, "users": result})
+
+# ── SOCKET EVENTS ──────────────────────────────────────────
+@socketio.on("join")
+def on_join(data):
+    room = data.get("room")
+    if room: join_room(room)
+
+@socketio.on("leave")
+def on_leave(data):
+    room = data.get("room")
+    if room: leave_room(room)
+
+@socketio.on("message")
+def on_message(data):
+    import time
+    room   = data.get("room")
+    author = data.get("author")
+    text   = data.get("text", "").strip()
+    file_data = data.get("file")   # base64
+    file_name = data.get("fileName")
+    file_type = data.get("fileType")
+    if not room or not author: return
+    rooms = load_rooms()
+    if room not in rooms or author not in rooms[room].get("members", []): return
+    msg = {
+        "id": "m_" + str(int(time.time() * 1000)),
+        "author": author,
+        "authorAv": data.get("authorAv", ""),
+        "text": text,
+        "file": file_data,
+        "fileName": file_name,
+        "fileType": file_type,
+        "time": time.time()
+    }
+    msgs = load_msgs()
+    if room not in msgs: msgs[room] = []
+    msgs[room].append(msg)
+    # Keep last 500 messages per room
+    if len(msgs[room]) > 500: msgs[room] = msgs[room][-500:]
+    save_msgs(msgs)
+    emit("message", msg, to=room)
+
+@socketio.on("typing")
+def on_typing(data):
+    room = data.get("room")
+    if room: emit("typing", data, to=room, include_self=False)
+
+
+# ── OAUTH ─────────────────────────────────────────────────
+import urllib.parse, urllib.request, secrets
+
+OAUTH_CONFIG_FILE = "oauth_config.json"
+OAUTH_SETTINGS = {"base_url": os.environ.get("BASE_URL", "")}
+
+def load_oauth_config():
+    if os.path.exists(OAUTH_CONFIG_FILE):
+        with open(OAUTH_CONFIG_FILE) as f: return json.load(f)
+    return {}
+
+def save_oauth_config(cfg):
+    with open(OAUTH_CONFIG_FILE, "w") as f: json.dump(cfg, f, indent=2)
+
+def normalize_base_url(url):
+    if not url:
+        return ""
+    base = url.strip().rstrip("/")
+    for provider in OAUTH_CONFIG:
+        suffix = f"/auth/{provider}/callback"
+        if base.endswith(suffix):
+            base = base[: -len(suffix)].rstrip("/")
+            break
+        suffix2 = f"/auth/{provider}"
+        if base.endswith(suffix2):
+            base = base[: -len(suffix2)].rstrip("/")
+            break
+    return base
+
+OAUTH_CONFIG = {
+    "github": {
+        "client_id":     os.environ.get("GITHUB_CLIENT_ID", ""),
+        "client_secret": os.environ.get("GITHUB_CLIENT_SECRET", ""),
+        "auth_url":      "https://github.com/login/oauth/authorize",
+        "token_url":     "https://github.com/login/oauth/access_token",
+        "api_url":       "https://api.github.com/user",
+        "scope":         "read:user user:email",
+    },
+    "google": {
+        "client_id":     os.environ.get("GOOGLE_CLIENT_ID", ""),
+        "client_secret": os.environ.get("GOOGLE_CLIENT_SECRET", ""),
+        "auth_url":      "https://accounts.google.com/o/oauth2/v2/auth",
+        "token_url":     "https://oauth2.googleapis.com/token",
+        "api_url":       "https://www.googleapis.com/oauth2/v3/userinfo",
+        "scope":         "openid email profile",
+    },
+    "apple": {
+        "client_id":     os.environ.get("APPLE_CLIENT_ID", ""),
+        "client_secret": os.environ.get("APPLE_CLIENT_SECRET", ""),
+        "auth_url":      "https://appleid.apple.com/auth/authorize",
+        "token_url":     "https://appleid.apple.com/auth/token",
+        "api_url":       "",
+        "scope":         "name email",
+    }
+}
+
+_saved_oauth_config = load_oauth_config()
+if _saved_oauth_config:
+    if _saved_oauth_config.get("base_url"):
+        OAUTH_SETTINGS["base_url"] = normalize_base_url(_saved_oauth_config.get("base_url"))
+    for provider, opts in _saved_oauth_config.items():
+        if provider in OAUTH_CONFIG and isinstance(opts, dict):
+            for key in ("client_id", "client_secret"):
+                if opts.get(key) is not None:
+                    OAUTH_CONFIG[provider][key] = opts.get(key)
+
+def get_redirect_uri(provider):
+    if OAUTH_SETTINGS.get("base_url"):
+        base = normalize_base_url(OAUTH_SETTINGS.get("base_url"))
+    elif os.environ.get("BASE_URL", ""):
+        base = normalize_base_url(os.environ.get("BASE_URL", ""))
+    else:
+        scheme = request.headers.get("X-Forwarded-Proto") or request.scheme
+        host = request.headers.get("X-Forwarded-Host") or request.headers.get("Host") or request.host
+        base = f"{scheme}://{host}"
+    return base.rstrip("/") + "/auth/" + provider + "/callback"
+
+def oauth_get(url, token):
+    import urllib.request
+    req = urllib.request.Request(url, headers={"Authorization": "Bearer " + token, "Accept": "application/json", "User-Agent": "ArunCode/5.0"})
+    with urllib.request.urlopen(req) as r:
+        return json.loads(r.read().decode())
+
+def oauth_token_exchange(provider, code):
+    import urllib.request, urllib.parse
+    cfg = OAUTH_CONFIG[provider]
+    data = urllib.parse.urlencode({
+        "client_id":     cfg["client_id"],
+        "client_secret": cfg["client_secret"],
+        "code":          code,
+        "redirect_uri":  get_redirect_uri(provider),
+        "grant_type":    "authorization_code",
+    }).encode()
+    headers = {"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"}
+    req = urllib.request.Request(cfg["token_url"], data=data, headers=headers)
+    with urllib.request.urlopen(req) as r:
+        return json.loads(r.read().decode())
+
+@app.route("/auth/<provider>")
+def oauth_start(provider):
+    if provider not in OAUTH_CONFIG:
+        return jsonify({"ok": False, "error": "Unknown provider"}), 400
+    cfg = OAUTH_CONFIG[provider]
+    if not cfg["client_id"] or not cfg["client_secret"]:
+        return jsonify({"ok": False, "error": provider.capitalize() + " OAuth not configured. Set " + provider.upper() + "_CLIENT_ID and " + provider.upper() + "_CLIENT_SECRET environment variables."}), 400
+    state = secrets.token_urlsafe(16)
+    session["oauth_state"] = state
+    session["oauth_provider"] = provider
+    # Store next URL
+    next_url = request.args.get("next", "/home")
+    session["oauth_next"] = next_url
+    params = {
+        "client_id":    cfg["client_id"],
+        "redirect_uri": get_redirect_uri(provider),
+        "scope":        cfg["scope"],
+        "state":        state,
+        "response_type": "code",
+    }
+    if provider == "apple":
+        params["response_mode"] = "form_post"
+    return redirect(cfg["auth_url"] + "?" + urllib.parse.urlencode(params))
+
+@app.route("/auth/<provider>/callback", methods=["GET", "POST"])
+def oauth_callback(provider):
+    if provider not in OAUTH_CONFIG:
+        return redirect("/terminal?error=unknown_provider")
+    # Verify state
+    state = request.args.get("state") or request.form.get("state")
+    if state != session.get("oauth_state"):
+        return redirect("/terminal?error=state_mismatch")
+    code = request.args.get("code") or request.form.get("code")
+    if not code:
+        return redirect("/terminal?error=no_code")
+    try:
+        token_data = oauth_token_exchange(provider, code)
+        access_token = token_data.get("access_token")
+        if not access_token:
+            return redirect("/terminal?error=no_token")
+        # Get user info
+        profile = {}
+        if provider == "github":
+            profile = oauth_get(OAUTH_CONFIG["github"]["api_url"], access_token)
+            email = profile.get("email") or (profile.get("login", "") + "@github.local")
+            name  = profile.get("login") or profile.get("name") or "github_user"
+            uid   = "github_" + str(profile.get("id", ""))
+            avatar_url = profile.get("avatar_url", "")
+        elif provider == "google":
+            profile = oauth_get(OAUTH_CONFIG["google"]["api_url"], access_token)
+            email = profile.get("email", "")
+            name  = profile.get("name") or email.split("@")[0]
+            uid   = "google_" + profile.get("sub", "")
+            avatar_url = profile.get("picture", "")
+        elif provider == "apple":
+            # Apple sends user info only on first login
+            import base64
+            id_token = token_data.get("id_token", "")
+            payload = id_token.split(".")[1] if id_token else ""
+            payload += "=" * (4 - len(payload) % 4)
+            try:
+                claims = json.loads(base64.b64decode(payload))
+                email = claims.get("email", "")
+            except:
+                email = ""
+            name = request.form.get("user", "")
+            if name:
+                try: udata = json.loads(name); name = (udata.get("name",{}).get("firstName","") + " " + udata.get("name",{}).get("lastName","")).strip() or email.split("@")[0]
+                except: name = email.split("@")[0]
+            else: name = email.split("@")[0]
+            uid = "apple_" + email.replace("@", "_").replace(".", "_")
+            avatar_url = ""
+        else:
+            return redirect("/terminal?error=unsupported_provider")
+        USERS = load_users()
+        current_user = session.get("username") or session.get("user")
+        if session.get("logged_in") and current_user:
+            # Linking provider to an already-authenticated account
+            existing_account = None
+            for uname, udata in USERS.items():
+                linked = udata.get("linked_accounts", {})
+                if uname != current_user and (uid in linked.values() or linked.get(provider) == uid):
+                    existing_account = uname
+                    break
+            if existing_account:
+                return redirect("/terminal?error=provider_already_linked")
+            USERS.setdefault(current_user, {}).setdefault("linked_accounts", {})[provider] = uid
+            if avatar_url and not USERS[current_user].get("avatar"):
+                USERS[current_user]["oauth_avatar"] = avatar_url
+            save_users(USERS)
+            next_url = session.pop("oauth_next", "/home")
+            return redirect(next_url)
+
+        # Find or create ArunCode account for unauthenticated users
+        linked_user = None
+        for uname, udata in USERS.items():
+            linked = udata.get("linked_accounts", {})
+            if uid in linked.values() or linked.get(provider) == uid:
+                linked_user = uname
+                break
+        # Check by email
+        if not linked_user:
+            for uname, udata in USERS.items():
+                if udata.get("email", "").lower() == email.lower():
+                    linked_user = uname
+                    break
+        if linked_user:
+            # Log in existing user
+            USERS[linked_user].setdefault("linked_accounts", {})[provider] = uid
+            if avatar_url and not USERS[linked_user].get("avatar"):
+                USERS[linked_user]["oauth_avatar"] = avatar_url
+            save_users(USERS)
+            session["logged_in"] = True
+            session["username"] = linked_user
+            session["user"] = linked_user
+            session["role"] = USERS[linked_user].get("role", "user")
+        else:
+            # Create new account
+            safe_name = "".join(c for c in name if c.isalnum() or c in "_-")[:20] or "user"
+            base_name = safe_name
+            counter = 1
+            while safe_name in USERS:
+                safe_name = base_name + str(counter)
+                counter += 1
+            new_user = {
+                "email":    email,
+                "password": generate_password_hash(secrets.token_urlsafe(32)),
+                "pin":      str(secrets.randbelow(900000) + 100000),
+                "role":     "user",
+                "linked_accounts": {provider: uid},
+                "oauth_avatar": avatar_url,
+                "avatar": "",
+            }
+            USERS[safe_name] = new_user
+            save_users(USERS)
+            session["logged_in"] = True
+            session["username"] = safe_name
+            session["user"] = safe_name
+            session["role"] = "user"
+        next_url = session.pop("oauth_next", "/home")
+        return redirect(next_url)
+    except Exception as ex:
+        return redirect("/terminal?error=" + urllib.parse.quote(str(ex)))
+
+@app.route("/api/auth/linked")
+@login_required
+def api_linked_accounts():
+    me = session.get("username") or session.get("user")
+    USERS = load_users()
+    linked = USERS.get(me, {}).get("linked_accounts", {})
+    return jsonify({"ok": True, "linked": linked})
+
+@app.route("/api/auth/unlink", methods=["POST"])
+@login_required
+def api_unlink():
+    me = session.get("username") or session.get("user")
+    d = request.get_json(silent=True) or {}
+    provider = d.get("provider", "")
+    USERS = load_users()
+    if me in USERS:
+        USERS[me].setdefault("linked_accounts", {}).pop(provider, None)
+        save_users(USERS)
+    return jsonify({"ok": True})
+
 if __name__ == "__main__":
     print("\n  ArunCode backend starting...")
     print("  Open -> http://127.0.0.1:5000\n")
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True, allow_unsafe_werkzeug=True)
