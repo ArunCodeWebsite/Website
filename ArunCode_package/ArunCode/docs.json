@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "title": "Welcome to ArunCode",
+    "category": "General",
+    "content": "# Welcome to ArunCode\n\nArunCode is a suite of tools built by **Arun Chandrasekaran**.\n\n## What's Included\n\n- **ArunCode_Term** \u2014 A terminal environment for managing your system\n- **ArunCode IDE** \u2014 A full code editor with file saving and folder creation\n- **ArunCode_Emails** \u2014 Send and receive messages between users\n- **Python Teaching Club** \u2014 Learn Python with lessons and quizzes\n- **ArunCode Docs** \u2014 You are here!\n\n## Getting Started\n\n1. Log in at `/terminal`\n2. You'll be taken to your dashboard at `/home`\n3. Click any app card to launch it\n4. Admin users have access to the Admin Panel and Security Manager\n\n## Roles\n\n| Role | Permissions |\n|---|---|\n| admin | Full access \u2014 edit docs, manage users |\n| security | View users, access logs, delete regular users |\n| user | Access all apps, read docs |\n\n---\n\n*Version 5.0.0 \u2014 Created 2026*"
+  },
+  {
+    "id": 2,
+    "title": "ArunCode_Term Guide",
+    "category": "ArunCode_Term",
+    "content": "# ArunCode_Term Guide\n\nArunCode_Term is the terminal dashboard application.\n\n## Logging In\n\n1. Go to `/terminal`\n2. Enter your email and username\n3. Enter your password\n4. **Admin accounts** require a 6-digit PIN as a second factor\n\n## Dashboard Commands\n\nOnce logged in, you can use the built-in terminal widget:\n\n```\nhelp     \u2014 show all commands\nstatus   \u2014 system status\nversion  \u2014 current version\nwhoami   \u2014 logged in user\ndate     \u2014 current date/time\nide      \u2014 open ArunCode IDE\nlogout   \u2014 end your session\nclear    \u2014 clear the console\n```\n\n## Version History\n\nAccess the full version history at `/about/versions/versionhistory.html`"
+  },
+  {
+    "id": 3,
+    "title": "IDE User Guide",
+    "category": "ArunCode IDE",
+    "content": "# ArunCode IDE\n\nA browser-based code editor with file saving and folder support.\n\n## Features\n\n- **Syntax highlighting** for Python, JavaScript, HTML, CSS, JSON\n- **Multiple tabs** \u2014 open several files at once\n- **File tree** sidebar\n- **Save to server** \u2014 files persist in the `workspace/` folder\n- **Create folders** \u2014 organise your projects\n- **Run code** \u2014 execute JavaScript directly, simulate Python output\n- **Line numbers** with gutter sync\n\n## Keyboard Shortcuts\n\n| Key | Action |\n|---|---|\n| Tab | Insert 4 spaces |\n| Enter (in toolbar) | Confirm action |\n\n## Saving Files\n\nFiles are saved server-side in the `workspace/` directory next to `app.py`.\nThey persist across sessions.\n\n## Running Code\n\n- **JavaScript** \u2014 executes live in the browser, output shown in console\n- **Python** \u2014 simulates `print()` output (no real Python runtime in browser)"
+  },
+  {
+    "id": 4,
+    "title": "Python Teaching Club",
+    "category": "Python Teaching Club",
+    "content": "# Python Teaching Club\n\nLearn Python through structured lessons with quizzes.\n\n## Lessons\n\n| # | Title | Level |\n|---|---|---|\n| 01 | Hello, Python! | Beginner |\n| 02 | Variables & Data Types | Beginner |\n| 03 | If Statements | Beginner |\n| 04 | Loops | Intermediate |\n| 05 | Functions | Intermediate |\n\n## How to Use\n\n1. Go to `/ptc`\n2. Click any lesson card to open it\n3. Read through the lesson content and code examples\n4. Answer the quiz question at the bottom\n5. Click **MARK AS DONE** to track your progress\n\n## Leaderboard\n\nPoints are tracked and shown on the leaderboard tab.\nEarn points by completing lessons and quizzes."
+  },
+  {
+    "id": 6,
+    "title": "File & Folder Layout",
+    "category": "General",
+    "content": "# File & Folder Layout\n```\nArunCode/\n\u251c\u2500\u2500 app.py\n\u251c\u2500\u2500 docs.json\n\u251c\u2500\u2500 emails.json\n\u251c\u2500\u2500 users.json\n\u251c\u2500\u2500 ide/\n\u2502   \u2514\u2500\u2500 index.html\n\u251c\u2500\u2500 static/\n\u2502   \u251c\u2500\u2500 index.html\n\u2502   \u251c\u2500\u2500 launcher.html\n\u2502   \u251c\u2500\u2500 home.html\n\u2502   \u251c\u2500\u2500 admin.html\n\u2502   \u251c\u2500\u2500 security.html\n\u2502   \u251c\u2500\u2500 docs.html\n\u2502   \u251c\u2500\u2500 emails.html\n\u2502   \u251c\u2500\u2500 ptc.html\n\u2502   \u2514\u2500\u2500 about/\n\u2502       \u251c\u2500\u2500 about.html\n\u2502       \u2514\u2500\u2500 versions/\n\u2502           \u251c\u2500\u2500 version.html\n\u2502           \u2514\u2500\u2500 versionhistory.html\n\u2514\u2500\u2500 workspace/\n```\n"
+  },
+  {
+    "id": 5,
+    "title": "Email System Guide",
+    "category": "Emails",
+    "content": "# ArunCode Emails\n\nAn internal messaging system between ArunCode users.\n\n## Sending an Email\n\n1. Go to `/emails`\n2. Click **+ COMPOSE**\n3. In the **To** field, enter a **username** (e.g. `ArunC`) or their email address\n4. Fill in Subject and body\n5. Click **SEND**\n\n> Emails are stored on the server in `emails.json` and persist permanently.\n\n## Inbox\n\n- **Unread** emails are highlighted with a purple dot\n- Click an email to read it \u2014 it will be marked as read automatically\n- Use the **\u21a9 REPLY** button to reply to a message\n\n## Folders\n\n| Folder | Contents |\n|---|---|\n| Inbox | Emails sent to you |\n| Sent | Emails you sent |\n| Starred | Emails you starred with \u2b50 |\n\n## Limitations\n\n- Emails only work between ArunCode users (not external Gmail etc.)\n- No attachments currently supported"
+  }
+]

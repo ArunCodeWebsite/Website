@@ -1,44 +1,52 @@
 {
   "VijiN": {
     "email": "nambi.vijilaxmi@gmail.com",
-    "password": "scrypt:32768:8:1$pX4TzI5kJuWMlY9o$9d6f97e6065422e4df25c4c12c535bbf50309ba5959eb67733656058a176054761e1e039420c3ee252672a00add08ee1514c6f2e5e3feb67c96bf37cda17c33e",
+    "password": "scrypt:32768:8:1$7sZjbIyEezCXMIWe$fb1a988d9a21387c56f8d134885c652cf8dae0dc94a20c8379188b23885864be915579d3732aaf93c71a011ee15d36344552680f0d8e7c6f96cca8a31580dbad",
     "pin": "438438",
     "role": "admin"
   },
   "ParthyC": {
     "email": "partheinstein@gmail.com",
-    "password": "scrypt:32768:8:1$Pd6XliQXnoEevGWw$4c8ece06f6b1e4408fe83179933c95a7753274d2468076446c99cbae14d313b2b24988bad89863fe9c6a183eac46dd4c57f738a786f7c3cc76a3775dde8978d6",
+    "password": "scrypt:32768:8:1$9iQGlqBJqB9176C0$c5812f57eb350b4539e84c77bffd2f43df5af6fbf33dca25216aecd9c272eb135bc0bc39af52ea33bd905e6ed78cb1d692e92fa594a190f4cdcb33dac066e11a",
     "pin": "383383",
     "role": "security"
   },
   "SujaC": {
     "email": "you@gmail.com",
-    "password": "scrypt:32768:8:1$iQhyBviaPv5AcXzN$b8167d6e2ca044afe8394353a4153655a52f094505dc57ee80abe7cdb295b5297bedf563bc9f505350f7a733f1a70c39122be70ee22c3fc230df91cc7e3228d3",
+    "password": "scrypt:32768:8:1$b1b27c2mFBRaZ7pU$ec06416b659d9a0d1e0dfd51dd12f5eafc3bec0b6b27bbfa65f52e55e879a9769af353411bb2dcfbcbf05934fa376ddc2060aea98e7f34b7aec79d988fbdcae1",
     "pin": "383383",
-    "role": "security"
-  },
-  "ChandrasekaranN": {
-    "email": "natarajchand@gmail.com",
-    "password": "scrypt:32768:8:1$yVnzPn6VaTeA1Q3P$d8ca437e5ff3ffa8a51cffc2efcc5c337c9239a1f51b6812030602ee01aab5294a456c28a64f1f78dd0b128af4797d2a1cebaf1264f07949ea6003ded2754f9d",
-    "pin": "573573",
     "role": "security"
   },
   "News": {
     "email": "news@aruncode.com",
-    "password": "scrypt:32768:8:1$RzVwKYYR3PlewWEZ$83e5ffb28c378a257078cc9aad58a59aa023b7fbaf77c48b2403a972d8684cff3c639b58280fbcefd0f45a3d195c92a1e558b24eddab2172e0d120e9c03f8e0d",
+    "password": "scrypt:32768:8:1$oAocvgFRCkmUtjth$e7a38ffe845a90662eb6f1cc6bda213ad5a78f4ca7c3bf072166ddb179109278f12c197c546d6fc51c311758085637025693693c7f56e185950d066925fdd151",
     "pin": "283293",
     "role": "news"
   },
   "ArunC": {
     "email": "chandrasekarana@student.rcdsb.on.ca",
-    "password": "scrypt:32768:8:1$9KXAp7fi6EG5OizU$61e306367b4a0ed48044d147792f0631de251765ebe7664bdb0cb8d2d0ffabd64b85d0074588ba1da819e46a4166af566fb868511ead14fcc2155f8b4c19d926",
+    "password": "scrypt:32768:8:1$Tx3Gnl5GRIrpgpvW$41a819b35133b7adb263880a7c9296c35a56b8b36b825a9b92e7bdac29773b89bac02f03f471828082b574bb217f20c814752b0d66130ca7f4c5026648bd2a05",
     "pin": "283283",
-    "role": "admin"
+    "role": "admin",
+    "premium": true,
+    "theme": "aurora"
   },
   "KateWP": {
     "email": "hi@gmail.com",
     "password": "scrypt:32768:8:1$MP0LPhJ38NvtIbay$ab827380a157eafe4734f82cf7d563500ad16d2ec49d24edece143c60377d195c2136a38d74f5797343980600f7ccb0bfecf6603f5a73f2b1d05afd8ddab24e1",
     "pin": "",
     "role": "user"
+  },
+  "Nathan/NateD": {
+    "email": "nathanapdugdale1984@gmail.com",
+    "password": "scrypt:32768:8:1$OpvnS89uN5P5pRXG$999e4c56e7ae7819ac53a2dc1050aef8b8deaee534226544963990c7c2103491eeae61ae8beae62707358a31f3c49d681db336ca568341a3acae2317317e48cb",
+    "pin": "",
+    "role": "user"
+  },
+  "SujaG": {
+    "email": "Hi@gmail.com",
+    "password": "scrypt:32768:8:1$gXPAKOml4pXrs7WZ$d86e13a48094b08fc793277fc65904c25ff5c078cd171db8d47bedab4636e51a0145577a17703ed26b53b91cc0517c9f9f57fc950671d63f7e529f8fb336811a",
+    "pin": "383383",
+    "role": "security"
   }
 }

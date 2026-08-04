@@ -2,12 +2,12 @@
 ArunCode — Flask Backend v4
 Run: python app.py  ->  http://127.0.0.1:5500
 """
-import os, json, secrets
+import os, json, secrets, re
 import urllib.parse
 from datetime import datetime
 from functools import wraps
 from flask import Flask, jsonify, request, session, send_from_directory, redirect
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit, join_room, leave_room
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -20,22 +20,32 @@ app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
-USERS_FILE  = "users.json"
-EMAILS_FILE = "emails.json"
-WORKSPACE   = "workspace"
-DOCS_FILE   = "docs.json"
+WORKSPACE_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))
+USERS_FILE  = os.path.join(WORKSPACE_ROOT, "users.json")
+EMAILS_FILE = os.path.join(BASE_DIR, "emails.json")
+WORKSPACE   = os.path.join(BASE_DIR, "workspace")
+DOCS_FILE   = os.path.join(BASE_DIR, "docs.json")
+YOUTUBE_FILE = os.path.join(BASE_DIR, "videos.json")
+UPLOADS_DIR = os.path.join(BASE_DIR, "uploads", "videos")
 os.makedirs(WORKSPACE, exist_ok=True)
+os.makedirs(UPLOADS_DIR, exist_ok=True)
 
 # ── Users ──────────────────────────────────────
 def load_users():
     if os.path.exists(USERS_FILE):
-        with open(USERS_FILE) as f: return json.load(f)
+        with open(USERS_FILE, encoding="utf-8") as f: return json.load(f)
     return {}
 
 def save_users(users):
-    with open(USERS_FILE, "w") as f: json.dump(users, f, indent=2)
+    with open(USERS_FILE, "w", encoding="utf-8") as f: json.dump(users, f, indent=2)
 
 USERS = load_users()
+
+
+def refresh_users():
+    global USERS
+    USERS = load_users()
+    return USERS
 
 CORE_ACCOUNTS = {
     "ArunC": {
@@ -62,6 +72,12 @@ CORE_ACCOUNTS = {
         "pin":      "383383",
         "role":     "security"
     },
+    "SujaG": {
+        "email":    "Hi@gmail.com",
+        "password": generate_password_hash("543543"),
+        "pin":      "383383",
+        "role":     "security"
+    },
     "ChandrasekaranN": {
         "email":    "natarajchand@gmail.com",
         "password": generate_password_hash("875875"),
@@ -84,12 +100,40 @@ save_users(USERS)
 
 # ── Emails ─────────────────────────────────────
 def load_emails():
-    if os.path.exists(EMAILS_FILE):
-        with open(EMAILS_FILE) as f: return json.load(f)
-    return []
+    if not os.path.exists(EMAILS_FILE):
+        return []
+    try:
+        with open(EMAILS_FILE, "r", encoding="utf-8") as f:
+            content = f.read().strip()
+            if not content:
+                return []
+            return json.loads(content)
+    except (json.JSONDecodeError, ValueError):
+        return []
 
 def save_emails(emails):
-    with open(EMAILS_FILE, "w") as f: json.dump(emails, f, indent=2)
+    with open(EMAILS_FILE, "w", encoding="utf-8") as f:
+        json.dump(emails, f, indent=2)
+
+
+def resolve_recipient(to_raw):
+    value = (to_raw or "").strip()
+    if not value:
+        return {"to_user": "", "to_addr": to_raw}
+
+    normalized = value.lower()
+    for uname, udata in USERS.items():
+        email = (udata.get("email") or "").strip().lower()
+        if uname.lower() == normalized or email == normalized:
+            return {"to_user": uname, "to_addr": (udata.get("email") or "").strip()}
+
+    if "@" in normalized:
+        local_part = normalized.split("@", 1)[0]
+        for uname, udata in USERS.items():
+            if uname.lower() == local_part:
+                return {"to_user": uname, "to_addr": (udata.get("email") or "").strip()}
+
+    return {"to_user": "", "to_addr": value}
 
 # ── Auth Log ───────────────────────────────────
 AUTH_LOG = []
@@ -145,7 +189,18 @@ def news_required(f):
         return f(*a, **k)
     return d
 
+@app.route("/uploads/videos/<path:filename>")
+def uploaded_video(filename):
+    return send_from_directory(UPLOADS_DIR, filename)
+
 # ── Static routes ──────────────────────────────
+def serve_theme_or_app_page(filename, theme_filename=None):
+    theme_static_dir = os.path.abspath(os.path.join(BASE_DIR, "..", "..", "ArunCode_theme", "static"))
+    target_name = theme_filename or filename
+    if os.path.exists(os.path.join(theme_static_dir, target_name)):
+        return send_from_directory(theme_static_dir, target_name)
+    return send_from_directory(app.static_folder, filename)
+
 @app.route("/")
 def launcher():       return send_from_directory(app.static_folder, "launcher.html")
 @app.route("/terminal")
@@ -192,6 +247,14 @@ def version():        return send_from_directory(app.static_folder, "about/versi
 @app.route("/about/versions/versionhistory")
 def versionhistory(): return send_from_directory(app.static_folder, "about/versions/versionhistory.html")
 
+@app.route("/ptc")
+@app.route("/ptc/")
+def ptc_page():
+    theme_static_dir = os.path.abspath(os.path.join(BASE_DIR, "..", "..", "ArunCode_theme", "static"))
+    if os.path.exists(os.path.join(theme_static_dir, "ptc.html")):
+        return send_from_directory(theme_static_dir, "ptc.html")
+    return send_from_directory(app.static_folder, "ptc.html")
+
 # ── Auth routes ────────────────────────────────
 @app.route("/api/register", methods=["POST"])
 def api_register():
@@ -199,7 +262,9 @@ def api_register():
     username = (d.get("username") or "").strip()
     email    = (d.get("email")    or "").strip().lower()
     password = (d.get("password") or "")
+    requested_role = (d.get("role") or "").strip().lower()
     ip       = request.remote_addr
+    refresh_users()
     if not username or not email or not password:
         return jsonify({"ok": False, "error": "All fields required."}), 400
     if len(username) < 3:
@@ -213,13 +278,16 @@ def api_register():
     for u in USERS.values():
         if u["email"].lower() == email:
             return jsonify({"ok": False, "error": "Email already registered."}), 400
-    USERS[username] = {"email": email, "password": generate_password_hash(password), "pin": "", "role": "user"}
+
+    role = "student" if requested_role in {"student", "student-role", "student_role"} else "user"
+    USERS[username] = {"email": email, "password": generate_password_hash(password), "pin": "", "role": role}
     save_users(USERS)
     log_event("REGISTER", username, "New account created", ip)
     return jsonify({"ok": True})
 
 @app.route("/api/login", methods=["POST"])
 def api_login():
+    refresh_users()
     d        = request.get_json(silent=True) or {}
     username = (d.get("username") or "").strip()
     email    = (d.get("email")    or "").strip().lower()
@@ -319,10 +387,11 @@ def api_security_stats():
     admins   = sum(1 for u in USERS.values() if u["role"] == "admin")
     security = sum(1 for u in USERS.values() if u["role"] == "security")
     regular  = sum(1 for u in USERS.values() if u["role"] == "user")
+    students = sum(1 for u in USERS.values() if u["role"] == "student")
     failed   = sum(1 for l in AUTH_LOG if l["type"] in ("LOGIN_FAIL", "PIN_FAIL"))
     return jsonify({"ok": True, "stats": {
         "total_users": total, "admins": admins,
-        "security": security, "regular": regular,
+        "security": security, "regular": regular, "students": students,
         "failed_logins": failed, "log_entries": len(AUTH_LOG)
     }})
 
@@ -348,10 +417,9 @@ def api_emails_send():
     me      = session["username"]
     if not to_raw or not subject:
         return jsonify({"ok": False, "error": "To and Subject are required."}), 400
-    to_user = ""; to_addr = to_raw
-    for uname, udata in USERS.items():
-        if uname.lower() == to_raw.lower() or udata["email"].lower() == to_raw.lower():
-            to_user = uname; to_addr = udata["email"]; break
+    resolved = resolve_recipient(to_raw)
+    to_user = resolved["to_user"]
+    to_addr = resolved["to_addr"]
     emails_all = load_emails()
     email = {
         "id":        len(emails_all) + 1,
@@ -922,11 +990,11 @@ PREMIUM_CODES = {
 
 @app.route("/playstation")
 @app.route("/playstation/")
-def playstation(): return send_from_directory(app.static_folder, "playstation.html")
+def playstation(): return serve_theme_or_app_page("playstation.html")
 
 @app.route("/premium")
 @app.route("/premium/")
-def premium_page(): return send_from_directory(app.static_folder, "premium.html")
+def premium_page(): return serve_theme_or_app_page("premium.html")
 
 @app.route("/api/premium/status")
 @login_required
@@ -1025,7 +1093,7 @@ def api_exec():
 @app.route("/mc")
 @app.route("/mc/")
 def mc_redirect():
-    return send_from_directory(app.static_folder, "mc.html")
+    return serve_theme_or_app_page("mc.html")
 
 # ── MESSENGER ────────────────────────────────────────────
 MSGS_FILE = os.path.join(BASE_DIR, "messages.json")
@@ -1054,6 +1122,14 @@ def save_rooms(r):
 @app.route("/messenger")
 @app.route("/messenger/")
 def messenger(): return send_from_directory(app.static_folder, "messenger.html")
+
+@app.route("/message")
+@app.route("/message/")
+def message_app(): return serve_theme_or_app_page("message.html")
+
+@app.route("/youtube")
+@app.route("/youtube/")
+def youtube_app(): return serve_theme_or_app_page("youtube.html")
 
 @app.route("/api/messenger/rooms")
 @login_required
@@ -1095,6 +1171,40 @@ def api_get_messages(rid):
         return jsonify({"ok": False, "error": "Not a member"}), 403
     msgs = load_msgs()
     return jsonify({"ok": True, "messages": msgs.get(rid, [])})
+
+@app.route("/api/messenger/rooms/<rid>/messages", methods=["POST"])
+@login_required
+def api_post_message(rid):
+    me = session.get("username") or session.get("user")
+    rooms = load_rooms()
+    if rid not in rooms or me not in rooms[rid].get("members", []):
+        return jsonify({"ok": False, "error": "Not a member"}), 403
+
+    d = request.get_json(silent=True) or {}
+    text = (d.get("text") or "").strip()
+    file_data = d.get("file", "")
+    file_name = d.get("fileName", "")
+    file_type = d.get("fileType", "")
+    if not text and not file_data:
+        return jsonify({"ok": False, "error": "Empty message"}), 400
+
+    import time
+    msg = {
+        "id": "m_" + str(int(time.time() * 1000)),
+        "author": me,
+        "authorAv": d.get("authorAv", ""),
+        "text": text,
+        "file": file_data,
+        "fileName": file_name,
+        "fileType": file_type,
+        "time": time.time()
+    }
+    msgs = load_msgs()
+    msgs.setdefault(rid, []).append(msg)
+    if len(msgs[rid]) > 500:
+        msgs[rid] = msgs[rid][-500:]
+    save_msgs(msgs)
+    return jsonify({"ok": True, "message": msg})
 
 @app.route("/api/messenger/users")
 @login_required
@@ -1152,6 +1262,110 @@ def on_typing(data):
     room = data.get("room")
     if room: emit("typing", data, to=room, include_self=False)
 
+
+# ── YOUTUBE ───────────────────────────────────────────────
+def normalize_youtube_url(url):
+    if not url:
+        return ""
+    value = url.strip()
+    if "youtube.com/watch?v=" in value:
+        video_id = value.split("v=", 1)[1].split("&", 1)[0]
+        return f"https://www.youtube.com/embed/{video_id}"
+    if "youtu.be/" in value:
+        video_id = value.split("youtu.be/", 1)[1].split("?", 1)[0].split("/", 1)[0]
+        return f"https://www.youtube.com/embed/{video_id}"
+    return value
+
+
+def load_videos():
+    if os.path.exists(YOUTUBE_FILE):
+        try:
+            with open(YOUTUBE_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return []
+    return []
+
+
+def save_videos(videos):
+    with open(YOUTUBE_FILE, "w", encoding="utf-8") as f:
+        json.dump(videos, f, indent=2)
+
+
+def store_uploaded_video(uploaded_file):
+    if not uploaded_file or not getattr(uploaded_file, "filename", ""):
+        return ""
+
+    raw_name = os.path.basename(uploaded_file.filename)
+    name, ext = os.path.splitext(raw_name)
+    safe_name = re.sub(r"[^A-Za-z0-9._-]+", "_", name) or "video"
+    target_name = f"{safe_name}{ext or '.mp4'}"
+    count = 1
+    while os.path.exists(os.path.join(UPLOADS_DIR, target_name)):
+        target_name = f"{safe_name}_{count}{ext or '.mp4'}"
+        count += 1
+
+    uploaded_file.save(os.path.join(UPLOADS_DIR, target_name))
+    return f"/uploads/videos/{target_name}"
+
+
+@app.route("/api/youtube/videos", methods=["GET"])
+def api_youtube_videos():
+    videos = load_videos()
+    return jsonify({"ok": True, "videos": videos})
+
+@app.route("/api/youtube/videos", methods=["POST"])
+def api_youtube_create_video():
+    if request.is_json:
+        d = request.get_json(silent=True) or {}
+        uploaded_file = None
+    else:
+        d = request.form.to_dict()
+        uploaded_file = request.files.get("video")
+
+    title = (d.get("title") or "").strip()
+    desc = (d.get("description") or "").strip()
+    video_url = normalize_youtube_url(d.get("videoUrl") or "")
+    thumbnail_url = (d.get("thumbnailUrl") or "").strip()
+    if not title:
+        return jsonify({"ok": False, "error": "Title required"}), 400
+
+    uploaded_path = store_uploaded_video(uploaded_file) if uploaded_file else ""
+    if uploaded_path:
+        video_url = uploaded_path
+
+    videos = load_videos()
+    video = {
+        "id": len(videos) + 1,
+        "title": title,
+        "description": desc,
+        "videoUrl": video_url or "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "thumbnailUrl": thumbnail_url or "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80",
+        "author": session.get("username") or session.get("user") or "guest",
+        "views": 0,
+        "likes": 0,
+        "comments": []
+    }
+    videos.insert(0, video)
+    save_videos(videos)
+    return jsonify({"ok": True, "videos": videos})
+
+@app.route("/api/youtube/videos/<int:video_id>/comment", methods=["POST"])
+def api_youtube_comment(video_id):
+    d = request.get_json(silent=True) or {}
+    text = (d.get("text") or "").strip()
+    if not text:
+        return jsonify({"ok": False, "error": "Comment required"}), 400
+    videos = load_videos()
+    for video in videos:
+        if video.get("id") == video_id:
+            video.setdefault("comments", []).append({
+                "author": session.get("username") or session.get("user") or "guest",
+                "text": text
+            })
+            save_videos(videos)
+            return jsonify({"ok": True, "video": video})
+    return jsonify({"ok": False, "error": "Video not found"}), 404
 
 # ── OAUTH ─────────────────────────────────────────────────
 import urllib.parse, urllib.request, secrets
@@ -1416,6 +1630,7 @@ def api_unlink():
     return jsonify({"ok": True})
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", "5000"))
     print("\n  ArunCode backend starting...")
-    print("  Open -> http://127.0.0.1:5000\n")
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True, allow_unsafe_werkzeug=True)
+    print(f"  Open -> http://127.0.0.1:{port}\n")
+    socketio.run(app, host="0.0.0.0", port=port, debug=True, allow_unsafe_werkzeug=True)

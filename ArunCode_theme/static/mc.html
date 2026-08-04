@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArunCode — Minecraft</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050a05;--bg2:#080f08;--bg3:#0d160d;--green:#39ff14;--gdim:#1a7a06;--blue:#00cfff;--bdim:#005577;--border:#0a1a0a;--text:#6a9a6a;--textb:#c0dcc0;--mono:'Share Tech Mono',monospace;--title:'Orbitron',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:2rem}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);pointer-events:none;z-index:9999}
+.title{font-family:var(--title);font-size:1.5rem;font-weight:900;color:var(--green);text-shadow:0 0 20px var(--gdim);letter-spacing:3px;text-align:center}
+.sub{font-size:11px;color:var(--text);letter-spacing:2px;text-align:center}
+.mirrors{display:flex;flex-direction:column;gap:.6rem;width:100%;max-width:500px}
+.mirror-btn{background:var(--bg2);border:1px solid var(--border);color:var(--textb);font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:.8rem 1.2rem;cursor:pointer;transition:all .2s;display:flex;justify-content:space-between;align-items:center;text-decoration:none}
+.mirror-btn:hover{border-color:var(--gdim);background:var(--bg3);color:var(--green)}
+.mirror-label{font-size:9px;color:var(--gdim);letter-spacing:2px}
+.server-note{font-size:10px;color:var(--text);text-align:center;max-width:500px;line-height:1.8;border:1px solid var(--border);padding:.8rem;background:var(--bg2)}
+.server-note b{color:var(--green)}
+.back{font-size:10px;color:var(--bdim);text-decoration:none;letter-spacing:1px;margin-top:.5rem}
+.back:hover{color:var(--blue)}
+</style>
+</head>
+<body>
+
+<div class="title">⛏ MINECRAFT</div>
+<div class="sub">BROWSER EDITION — EAGLERCRAFT</div>
+
+<div class="mirrors">
+  <div style="font-size:9px;letter-spacing:3px;color:var(--gdim);margin-bottom:.3rem">SELECT A WORKING MIRROR:</div>
+
+  <a class="mirror-btn" href="https://eagler.cc" target="_blank">
+    <span>&#9654; eagler.cc</span>
+    <span class="mirror-label">MIRROR 1</span>
+  </a>
+  <a class="mirror-btn" href="https://eaglercraft.sk" target="_blank">
+    <span>&#9654; eaglercraft.sk</span>
+    <span class="mirror-label">MIRROR 2</span>
+  </a>
+  <a class="mirror-btn" href="https://eaglercraft.5v.pl" target="_blank">
+    <span>&#9654; eaglercraft.5v.pl</span>
+    <span class="mirror-label">MIRROR 3</span>
+  </a>
+  <a class="mirror-btn" href="https://mc.leganerd.com/1.8.8/" target="_blank">
+    <span>&#9654; mc.leganerd.com</span>
+    <span class="mirror-label">MIRROR 4</span>
+  </a>
+  <a class="mirror-btn" href="https://eaglercraft.us.to" target="_blank">
+    <span>&#9654; eaglercraft.us.to</span>
+    <span class="mirror-label">MIRROR 5</span>
+  </a>
+</div>
+
+<div class="server-note">
+  <b>Real Servers:</b> After loading, press <b>Multiplayer</b> → <b>Direct Connect</b> and enter:<br><br>
+  <b>play.hypixel.net</b> — Hypixel (biggest server)<br>
+  <b>play.cubecraft.net</b> — CubeCraft<br>
+  <b>play.wynncraft.com</b> — Wynncraft RPG<br><br>
+  Uses your <b>school Microsoft account</b> — no paying.
+</div>
+
+<a class="back" href="/playstation">← BACK TO PLAYSTATION</a>
+
+</body>
+</html>

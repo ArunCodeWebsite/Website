@@ -1,1 +1,0 @@
-answer = input("")hi = answer

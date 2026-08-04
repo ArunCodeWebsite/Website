@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "from_user": "ArunC",
+    "from_addr": "chandrasekarana@student.rcdsb.on.ca",
+    "to_user": "SujaC",
+    "to_addr": "you@gmail.com",
+    "subject": "hi",
+    "body": "Hi",
+    "date": "2026-07-28 16:29",
+    "read": false,
+    "starred": false
+  },
+  {
+    "id": 2,
+    "from_user": "ArunC",
+    "from_addr": "chandrasekarana@student.rcdsb.on.ca",
+    "to_user": "ArunC",
+    "to_addr": "chandrasekarana@student.rcdsb.on.ca",
+    "subject": "Hi",
+    "body": "Hi",
+    "date": "2026-07-28 18:30",
+    "read": true,
+    "starred": false
+  }
+]

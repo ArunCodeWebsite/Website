@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ArunCode_Youtube</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0f172a; --panel:#111827; --panel-2:#1f2937; --text:#f9fafb; --muted:#9ca3af; --accent:#ff0000; --good:#22c55e; }
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    a{color:inherit;text-decoration:none}
+    .topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:#0b1220;border-bottom:1px solid rgba(255,255,255,.08)}
+    .brand{font-weight:800;font-size:1.2rem;letter-spacing:.5px}
+    .brand span{color:var(--accent)}
+    .wrap{max-width:1400px;margin:0 auto;padding:20px}
+    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-bottom:18px}
+    .card{background:var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px}
+    .video-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+    .video-player{background:#000;border-radius:16px;overflow:hidden}
+    .video-player video,.video-player iframe{width:100%;height:360px;border:0;display:block;background:#000}
+    .video-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+    .thumb-card{background:var(--panel-2);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px;cursor:pointer}
+    .thumb-card img{width:100%;height:140px;object-fit:cover;border-radius:10px}
+    .btn{border:none;border-radius:999px;padding:10px 14px;background:var(--accent);color:white;font-weight:700;cursor:pointer}
+    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,.14);color:var(--text)}
+    .pill{display:inline-block;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.08);font-size:.75rem;color:var(--muted);margin-bottom:6px}
+    .muted{color:var(--muted)}
+    .comment{background:rgba(255,255,255,.05);padding:8px 10px;border-radius:10px;margin-top:8px}
+    .form input,.form textarea,.form input[type="file"]{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.1);margin-bottom:8px;background:#f9fafb;color:#111827}
+    .stats{display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 10px}
+    .stats span{background:rgba(255,255,255,.08);padding:6px 8px;border-radius:999px;font-size:.82rem}
+    .upload-hint{font-size:.85rem;color:var(--muted);margin:-4px 0 10px}
+    @media (max-width: 900px){.hero,.video-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">ArunCode<span>Tube</span></div>
+    <div><a class="btn secondary" href="/">← Launcher</a></div>
+  </div>
+
+  <div class="wrap">
+    <div class="hero">
+      <div class="card">
+        <div class="pill">Community videos</div>
+        <h1 style="margin:6px 0 8px">ArunCode_Youtube</h1>
+        <div class="muted">Watch videos, upload your own, comment, and subscribe in a YouTube-like community hub.</div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">Upload a video</h3>
+        <div class="upload-hint">Create and publish videos directly inside ArunCode.</div>
+        <form id="uploadForm" class="form" enctype="multipart/form-data">
+          <input id="title" name="title" placeholder="Title" required>
+          <textarea id="description" name="description" rows="4" placeholder="Description"></textarea>
+          <input id="videoFile" name="video" type="file" accept="video/*">
+          <input id="videoUrl" name="videoUrl" placeholder="YouTube URL (optional)">
+          <input id="thumbnailUrl" name="thumbnailUrl" placeholder="Thumbnail URL (optional)">
+          <button class="btn" type="submit">Publish</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="video-grid">
+      <div class="card">
+        <div id="activeVideo"></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">Recommended</h3>
+        <div id="videoList" class="video-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let videos = [];
+    let selectedVideo = null;
+
+    async function loadVideos() {
+      try {
+        const res = await fetch('/api/youtube/videos', {credentials:'same-origin'});
+        const data = await res.json();
+        if (data.ok) {
+          videos = data.videos || [];
+          if (!selectedVideo && videos.length) selectedVideo = videos[0];
+          render();
+        }
+      } catch (err) {
+        document.getElementById('videoList').innerHTML = '<div class="muted">Unable to load videos right now.</div>';
+      }
+    }
+
+    function render() {
+      const active = document.getElementById('activeVideo');
+      const list = document.getElementById('videoList');
+      if (!videos.length) {
+        active.innerHTML = '<div class="muted">No videos yet. Publish the first one.</div>';
+        list.innerHTML = '<div class="muted">No videos loaded.</div>';
+        return;
+      }
+
+      const current = selectedVideo || videos[0];
+      const isUploadedVideo = (current.videoUrl || '').startsWith('/uploads/videos/');
+      active.innerHTML = `
+        <div class="video-player">
+          ${isUploadedVideo ? `<video controls autoplay playsinline src="${current.videoUrl}"></video>` : `<iframe src="${current.videoUrl || 'https://www.youtube.com/embed/dQw4w9WgXcQ'}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`}
+        </div>
+        <h2 style="margin:12px 0 6px">${current.title}</h2>
+        <div class="muted">${current.description || 'No description provided.'}</div>
+        <div class="stats">
+          <span>👁 ${current.views || 0} views</span>
+          <span>👍 ${current.likes || 0} likes</span>
+          <span>👤 ${current.author || 'guest'}</span>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+          <button class="btn" type="button" onclick="subscribeVideo(${current.id})">Subscribe</button>
+          <button class="btn secondary" type="button" onclick="commentVideo(${current.id})">Comment</button>
+        </div>
+        <div style="margin-top:12px">
+          <strong>Community chat</strong>
+          <div id="comments-${current.id}"></div>
+          <input id="comment-${current.id}" placeholder="Write a comment..." style="margin-top:8px">
+        </div>`;
+      renderComments(current);
+
+      list.innerHTML = '';
+      videos.forEach(video => {
+        const card = document.createElement('div');
+        card.className = 'thumb-card';
+        card.onclick = () => { selectedVideo = video; render(); };
+        card.innerHTML = `
+          <img src="${video.thumbnailUrl || 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80'}" alt="${video.title}">
+          <div style="margin-top:8px;font-weight:700">${video.title}</div>
+          <div class="muted" style="font-size:.85rem">${video.author || 'guest'}</div>`;
+        list.appendChild(card);
+      });
+    }
+
+    function renderComments(video) {
+      const box = document.getElementById(`comments-${video.id}`);
+      if (!box) return;
+      box.innerHTML = '';
+      (video.comments || []).forEach(comment => {
+        const row = document.createElement('div');
+        row.className = 'comment';
+        row.innerHTML = `<strong>${comment.author}</strong><div>${comment.text}</div>`;
+        box.appendChild(row);
+      });
+    }
+
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const title = formData.get('title')?.toString().trim();
+      if (!title) return;
+      try {
+        const res = await fetch('/api/youtube/videos', {method:'POST', credentials:'same-origin', body:formData});
+        const data = await res.json();
+        if (data.ok) {
+          form.reset();
+          selectedVideo = data.videos[0];
+          videos = data.videos;
+          render();
+        } else {
+          alert(data.error || 'Unable to publish video.');
+        }
+      } catch (err) {
+        alert('Upload failed. Please try again.');
+      }
+    });
+
+    async function subscribeVideo(videoId) {
+      await fetch(`/api/youtube/videos/${videoId}/comment`, {method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:'Subscribed to this channel'})});
+      loadVideos();
+    }
+
+    async function commentVideo(videoId) {
+      const input = document.getElementById(`comment-${videoId}`);
+      const text = input.value.trim();
+      if (!text) return;
+      await fetch(`/api/youtube/videos/${videoId}/comment`, {method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text})});
+      input.value = '';
+      loadVideos();
+    }
+
+    loadVideos();
+  </script>
+</body>
+</html>
